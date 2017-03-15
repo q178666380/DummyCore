@@ -19,7 +19,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public final class CreativePageItems extends CreativeTabs{
 	public int delayTime = 0;
-	public ItemStack displayStack = new ItemStack(Items.iron_axe,1,0);
+	public ItemStack displayStack = new ItemStack(Items.IRON_AXE,1,0);
 	private final String tabLabel;
 	public List<ItemStack> itemList = new ArrayList<ItemStack>();
 	public int tries = 0;
@@ -44,9 +44,9 @@ public final class CreativePageItems extends CreativeTabs{
     	++tries;
     	if(this.itemList.isEmpty() && tries <= 1)
     	{
-	    	for(int t = 0; t < Item.itemRegistry.getKeys().size(); ++t)
+	    	for(int t = 0; t < Item.REGISTRY.getKeys().size(); ++t)
 	    	{
-	    		Item itm = (Item) Item.getByNameOrId(((ResourceLocation) Item.itemRegistry.getKeys().toArray()[t]).toString());
+	    		Item itm = (Item) Item.getByNameOrId(((ResourceLocation) Item.REGISTRY.getKeys().toArray()[t]).toString());
 	    		if(itm != null && itm.getCreativeTab() == this)
 	    		{
 	    			List<ItemStack> lst = new ArrayList<ItemStack>();
@@ -78,6 +78,6 @@ public final class CreativePageItems extends CreativeTabs{
 
 	@Override
 	public Item getTabIconItem() {
-		return Items.iron_axe;
+		return Items.IRON_AXE;
 	}
 }

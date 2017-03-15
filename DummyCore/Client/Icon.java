@@ -1,15 +1,12 @@
 package DummyCore.Client;
 
-import DummyCore.Utils.IOldCubicBlock;
-import DummyCore.Utils.IOldItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 /**
@@ -28,22 +25,16 @@ public class Icon {
 	
 	public static Icon fromBlock(IBlockState state)
 	{
-		if(state.getBlock() instanceof IOldCubicBlock)
-			return IOldCubicBlock.class.cast(state.getBlock()).getIcon(0, state.getBlock().getMetaFromState(state));
 		return new Icon(Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture(state));
 	}
 	
 	public static Icon fromBlock(Block b, int meta)
 	{
-		if(b instanceof IOldCubicBlock)
-			return IOldCubicBlock.class.cast(b).getIcon(0, meta);
 		return fromBlock(b.getStateFromMeta(meta));
 	}
 	
 	public static Icon fromBlock(Block b)
 	{
-		if(b instanceof IOldCubicBlock)
-			return IOldCubicBlock.class.cast(b).getIcon(0, 0);
 		return fromBlock(b.getDefaultState());
 	}
 	
@@ -59,10 +50,6 @@ public class Icon {
 	
 	public static Icon fromItem(Item itm, int meta)
 	{
-		if(itm instanceof ItemBlock && ItemBlock.class.cast(itm).getBlock() instanceof IOldCubicBlock)
-			return IOldCubicBlock.class.cast(ItemBlock.class.cast(itm).getBlock()).getIcon(0, meta);
-		if(itm instanceof IOldItem)
-			return IOldItem.class.cast(itm).getIconFromDamage(meta);
 		return new Icon(Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getParticleIcon(itm, meta));
 	}
 	

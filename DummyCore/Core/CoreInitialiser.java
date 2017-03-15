@@ -29,6 +29,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
@@ -43,11 +44,11 @@ import net.minecraftforge.fml.relauncher.Side;
  */
 @Mod(modid = modid, name = modname, version = version, useMetadata = false,acceptedMinecraftVersions=mcVersion)
 public class CoreInitialiser{
-	public static final String modid = "DummyCore";
-	public static final String modname = "DummyCore";
+	public static final String modid = "dummycore";
+	public static final String modname = "DummyCoreUnofficial";
 	public static final String globalVersion = "2";
-	public static final String modVersion = "2";
-	public static final String mcVersion = "1.8.9";
+	public static final String modVersion = "3";
+	public static final String mcVersion = "1.10.2";
 	public static final String modmcVersion = "189";
 	public static final String buildVersion = "0";
 	public static final String buildPostfix = "";
@@ -72,7 +73,8 @@ public class CoreInitialiser{
 	            "Modbder",
 	            "TheDen2099",
 	            "MrDangerDen",
-	            "TheMysticDark"
+	            "TheMysticDark",
+	            "TheLMiffy1111"
 	        });
 		meta.description="Dummy Core is a required package to launch mods made by Dummy Thinking team.";
 	}
@@ -94,10 +96,8 @@ public class CoreInitialiser{
 		MinecraftForge.EVENT_BUS.register(new DummyEventHandler());
 		MinecraftForge.EVENT_BUS.register(new DummyDataUtils());
 		
-		proxy.registerInfo();
-		
 		if(Loader.isModLoaded(modid))
-			LoadingUtils.knownBigASMModifiers.add("DummyCore");
+			LoadingUtils.knownBigASMModifiers.add("dummycore");
 		if(Loader.isModLoaded("DragonAPI"))
 			LoadingUtils.knownBigASMModifiers.add("DragonAPI"); //<- I have nothing against Reika, I like his mods, I just like to point out that DragonAPI adds quite a lot of ASM hooks
 		if(Loader.isModLoaded("Optifine") || Loader.isModLoaded("optifine"))
@@ -119,6 +119,8 @@ public class CoreInitialiser{
 		
 		FMLCommonHandler.instance().registerCrashCallable(new DCCrashCallable());
 		ModVersionChecker.addRequest(getClass(), "https://www.dropbox.com/s/iwdfv0mc4qns00f/DummyCoreVersion.txt?dl=1");
+		
+		proxy.registerInfo();
 	}
 	
 	@EventHandler
@@ -126,7 +128,12 @@ public class CoreInitialiser{
 	{
 		NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
 		proxy.registerInit();
-		
+	}
+	
+	@EventHandler
+	public void postInit(FMLPostInitializationEvent e)
+	{
+		proxy.registerPostInit();
 	}
 	
 	@EventHandler

@@ -5,6 +5,7 @@ import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -23,7 +24,7 @@ public class GuiButton_ChangeGUI extends GuiButton{
     {
 		if(!(Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu))
 			return;
-		p_146113_1_.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+		p_146113_1_.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 		Minecraft.getMinecraft().displayGuiScreen(new GuiMenuList(Minecraft.getMinecraft().currentScreen));
     }
 

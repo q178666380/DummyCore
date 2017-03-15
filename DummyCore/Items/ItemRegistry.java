@@ -3,12 +3,9 @@ package DummyCore.Items;
 import java.util.Hashtable;
 
 import DummyCore.Core.Core;
-import DummyCore.Utils.IOldItem;
-import DummyCore.Utils.OldTextureHandler;
+import DummyCore.Core.CoreInitialiser;
 import net.minecraft.item.Item;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * 
@@ -33,17 +30,8 @@ public class ItemRegistry {
 	 */
 	public static void registerItem(Item i, String name, Class<?> modClass)
 	{
-		Side s = FMLCommonHandler.instance().getEffectiveSide();
-		if(s == Side.CLIENT)
-		{
-			if(Core.getItemTabForMod(modClass) != null)
-			{
-				i.setCreativeTab(Core.getItemTabForMod(modClass));
-				itemsList.put(i, Core.getItemTabForMod(modClass).getTabLabel());
-			}
-			if(i instanceof IOldItem)
-				OldTextureHandler.addOldItem(Core.getModFromClass(modClass).modid+":"+name, i);
-		}
-		GameRegistry.registerItem(i, name);
+		i.setRegistryName(Core.getModFromClass(modClass).modid, name);
+		GameRegistry.register(i);
+		CoreInitialiser.proxy.handleItemRegister(i, name, modClass);
 	}	
 }

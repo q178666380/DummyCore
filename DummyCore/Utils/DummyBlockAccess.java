@@ -6,17 +6,20 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import DummyCore.Core.CoreInitialiser;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
@@ -24,8 +27,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
-import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.world.biome.WorldChunkManager;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeProvider;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.ISaveHandler;
@@ -38,13 +41,13 @@ import net.minecraftforge.oredict.OreDictionary;
  * <br>Most methods are undocumented, since a)They are self-describing, and b)You can always check what they do in vanilla's World class
  * @author ljfa-ag, modbder
  */
-public class DummyBlockAccess implements IBlockAccess{
+public class DummyBlockAccess implements IBlockAccess {
 
     public Block[][][] block;
     public byte[][][] meta;
     public TileEntity[][][] tile;
     public int xSize, ySize, zSize;
-    public BiomeGenBase dummyBiome = BiomeGenBase.ocean;
+    public Biome dummyBiome = Biomes.OCEAN;
     public World defaultWorld;
     public Hashtable<Block,Integer[]> cachedMetas = new Hashtable<Block,Integer[]>();
     public int cycleTimer = 60;
@@ -169,7 +172,7 @@ public class DummyBlockAccess implements IBlockAccess{
      * @param bgb new biome to set
      * @return current DummyBlockAccess
      */
-    public DummyBlockAccess setBiomeToRender(BiomeGenBase bgb)
+    public DummyBlockAccess setBiomeToRender(Biome bgb)
     {
     	dummyBiome = bgb;
     	return this;
@@ -191,16 +194,16 @@ public class DummyBlockAccess implements IBlockAccess{
     
     public void setBlock(int x, int y, int z, Block b, int m)
     {
-    	if(!cachedBlocksAmounts.containsKey(new Pair<Block,Integer>(b,m)))
-    		cachedBlocksAmounts.put(new Pair<Block,Integer>(b,m), 1);
+    	if(!cachedBlocksAmounts.containsKey(Pair.<Block,Integer>of(b,m)))
+    		cachedBlocksAmounts.put(Pair.<Block,Integer>of(b,m), 1);
     	else
-    		cachedBlocksAmounts.put(new Pair<Block,Integer>(b,m), cachedBlocksAmounts.get(new Pair<Block,Integer>(b,m))+1);
+    		cachedBlocksAmounts.put(Pair.<Block,Integer>of(b,m), cachedBlocksAmounts.get(Pair.<Block,Integer>of(b,m))+1);
     	setBlock(x,y,z,b);
     	setMetadata(x,y,z,m);
     }
     
 	public Block getBlock(int x, int y, int z) {
-		return isInRange(x,y,z) ? block[x][y][z] == null ? Blocks.air : block[x][y][z] : Blocks.air;
+		return isInRange(x,y,z) ? block[x][y][z] == null ? Blocks.AIR : block[x][y][z] : Blocks.AIR;
 	}
 	
 	public void setTileEntity(int x, int y, int z, TileEntity t){
@@ -238,10 +241,10 @@ public class DummyBlockAccess implements IBlockAccess{
 	}
 
 	public boolean isAirBlock(int x, int y, int z) {
-		return isInRange(x,y,z) ? block[x][y][z] == null || block[x][y][z].isAir(this, new BlockPos(x, y, z)) : true;
+		return isInRange(x,y,z) ? block[x][y][z] == null || block[x][y][z].isAir(this.getBlockState(new BlockPos(x, y, z)), this, new BlockPos(x, y, z)) : true;
 	}
 
-	public BiomeGenBase getBiomeGenForCoords(int x, int z) {
+	public Biome getBiomeGenForCoords(int x, int z) {
 		return dummyBiome;
 	}
 
@@ -249,13 +252,8 @@ public class DummyBlockAccess implements IBlockAccess{
 		return 0;
 	}
 
-	@Override
-	public boolean extendedLevelsInChunkCache() {
-		return false;
-	}
-
 	public boolean isSideSolid(int x, int y, int z, EnumFacing side, boolean _default) {
-		return isInRange(x,y,z) ? block[x][y][z] == null ? _default : block[x][y][z].isSideSolid(this, new BlockPos(x, y, z), side) : _default;
+		return isInRange(x,y,z) ? block[x][y][z] == null ? _default : block[x][y][z].isSideSolid(this.getBlockState(new BlockPos(x, y, z)), this, new BlockPos(x, y, z), side) : _default;
 	}
 	
 	public static class DummyBlockPosition
@@ -282,7 +280,7 @@ public class DummyBlockAccess implements IBlockAccess{
 
 	@Override
 	public IBlockState getBlockState(BlockPos pos) {
-		return isInRange(pos.getX(),pos.getY(),pos.getZ()) ? getBlock(pos.getX(),pos.getY(),pos.getZ()).getActualState(getBlock(pos.getX(),pos.getY(),pos.getZ()).getStateFromMeta(getBlockMetadata(pos.getX(),pos.getY(),pos.getZ())), this, pos) : Blocks.air.getDefaultState();
+		return isInRange(pos.getX(),pos.getY(),pos.getZ()) ? getBlock(pos.getX(),pos.getY(),pos.getZ()).getActualState(getBlock(pos.getX(),pos.getY(),pos.getZ()).getStateFromMeta(getBlockMetadata(pos.getX(),pos.getY(),pos.getZ())), this, pos) : Blocks.AIR.getDefaultState();
 	}
 
 	@Override
@@ -291,7 +289,7 @@ public class DummyBlockAccess implements IBlockAccess{
 	}
 
 	@Override
-	public BiomeGenBase getBiomeGenForCoords(BlockPos pos) {
+	public Biome getBiomeGenForCoords(BlockPos pos) {
 		return getBiomeGenForCoords(pos.getX(),pos.getZ());
 	}
 
@@ -324,19 +322,19 @@ public class DummyBlockAccess implements IBlockAccess{
 			super(saveHandlerIn, info, providerIn, profilerIn, client);
 		}
 		
-	    public BiomeGenBase getBiomeGenForCoords(final BlockPos pos)
+	    public Biome getBiomeGenForCoords(final BlockPos pos)
 	    {
 	    	return access.getBiomeGenForCoords(pos);
 	    }
 	    
-	    public BiomeGenBase getBiomeGenForCoordsBody(final BlockPos pos)
+	    public Biome getBiomeGenForCoordsBody(final BlockPos pos)
 	    {
 	    	return access.getBiomeGenForCoords(pos);
 	    }
 	    
-	    public WorldChunkManager getWorldChunkManager()
+	    public BiomeProvider getBiomeProvider()
 	    {
-	    	return CoreInitialiser.proxy.getWorldForDim(0).getWorldChunkManager();
+	    	return CoreInitialiser.proxy.getWorldForDim(0).getBiomeProvider();
 	    }
 	    
 	    protected IChunkProvider createChunkProvider()
@@ -348,7 +346,7 @@ public class DummyBlockAccess implements IBlockAccess{
 	    
 	    public void setInitialSpawnLocation(){}
 	    
-	    public Block getGroundAboveSeaLevel(BlockPos pos){
+	    public IBlockState getGroundAboveSeaLevel(BlockPos pos){
 	        BlockPos blockpos;
 
 	        for (blockpos = new BlockPos(pos.getX(), this.getSeaLevel(), pos.getZ()); !access.isAirBlock(blockpos.up()); blockpos = blockpos.up())
@@ -356,7 +354,7 @@ public class DummyBlockAccess implements IBlockAccess{
 	            ;
 	        }
 
-	        return access.getBlockState(blockpos).getBlock();
+	        return access.getBlockState(blockpos);
 	    }
 	    
 	    public boolean isAirBlock(BlockPos pos)
@@ -389,7 +387,7 @@ public class DummyBlockAccess implements IBlockAccess{
 	    
 	    public boolean setBlockToAir(BlockPos pos)
 	    {
-	    	access.setBlock(pos.getX(), pos.getY(), pos.getZ(), Blocks.air);
+	    	access.setBlock(pos.getX(), pos.getY(), pos.getZ(), Blocks.AIR);
 	    	return true;
 	    }
 	    

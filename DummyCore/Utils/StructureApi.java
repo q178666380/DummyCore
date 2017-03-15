@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 
 import DummyCore.Core.Core;
@@ -24,8 +25,8 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -114,7 +115,7 @@ public class StructureApi
 						{
 							String coords = String.valueOf(dx-aabb.minX-(aabb.maxX-aabb.minX)/2)+"|"+String.valueOf(dy-aabb.minY)+"|"+String.valueOf(dz-aabb.minZ-(aabb.maxZ-aabb.minZ)/2);
 							if(!tag.hasKey(coords))
-								tag.setString(coords, GameRegistry.findUniqueIdentifierFor(b).toString());
+								tag.setString(coords, b.getRegistryName().toString());
 						}
 					}
 				}
@@ -202,7 +203,7 @@ public class StructureApi
 						{
 							String coords = String.valueOf(dx-aabb.minX-(aabb.maxX-aabb.minX)/2)+"|"+String.valueOf(dy-aabb.minY)+"|"+String.valueOf(dz-aabb.minZ-(aabb.maxZ-aabb.minZ)/2);
 							if(!tag.hasKey(coords))
-								tag.setString(coords, GameRegistry.findUniqueIdentifierFor(b).toString()+"|"+w.getBlockState(new BlockPos(dx, dy, dz)).getBlock().getMetaFromState(w.getBlockState(new BlockPos(dx, dy, dz))));
+								tag.setString(coords, b.getRegistryName().toString()+"|"+w.getBlockState(new BlockPos(dx, dy, dz)).getBlock().getMetaFromState(w.getBlockState(new BlockPos(dx, dy, dz))));
 						}
 					}
 				}
@@ -249,8 +250,8 @@ public class StructureApi
 			else
 				meta = 0;
 			
-			Pair<Block, Integer> blockAndMeta = new Pair<Block, Integer>(b,meta);
-			structure.add(new Pair<Coord3D,Pair<Block,Integer>>(blockCoord,blockAndMeta));
+			Pair<Block,Integer> blockAndMeta = Pair.<Block,Integer>of(b,meta);
+			structure.add(Pair.<Coord3D,Pair<Block,Integer>>of(blockCoord,blockAndMeta));
 		}
 		
 		keys.clear();
@@ -258,12 +259,12 @@ public class StructureApi
 		
 		for(Pair<Coord3D,Pair<Block,Integer>> put : structure)
 		{
-			Coord3D c = put.getFirst();
+			Coord3D c = put.getLeft();
 			int dx = (int) (c.x+x);
 			int dy = (int) (c.y+y);
 			int dz = (int) (c.z+z);
-			Pair<Block,Integer> pa = put.getSecond();
-			w.setBlockState(new BlockPos(dx, dy, dz), pa.getFirst().getStateFromMeta(pa.getSecond()), 2);
+			Pair<Block,Integer> pa = put.getRight();
+			w.setBlockState(new BlockPos(dx, dy, dz), pa.getLeft().getStateFromMeta(pa.getRight()), 2);
 		}
 		
 		structure.clear();

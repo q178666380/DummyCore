@@ -17,8 +17,8 @@ public enum EnumRarityColor {
 	EXCEPTIONAL("b","Exceptional"),
 	PERFECT("3","Perfect"),
 	ULTIMATE("c","Ultimate"),
-	TURQUOISE("4","Turquoise"),
-	;
+	TURQUOISE("4","Turquoise");
+	
 	EnumRarityColor(String s, String s1)
 	{
 		value = s;
@@ -52,5 +52,4 @@ public enum EnumRarityColor {
 		}
 		return retColor;
 	}
-
 }

@@ -1,10 +1,10 @@
 package DummyCore.Utils;
 
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * In 1.8 Mojang changed the AxisAlignedBB's min/max params to be final, which made a lot of things inconvinient for me
@@ -223,7 +223,7 @@ public class ExtendedAABB {
         return other.maxX > this.minX && other.minX < this.maxX ? (other.maxY > this.minY && other.minY < this.maxY ? other.maxZ > this.minZ && other.minZ < this.maxZ : false) : false;
     }
 
-    public boolean isVecInside(Vec3 vec)
+    public boolean isVecInside(Vec3d vec)
     {
         return vec.xCoord > this.minX && vec.xCoord < this.maxX ? (vec.yCoord > this.minY && vec.yCoord < this.maxY ? vec.zCoord > this.minZ && vec.zCoord < this.maxZ : false) : false;
     }
@@ -247,14 +247,14 @@ public class ExtendedAABB {
         return new ExtendedAABB(d3, d4, d5, d6, d7, d8);
     }
 
-    public MovingObjectPosition calculateIntercept(Vec3 p_72327_1_, Vec3 p_72327_2_)
+    public RayTraceResult calculateIntercept(Vec3d p_72327_1_, Vec3d p_72327_2_)
     {
-        Vec3 vec32 = p_72327_1_.getIntermediateWithXValue(p_72327_2_, this.minX);
-        Vec3 vec33 = p_72327_1_.getIntermediateWithXValue(p_72327_2_, this.maxX);
-        Vec3 vec34 = p_72327_1_.getIntermediateWithYValue(p_72327_2_, this.minY);
-        Vec3 vec35 = p_72327_1_.getIntermediateWithYValue(p_72327_2_, this.maxY);
-        Vec3 vec36 = p_72327_1_.getIntermediateWithZValue(p_72327_2_, this.minZ);
-        Vec3 vec37 = p_72327_1_.getIntermediateWithZValue(p_72327_2_, this.maxZ);
+        Vec3d vec32 = p_72327_1_.getIntermediateWithXValue(p_72327_2_, this.minX);
+        Vec3d vec33 = p_72327_1_.getIntermediateWithXValue(p_72327_2_, this.maxX);
+        Vec3d vec34 = p_72327_1_.getIntermediateWithYValue(p_72327_2_, this.minY);
+        Vec3d vec35 = p_72327_1_.getIntermediateWithYValue(p_72327_2_, this.maxY);
+        Vec3d vec36 = p_72327_1_.getIntermediateWithZValue(p_72327_2_, this.minZ);
+        Vec3d vec37 = p_72327_1_.getIntermediateWithZValue(p_72327_2_, this.maxZ);
 
         if (!this.isVecInYZ(vec32))
         {
@@ -286,7 +286,7 @@ public class ExtendedAABB {
             vec37 = null;
         }
 
-        Vec3 vec38 = null;
+        Vec3d vec38 = null;
 
         if (vec32 != null)
         {
@@ -349,20 +349,20 @@ public class ExtendedAABB {
 		    enumfacing = EnumFacing.SOUTH;
 		}
 
-		return new MovingObjectPosition(vec38, enumfacing);
+		return new RayTraceResult(vec38, enumfacing);
     }
 
-    public boolean isVecInYZ(Vec3 vec)
+    public boolean isVecInYZ(Vec3d vec)
     {
         return vec == null ? false : vec.yCoord >= this.minY && vec.yCoord <= this.maxY && vec.zCoord >= this.minZ && vec.zCoord <= this.maxZ;
     }
 
-    public boolean isVecInXZ(Vec3 vec)
+    public boolean isVecInXZ(Vec3d vec)
     {
         return vec == null ? false : vec.xCoord >= this.minX && vec.xCoord <= this.maxX && vec.zCoord >= this.minZ && vec.zCoord <= this.maxZ;
     }
 
-    public boolean isVecInXY(Vec3 vec)
+    public boolean isVecInXY(Vec3d vec)
     {
         return vec == null ? false : vec.xCoord >= this.minX && vec.xCoord <= this.maxX && vec.yCoord >= this.minY && vec.yCoord <= this.maxY;
     }

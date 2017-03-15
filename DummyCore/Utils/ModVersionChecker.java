@@ -12,9 +12,9 @@ import java.util.Hashtable;
 import java.util.regex.PatternSyntaxException;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatStyle;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextFormatting;
 import DummyCore.Core.Core;
 import DummyCore.Core.CoreInitialiser;
 import DummyCore.Core.DCMod;
@@ -139,7 +139,7 @@ public class ModVersionChecker {
 			default:
 				break;
 			}
-			player.addChatMessage(new ChatComponentText(steppedString).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+			player.addChatMessage(new TextComponentString(steppedString).setStyle(new Style().setColor(TextFormatting.RED)));
 		}
 	}
 	
@@ -148,7 +148,7 @@ public class ModVersionChecker {
 	{
 		EntityPlayer player = CoreInitialiser.proxy.getClientPlayer();
 		if(player != null)
-			player.addChatMessage(new ChatComponentText(String.format("%s is outdated(Your version is %s, latest is %s)! Consider updating!", mod.ufName, mod.version, latest)).setChatStyle(new ChatStyle().setColor(EnumChatFormatting.RED)));
+			player.addChatMessage(new TextComponentString(String.format("%s is outdated(Your version is %s, latest is %s)! Consider updating!", mod.ufName, mod.version, latest)).setStyle(new Style().setColor(TextFormatting.RED)));
 	}
 	
 	//Internal

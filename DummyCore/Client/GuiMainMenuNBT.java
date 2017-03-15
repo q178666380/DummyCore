@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
@@ -21,7 +22,6 @@ import DummyCore.Utils.Coord2D;
 import DummyCore.Utils.DummyConfig;
 import DummyCore.Utils.IMainMenu;
 import DummyCore.Utils.Notifier;
-import DummyCore.Utils.Pair;
 import DummyCore.Utils.TessellatorWrapper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -34,11 +34,13 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
@@ -167,7 +169,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 	        ++tickTime;
 	        if(!menuTextures.isEmpty())
 	        {
-	        	int maxTicks = menuTextures.get(textureIndex).getFirst() + (menuType == 3 ? 0 : overlayTimeList.get(textureIndex));
+	        	int maxTicks = menuTextures.get(textureIndex).getLeft() + (menuType == 3 ? 0 : overlayTimeList.get(textureIndex));
 	        	if(tickTime >= maxTicks)
 	        	{
 	        		if(textureIndex+1 >= menuTextures.size())
@@ -218,7 +220,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
     		this.drawBackground(textureRepeat);
     	if(menuType == 3)
     	{
-	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getSecond());
+	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getRight());
 	    	TessellatorWrapper tec = TessellatorWrapper.getInstance();
 	    	tec.startDrawingQuads();
 	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
@@ -229,8 +231,8 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
     	}
     	if(menuType == 4)
     	{
-    		int maxTicks = menuTextures.get(textureIndex).getFirst();
-	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getSecond());
+    		int maxTicks = menuTextures.get(textureIndex).getLeft();
+	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getRight());
 	    	TessellatorWrapper tec = TessellatorWrapper.getInstance();
 	    	tec.startDrawingQuads();
 	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
@@ -244,7 +246,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
         		GL11.glEnable(GL11.GL_BLEND);
         		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
         		
-    	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex +1 >= menuTextures.size() ? 0 : textureIndex+1).getSecond());
+    	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex +1 >= menuTextures.size() ? 0 : textureIndex+1).getRight());
     	    	float maxFadeIndex = overlayTimeList.get(textureIndex);
     	    	float currentFadeIndex = (overlayTickTime + partialTicks) / maxFadeIndex;
     	    	zLevel += 10;
@@ -305,7 +307,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
         
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         
-        ForgeHooksClient.renderMainMenu(this, fontRendererObj, width, height);
+        ForgeHooksClient.renderMainMenu(this, fontRendererObj, width, height, "");
         
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         
@@ -402,7 +404,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
                 if (l == 5)
                     GL11.glRotated(-90, 1, 0, 0);
 
-                this.mc.getTextureManager().bindTexture(menuTextures.get(l).getSecond());
+                this.mc.getTextureManager().bindTexture(menuTextures.get(l).getRight());
                 tessellator.startDrawingQuads();
                 tessellator.setColorRGBA_I(0xffffff, 255 / (k + 1));
                 float f4 = 0.0F;
@@ -538,7 +540,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 						NBTTagCompound t = texts.getCompoundTagAt(j);
 						image.textAngle = t.getFloat("Angle");
 						String s = t.hasKey("Splashes") ? createRandomSplash(new ResourceLocation(t.getString("Splashes"))) : t.getString("Text");
-						image.additionalText.add(new Pair<Coord2D,String>(new Coord2D(t.getInteger("X"),t.getInteger("Y")),s));
+						image.additionalText.add(Pair.<Coord2D,String>of(new Coord2D(t.getInteger("X"),t.getInteger("Y")),s));
 					}
 				}
 				objects.add(image);
@@ -558,7 +560,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 				int sizeX = tg.getInteger("XSize");
 				int sizeY = tg.getInteger("YSize");
 				String text = tg.getString("Text");
-				CustomButton button = new CustomButton(id,x,y,sizeX,sizeY,StatCollector.canTranslate(text) ? StatCollector.translateToLocal(text) : text);
+				CustomButton button = new CustomButton(id,x,y,sizeX,sizeY,I18n.canTranslate(text) ? I18n.translateToLocal(text) : text);
 				button.texture = new ResourceLocation(tg.getString("Texture"));
 				button.sound = new ResourceLocation(tg.getString("Sound"));
 				button.minU = tg.hasKey("MinU") ? tg.getDouble("MinU") : tg.getInteger("TextureMinX")/256D;
@@ -643,7 +645,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 			for(int i = 0; i < nbtLst.tagCount(); ++i)
 			{
 				NBTTagCompound tg = nbtLst.getCompoundTagAt(i);
-				menuTextures.add(new Pair<Integer,ResourceLocation>(tg.getInteger("FadeTime"),new ResourceLocation(tg.getString("Texture"))));
+				menuTextures.add(Pair.<Integer,ResourceLocation>of(tg.getInteger("FadeTime"),new ResourceLocation(tg.getString("Texture"))));
 				overlayTimeList.add(tg.getInteger("OverlayTime"));
 			}
 		}else
@@ -799,13 +801,13 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 			{
 				for(Pair<Coord2D,String> p : additionalText)
 				{
-					String text = p.getSecond();
+					String text = p.getRight();
 					boolean splash = text.contains("|Splash|");
 					if(splash)
 						text = text.substring(8);
 					
-					double dx = p.getFirst().x;
-					double dy = p.getFirst().z;
+					double dx = p.getLeft().x;
+					double dy = p.getLeft().z;
 					GL11.glPushMatrix();
 					
 					GL11.glTranslated(x+dx, y+dy, zLevel+10);
@@ -858,7 +860,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 		
 	    public void func_146113_a(SoundHandler sh)
 	    {
-	    	sh.playSound(PositionedSoundRecord.create(sound != null ? sound : new ResourceLocation("gui.button.press"), 1.0F));
+	    	sh.playSound(PositionedSoundRecord.getMasterRecord(sound != null ? SoundEvent.REGISTRY.getObject(sound) : SoundEvents.UI_BUTTON_CLICK, 1.0F));
 	    }
 		
 	    public void drawOnScreen(int mouseX, int mouseY, float partialTicks, double zLevel)

@@ -9,7 +9,7 @@ public class TessellatorWrapper {
 	
 	public void startDrawing(int mode)
 	{
-		Tessellator.getInstance().getWorldRenderer().begin(mode, DefaultVertexFormats.POSITION_TEX);
+		Tessellator.getInstance().getBuffer().begin(mode, DefaultVertexFormats.POSITION_TEX);
 	}
 	
 	public void startDrawingQuads()
@@ -19,12 +19,12 @@ public class TessellatorWrapper {
 	
 	public void addVertexWithUV(double x, double y, double z, double u, double v)
 	{
-		Tessellator.getInstance().getWorldRenderer().pos(x, y, z).tex(u, v).endVertex();
+		Tessellator.getInstance().getBuffer().pos(x, y, z).tex(u, v).endVertex();
 	}
 	
 	public void addVertex(double x, double y, double z)
 	{
-		Tessellator.getInstance().getWorldRenderer().pos(x, y, z).endVertex();
+		Tessellator.getInstance().getBuffer().pos(x, y, z).endVertex();
 	}
 	
 	public void draw()
@@ -39,7 +39,7 @@ public class TessellatorWrapper {
 	
 	public void setColorRGBA_F(float r, float g, float b, float a)
 	{
-		Tessellator.getInstance().getWorldRenderer().color(r,g,b,a);
+		Tessellator.getInstance().getBuffer().color(r,g,b,a);
 	}
 	
 	public void setColorOpaque_I(int color)
@@ -48,7 +48,7 @@ public class TessellatorWrapper {
 	    float cG = (float)((color & 0xFF00) >> 8) / 0xff;
 	    float cB = (float)((color & 0xFF)) / 0xff;
 		
-		Tessellator.getInstance().getWorldRenderer().color(cR,cG,cB,1);
+		Tessellator.getInstance().getBuffer().color(cR,cG,cB,1);
 	}
 	
 	public void setColorRGBA_I(int color, int alpha)
@@ -57,11 +57,11 @@ public class TessellatorWrapper {
 	    float cG = (float)((color & 0xFF00) >> 8) / 0xff;
 	    float cB = (float)((color & 0xFF)) / 0xff;
 		
-		Tessellator.getInstance().getWorldRenderer().color(cR,cG,cB,(float)alpha/255);
+		Tessellator.getInstance().getBuffer().color(cR,cG,cB,(float)alpha/255);
 	}
 	
 	public void setTranslation(double x, double y, double z)
 	{
-		Tessellator.getInstance().getWorldRenderer().putPosition(x, y, z);
+		Tessellator.getInstance().getBuffer().putPosition(x, y, z);
 	}
 }

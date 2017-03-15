@@ -11,7 +11,7 @@ import DummyCore.Core.DCMod;
 import DummyCore.Utils.DCParticleEngine.LayerEntry.LayerEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.particle.EntityFX;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -35,10 +35,10 @@ import net.minecraftforge.fml.relauncher.Side;
  */
 public class DCParticleEngine {
 	
-	public static final Hashtable<LayerEntry,ArrayList<EntityFX>> particles = new Hashtable<LayerEntry,ArrayList<EntityFX>>();
+	public static final Hashtable<LayerEntry,ArrayList<Particle>> particles = new Hashtable<LayerEntry,ArrayList<Particle>>();
 	public static final ArrayList<ParticleTicket> tickets = new ArrayList<ParticleTicket>();
 	public static final Hashtable<DCMod,ParticleTicket> ticketData = new Hashtable<DCMod,ParticleTicket>();
-	public static final ArrayList<EntityFX> allParticles = new ArrayList<EntityFX>();
+	public static final ArrayList<Particle> allParticles = new ArrayList<Particle>();
 	
 	/**
 	 * 
@@ -241,12 +241,12 @@ public class DCParticleEngine {
 	 * @param layer - the layer to place the particle on
 	 * @param particle - the particle to add
 	 */
-	public static void addParticle(LayerEntry layer, EntityFX particle)
+	public static void addParticle(LayerEntry layer, Particle particle)
 	{
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) //?????
 			return;
 		if(!particles.containsKey(layer))
-			particles.put(layer, new ArrayList<EntityFX>());
+			particles.put(layer, new ArrayList<Particle>());
 		int currentParticlesForLayer = particles.get(layer).size();
 		int currentParticlesForMod = 0;
 		for(LayerEntry le : layer.owner.layers)
@@ -254,8 +254,8 @@ public class DCParticleEngine {
 				currentParticlesForMod += particles.get(le).size();
 		if(currentParticlesForLayer >= layer.maxParticlesFor || (currentParticlesForMod >= layer.owner.maxParticlesForMod && layer.owner.maxParticlesForMod != -1))
 			return;
-		if(particle.dimension != Minecraft.getMinecraft().thePlayer.dimension)
-			return;
+		/*if(particle.dimension != Minecraft.getMinecraft().thePlayer.dimension)
+			return;*/
 		allParticles.add(particle);
 		particles.get(layer).add(particle);
 	}
@@ -265,13 +265,12 @@ public class DCParticleEngine {
 	{
 		for(int i = 0; i < allParticles.size(); ++i)
 		{
-			EntityFX particle = allParticles.get(i);
+			Particle particle = allParticles.get(i);
 			
-			if(particle.isDead)
+			if(!particle.isAlive())
 				allParticles.remove(i);
 			else
 			{
-				++particle.ticksExisted;
 				particle.onUpdate();
 			}
 		}
@@ -291,7 +290,7 @@ public class DCParticleEngine {
 			{
 				if(particles.containsKey(layer))
 				{
-					ArrayList<EntityFX> par = particles.get(layer);
+					ArrayList<Particle> par = particles.get(layer);
 					GlStateManager.pushMatrix();
 					if(MinecraftForge.EVENT_BUS.post(new LayerEvent.Pre(layer)))
 					{
@@ -316,30 +315,30 @@ public class DCParticleEngine {
 			    	float rotationViewYZ = ActiveRenderInfo.getRotationYZ();
 			    	float rotationViewXZ = ActiveRenderInfo.getRotationXZ();
 			    	
-			    	EntityFX.interpPosX = renderViewEntity.lastTickPosX + (renderViewEntity.posX - renderViewEntity.lastTickPosX) * partialTicks;
-			    	EntityFX.interpPosY = renderViewEntity.lastTickPosY + (renderViewEntity.posY - renderViewEntity.lastTickPosY) * partialTicks;
-			    	EntityFX.interpPosZ = renderViewEntity.lastTickPosZ + (renderViewEntity.posZ - renderViewEntity.lastTickPosZ) * partialTicks;
+			    	Particle.interpPosX = renderViewEntity.lastTickPosX + (renderViewEntity.posX - renderViewEntity.lastTickPosX) * partialTicks;
+			    	Particle.interpPosY = renderViewEntity.lastTickPosY + (renderViewEntity.posY - renderViewEntity.lastTickPosY) * partialTicks;
+			    	Particle.interpPosZ = renderViewEntity.lastTickPosZ + (renderViewEntity.posZ - renderViewEntity.lastTickPosZ) * partialTicks;
 			    	
-			    	Tessellator.getInstance().getWorldRenderer().begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
+			    	Tessellator.getInstance().getBuffer().begin(7, DefaultVertexFormats.PARTICLE_POSITION_TEX_COLOR_LMAP);
 					for(int i = 0; i < par.size(); ++i)
 					{
-						EntityFX particle = par.get(i);
-						if(particle.isDead)
+						Particle particle = par.get(i);
+						if(!particle.isAlive())
 						{
 							par.remove(i);
 							continue;
 						}
-						if(particle.dimension != CoreInitialiser.proxy.getClientPlayer().dimension)
+						/*if(particle.dimension != CoreInitialiser.proxy.getClientPlayer().dimension)
 							continue;
 						if(!particle.isInRangeToRenderDist(particle.getDistanceToEntity(CoreInitialiser.proxy.getClientPlayer())))
-							continue;
+							continue;*/
 						
 						try{
-							particle.renderParticle(Tessellator.getInstance().getWorldRenderer(), particle, partialTicks, rotationViewX, rotationViewXZ, rotationViewZ, rotationViewYZ, rotationViewXY);;
+							particle.renderParticle(Tessellator.getInstance().getBuffer(), CoreInitialiser.proxy.getClientPlayer(), partialTicks, rotationViewX, rotationViewXZ, rotationViewZ, rotationViewYZ, rotationViewXY);;
 						}
 						catch(Exception e)
 						{
-							particle.isDead = true;
+							particle.setExpired();;
 							e.printStackTrace();
 						}
 					}
@@ -372,6 +371,6 @@ public class DCParticleEngine {
 	@SubscribeEvent
 	public void renderLast(RenderWorldLastEvent event)
 	{
-		draw(event.partialTicks);
+		draw(event.getPartialTicks());
 	}
 }

@@ -2,10 +2,12 @@ package DummyCore.Utils;
 
 import java.util.ArrayList;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -128,7 +130,7 @@ public class Generator
 		hasOffset = false;
 		isWorking = true;
 		worldObj = world;
-		setTo = Blocks.air;
+		setTo = Blocks.AIR;
 		genMetadata = 0;
 		flag = 2;
 	}
@@ -268,7 +270,7 @@ public class Generator
 				{
 					int i = worldObj.rand.nextInt(pairs.length);
 					if(worldObj.getBlockState(new BlockPos(dx,dy,dz)).getBlock() == setTo)
-						worldObj.setBlockState(new BlockPos(dx, dy, dz), pairs[i].obj1.getStateFromMeta(pairs[i].obj2), flag);
+						worldObj.setBlockState(new BlockPos(dx, dy, dz), pairs[i].getLeft().getStateFromMeta(pairs[i].getRight()), flag);
 				}
 			}
 		}

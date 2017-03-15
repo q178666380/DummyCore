@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Mouse;
 
 import DummyCore.Client.GuiButton_ChangeGUI;
-import DummyCore.Client.IconRegister;
 import DummyCore.Client.MainMenuRegistry;
+import DummyCore.Client.ModelUtils;
+import DummyCore.Client.TextureUtils;
 import DummyCore.Core.CoreInitialiser;
 import DummyCore.Events.DummyEvent_OnClientGUIButtonPress;
 import DummyCore.Events.DummyEvent_OnPacketRecieved;
 import joptsimple.internal.Strings;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
@@ -22,19 +23,23 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.InitGuiEvent;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -60,21 +65,24 @@ public class DummyEventHandler {
 	
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void textureInit(TextureStitchEvent.Pre event)
-	{
-		IconRegister.registered.clear();
-		IconRegister.currentMap = event.map;
-		
-		for(Pair<String,Block> p : OldTextureHandler.oldBlocksToRender)
-			IOldCubicBlock.class.cast(p.getSecond()).registerBlockIcons(IconRegister.instance);
-		for(Pair<String,Item> p : OldTextureHandler.oldItemsToRender)
-			IOldItem.class.cast(p.getSecond()).registerIcons(IconRegister.instance);
+	public void textureInit(TextureStitchEvent.Pre event) {
+		for(ResourceLocation rl : TextureUtils.TEXTURES) {
+			event.getMap().registerSprite(rl);
+		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void modelInit(ModelBakeEvent event) {
+		for(Pair<ModelResourceLocation,IBakedModel> pair : ModelUtils.MODELS) {
+			event.getModelRegistry().putObject(pair.getLeft(), pair.getRight());
+		}
 	}
 	
 	@SubscribeEvent
-	public void onBlockBeeingBroken(PlayerEvent.BreakSpeed event)
+	public void onBlockBeingBroken(PlayerEvent.BreakSpeed event)
 	{
-		if(MiscUtils.isBlockUnbreakable(event.entityPlayer.worldObj, event.pos.getX(), event.pos.getY(), event.pos.getZ()))
+		if(MiscUtils.isBlockUnbreakable(event.getEntityPlayer().worldObj, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ()))
 		{
 			event.setCanceled(true);
 		}
@@ -82,19 +90,15 @@ public class DummyEventHandler {
 	
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void onMainMenuGUISetup(InitGuiEvent.Pre event)
-	{
+	public void onMainMenuGUISetup(InitGuiEvent.Pre event) {
 		if(!CoreInitialiser.cfg.allowCustomMainMenu)
 			return;
-		if(event.gui.getClass() == GuiMainMenu.class)
-		{
+		if(event.getGui().getClass() == GuiMainMenu.class) {
 			event.setCanceled(true);
 			MainMenuRegistry.newMainMenu(DummyConfig.getMainMenu());
 		}
-		if(event.gui instanceof IMainMenu)
-		{
-			if(MainMenuRegistry.menuList.get(DummyConfig.getMainMenu()) != event.gui.getClass())
-			{
+		if(event.getGui() instanceof IMainMenu) {
+			if(MainMenuRegistry.menuList.get(DummyConfig.getMainMenu()) != event.getGui().getClass()) {
 				event.setCanceled(true);
 				MainMenuRegistry.newMainMenu(DummyConfig.getMainMenu());
 			}
@@ -103,25 +107,21 @@ public class DummyEventHandler {
 	
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public void onMainMenuGUISetup(InitGuiEvent.Post event)
-	{
+	public void onMainMenuGUISetup(InitGuiEvent.Post event) {
 		if(!CoreInitialiser.cfg.allowCustomMainMenu)
 			return;
 		
-		if(event.gui instanceof IMainMenu)
-		{
+		if(event.getGui() instanceof IMainMenu) {
 			boolean add = true;
-			for(int i = 0; i < event.buttonList.size(); ++i)
-			{
-				Object obj = event.buttonList.get(i);
-				if(obj instanceof GuiButton && GuiButton.class.cast(obj).id == 65536)
-				{
+			for(int i = 0; i < event.getButtonList().size(); ++i) {
+				Object obj = event.getButtonList().get(i);
+				if(obj instanceof GuiButton && GuiButton.class.cast(obj).id == 65536) {
 					add = false;
 					break;
 				}
 			}
 			if(add)
-				event.buttonList.add(new GuiButton_ChangeGUI(65535, event.gui.width/2 + 104, event.gui.height/4 + 24 + 72, 100, 20, "Change Main Menu"));
+				event.getButtonList().add(new GuiButton_ChangeGUI(65535, event.getGui().width/2 + 104, event.getGui().height/4 + 24 + 72, 100, 20, "Change Main Menu"));
 		}
 	}
 	
@@ -164,7 +164,7 @@ public class DummyEventHandler {
 					float vol = Float.parseFloat(packetData[4].fieldValue);
 					float pitch = Float.parseFloat(packetData[5].fieldValue);
 					String snd = packetData[6].fieldValue;
-					event.recievedEntity.worldObj.playSound(x, y, z, snd, vol, pitch, false);
+					event.recievedEntity.worldObj.playSound(x, y, z, SoundEvent.REGISTRY.getObject(new ResourceLocation(snd)), SoundCategory.MASTER, vol, pitch, false);
 				}
 				if(modData.fieldName.equalsIgnoreCase("mod") && modData.fieldValue.equalsIgnoreCase("dummycore.infosync"))
 				{
@@ -206,7 +206,7 @@ public class DummyEventHandler {
 					if(side == Side.SERVER)
 					{
 						MinecraftServer server = MinecraftServer.getServer();
-						ServerConfigurationManager manager = server.getConfigurationManager();
+						PlayerList manager = server.getConfigurationManager();
 						EntityPlayer player = manager.getPlayerByUsername(username);
 						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnKeyboardKeyPressed_Server(id, name, player,pressed));
 					}
@@ -227,9 +227,7 @@ public class DummyEventHandler {
 					Side side = FMLCommonHandler.instance().getEffectiveSide();
 					if(side == Side.SERVER)
 					{
-						MinecraftServer server = MinecraftServer.getServer();
-						ServerConfigurationManager manager = server.getConfigurationManager();
-						EntityPlayer player = manager.getPlayerByUsername(username);
+						EntityPlayer player = MiscUtils.getPlayerFromUUID(username);
 						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnClientGUIButtonPress(id, pClName, bClName, player,x,y,z,data));
 					}
 				}
@@ -274,7 +272,7 @@ public class DummyEventHandler {
 	@SubscribeEvent
 	public void clientWorldLoad(EntityJoinWorldEvent event)
 	{
-		if(event.entity instanceof EntityPlayer && event.world.isRemote)
+		if(event.getEntity() instanceof EntityPlayer && event.getWorld().isRemote)
 			ModVersionChecker.dispatchModChecks();
 	}
 	
@@ -282,7 +280,7 @@ public class DummyEventHandler {
 	@SubscribeEvent
 	public void descriptionAdded(ItemTooltipEvent event)
 	{
-		Item i = event.itemStack.getItem();
+		Item i = event.getItemStack().getItem();
 
 			GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
 			if(currentScreen instanceof GuiContainer)
@@ -303,23 +301,23 @@ public class DummyEventHandler {
 				
 				ArrayList<IItemDescriptionGraphics> inDesc = new ArrayList<IItemDescriptionGraphics>();
 				for(IItemDescriptionGraphics iig : iidLst)
-					if(iig.doDisplay(event.itemStack, event.entityPlayer) && iig.displayInDescription(event.itemStack, event.entityPlayer))
+					if(iig.doDisplay(event.getItemStack(), event.getEntityPlayer()) && iig.displayInDescription(event.getItemStack(), event.getEntityPlayer()))
 						inDesc.add(iig);
 				
 				for(IItemDescriptionGraphics iig : inDesc)
 				{
 					String firstLine = "\uD836\uDE80";
-					for(int i1 = 0; i1 < Math.max(1, iig.getYSize(event.itemStack, event.entityPlayer)/10); ++i1)
+					for(int i1 = 0; i1 < Math.max(1, iig.getYSize(event.getItemStack(), event.getEntityPlayer())/10); ++i1)
 					{
-						int spaces = Math.max(1, iig.getXSize(event.itemStack, event.entityPlayer)/4);
+						int spaces = Math.max(1, iig.getXSize(event.getItemStack(), event.getEntityPlayer())/4);
 						String added = Strings.repeat(' ', spaces);
 						if(i1 == 0)
 						{
 							firstLine += added;
-							event.toolTip.add(firstLine);
+							event.getToolTip().add(firstLine);
 						}else
 						{
-							event.toolTip.add(added);
+							event.getToolTip().add(added);
 						}
 					}
 				}
@@ -332,7 +330,7 @@ public class DummyEventHandler {
 	public void guiRenderedEvent(GuiScreenEvent.DrawScreenEvent.Post event)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
-		GuiScreen gui = event.gui;
+		GuiScreen gui = event.getGui();
 		if(gui != null && gui instanceof GuiContainer)
 		{
 			
@@ -403,14 +401,14 @@ public class DummyEventHandler {
 					int indexed = 0;
 					for(IItemDescriptionGraphics iidg : inDesc)
 					{
-						iidg.draw(gc, stk, Minecraft.getMinecraft().thePlayer, mouseX + dx, mouseY - dy - height+(positions.size() == 0 ? 0 : (positions.get(Math.min(indexed,positions.size()-1))+1)*10), mouseX, mouseY, event.renderPartialTicks, offscreen);
+						iidg.draw(gc, stk, Minecraft.getMinecraft().thePlayer, mouseX + dx, mouseY - dy - height+(positions.size() == 0 ? 0 : (positions.get(Math.min(indexed,positions.size()-1))+1)*10), mouseX, mouseY, event.getRenderPartialTicks(), offscreen);
 						++indexed;
 					}
 					
 					int iindexed = 1;
 					for(IItemDescriptionGraphics iidg : aboveDesc)
 					{
-						iidg.draw(gc, stk, Minecraft.getMinecraft().thePlayer, mouseX + dx, mouseY - dy - height-iindexed * iidg.getYSize(stk, Minecraft.getMinecraft().thePlayer), mouseX, mouseY, event.renderPartialTicks, offscreen);
+						iidg.draw(gc, stk, Minecraft.getMinecraft().thePlayer, mouseX + dx, mouseY - dy - height-iindexed * iidg.getYSize(stk, Minecraft.getMinecraft().thePlayer), mouseX, mouseY, event.getRenderPartialTicks(), offscreen);
 						++iindexed;
 					}
 					

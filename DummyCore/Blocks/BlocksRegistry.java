@@ -3,13 +3,10 @@ package DummyCore.Blocks;
 import java.util.Hashtable;
 
 import DummyCore.Core.Core;
-import DummyCore.Utils.IOldCubicBlock;
-import DummyCore.Utils.OldTextureHandler;
+import DummyCore.Core.CoreInitialiser;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * 
@@ -31,29 +28,39 @@ public class BlocksRegistry {
 	 * @param b - the block to be registered.
 	 * @param name - in-game name of the block. Will be written to the corresponding .lang file
 	 * @param modClass - class file of your mod. If registered from the mod itself, use getClass(), else just put in this field something like YourModClassName.class
-	 * @param blockClass - used, if you want to register a block, that has an ItemBlock. Can be null.
+	 * @param blockClass - used, if you want to register a block, that has an ItemBlock. Can be null if no ItemBlock is required.
 	 */
 	public static void registerBlock(Block b, String name, Class<?> modClass, Class<? extends ItemBlock> blockClass)
 	{
-		if(blockClass == null)
-		{
-			GameRegistry.registerBlock(b, name);
-		}else
-		{
-			GameRegistry.registerBlock(b, blockClass, name);
-		}
-		Side s = FMLCommonHandler.instance().getEffectiveSide();
-		if(s == Side.CLIENT)
-		{
-			if(Core.getBlockTabForMod(modClass) != null)
+		GameRegistry.register(b.setRegistryName(Core.getModFromClass(modClass).modid, name));
+		ItemBlock ib = null;
+		if(blockClass != null)
+		{	
+			try
 			{
-				b.setCreativeTab(Core.getBlockTabForMod(modClass));
-				blocksList.put(b, Core.getBlockTabForMod(modClass).getTabLabel());
+				blockClass.getConstructor(Block.class).setAccessible(true);
+				ib = blockClass.getConstructor(Block.class).newInstance(b);
+				GameRegistry.register(ib.setRegistryName(Core.getModFromClass(modClass).modid, name));
 			}
-			
-			if(b instanceof IOldCubicBlock)
-				OldTextureHandler.addOldBlock(Core.getModFromClass(modClass).modid+":"+name, b);
+			catch(Exception e) {}
 		}
+		CoreInitialiser.proxy.handleBlockRegister(b, ib, name, modClass);
 	}
+	
+	/**
+	 * Use this to register new simple blocks.
+	 * @version From DummyCore 2.3
+	 * @param b - the block to be registered, in the form of an ItemBlock.
+	 * @param name - in-game name of the block. Will be written to the corresponding .lang file
+	 * @param modClass - class file of your mod. If registered from the mod itself, use getClass(), else just put in this field something like YourModClassName.class
+	 */
+	public static void registerBlock(ItemBlock ib, String name, Class<?> modClass)
+	{
+		Block b = ib.block;
+		GameRegistry.register(b.setRegistryName(Core.getModFromClass(modClass).modid, name));
+		GameRegistry.register(ib.setRegistryName(Core.getModFromClass(modClass).modid, name));
+		
 
+		CoreInitialiser.proxy.handleBlockRegister(b, ib, name, modClass);
+	}
 }

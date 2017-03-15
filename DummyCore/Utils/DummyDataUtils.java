@@ -42,10 +42,10 @@ public class DummyDataUtils {
 	{
 		try
 		{
-			World w = event.world;
-			if(w != null && !w.isRemote && w.provider != null && w.provider.getDimensionId() == 0)
+			World w = event.getWorld();
+			if(w != null && !w.isRemote && w.provider != null && w.provider.getDimension() == 0)
 			{
-				File f = event.world.getSaveHandler().getWorldDirectory();
+				File f = event.getWorld().getSaveHandler().getWorldDirectory();
 				if(f != null)
 				{
 					String fPath = f.getAbsolutePath();
@@ -72,10 +72,10 @@ public class DummyDataUtils {
 	{
 		try
 		{
-			World w = event.world;
-			if(w != null && !w.isRemote && w.provider != null && w.provider.getDimensionId() == 0)
+			World w = event.getWorld();
+			if(w != null && !w.isRemote && w.provider != null && w.provider.getDimension() == 0)
 			{
-				File f = event.world.getSaveHandler().getWorldDirectory();
+				File f = event.getWorld().getSaveHandler().getWorldDirectory();
 				if(f != null)
 				{
 					String fPath = f.getAbsolutePath();
@@ -95,11 +95,11 @@ public class DummyDataUtils {
 	@SubscribeEvent
 	public void playerLoad(LoadFromFile event)
 	{
-		if(!event.entityPlayer.worldObj.isRemote)
+		if(!event.getEntityPlayer().worldObj.isRemote)
 		{
-			EntityPlayer player = event.entityPlayer;
+			EntityPlayer player = event.getEntityPlayer();
 			boolean exists = true;
-			File playerFile = getDataFileForPlayer(player.getName());
+			File playerFile = getDataFileForPlayer(player.getGameProfile().getId().toString());
 			if(playerFile.isDirectory())
 			{
 				restoreFileFromDir(playerFile);
@@ -115,10 +115,10 @@ public class DummyDataUtils {
 			if(exists)
 			{
 				NBTTagCompound tag = loadNBTFromFile(playerFile);
-				playerConfigs.put(player.getName(), tag);
+				playerConfigs.put(player.getGameProfile().getId().toString(), tag);
 			}else
 			{
-				playerConfigs.put(player.getName(), new NBTTagCompound());
+				playerConfigs.put(player.getGameProfile().getId().toString(), new NBTTagCompound());
 			}
 		}
 	}
@@ -126,10 +126,10 @@ public class DummyDataUtils {
 	@SubscribeEvent
 	public void playerSave(SaveToFile event)
 	{
-		if(!event.entityPlayer.worldObj.isRemote)
+		if(!event.getEntityPlayer().worldObj.isRemote)
 		{
-			EntityPlayer player = event.entityPlayer;
-			File playerFile = getDataFileForPlayer(player.getName());
+			EntityPlayer player = event.getEntityPlayer();
+			File playerFile = getDataFileForPlayer(player.getGameProfile().getId().toString());
 			if(playerFile.isDirectory())
 				restoreFileFromDir(playerFile);
 			
@@ -145,8 +145,8 @@ public class DummyDataUtils {
 	{
 		if(!event.player.worldObj.isRemote)
 		{
-			playerFiles.remove(event.player.getName());
-			playerConfigs.remove(event.player.getName());
+			playerFiles.remove(event.player.getGameProfile().getId().toString());
+			playerConfigs.remove(event.player.getGameProfile().getId().toString());
 		}
 	}
 	

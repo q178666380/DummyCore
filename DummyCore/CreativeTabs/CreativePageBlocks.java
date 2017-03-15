@@ -20,7 +20,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public final class CreativePageBlocks extends CreativeTabs{
 	public int delayTime = 0;
-	public ItemStack displayStack = new ItemStack(Blocks.crafting_table,1,0);
+	public ItemStack displayStack = new ItemStack(Blocks.CRAFTING_TABLE,1,0);
 	private final String tabLabel;
 	public List<ItemStack> blockList = new ArrayList<ItemStack>();
 	public int tries = 0;
@@ -44,9 +44,9 @@ public final class CreativePageBlocks extends CreativeTabs{
     	++tries;
     	if(this.blockList.isEmpty() && tries <= 1)
     	{
-	    	for(int t = 0; t < Block.blockRegistry.getKeys().size(); ++t)
+	    	for(int t = 0; t < Block.REGISTRY.getKeys().size(); ++t)
 	    	{
-	    		Block b = Block.getBlockFromName(((ResourceLocation) Block.blockRegistry.getKeys().toArray()[t]).toString());
+	    		Block b = Block.getBlockFromName(((ResourceLocation) Block.REGISTRY.getKeys().toArray()[t]).toString());
 	    		if(b != null && b.getCreativeTabToDisplayOn() == this)
 	    		{
 	    			Item itm = Item.getItemFromBlock(b);
