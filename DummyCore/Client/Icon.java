@@ -15,6 +15,7 @@ import net.minecraft.world.IBlockAccess;
  * @Description
  * A simple wrapper around TextureAtlasSprite
  */
+@Deprecated
 public class Icon {
 	public final TextureAtlasSprite actualTexture;
 	

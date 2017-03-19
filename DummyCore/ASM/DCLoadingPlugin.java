@@ -13,16 +13,13 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
  * @Description Internal
  */
 @MCVersion(value=mcVersion)
-public class DCLoadingPlugin implements IFMLLoadingPlugin{
+public class DCLoadingPlugin implements IFMLLoadingPlugin {
 
-	public DCLoadingPlugin()
-	{
-
-	}
+	public DCLoadingPlugin() {}
 	
 	@Override
 	public String[] getASMTransformerClass() {
-		return new String[]{"DummyCore.ASM.DCASMManager"};
+		return new String[] {"DummyCore.ASM.DCASMManager"};
 	}
 
 	@Override
@@ -36,9 +33,7 @@ public class DCLoadingPlugin implements IFMLLoadingPlugin{
 	}
 
 	@Override
-	public void injectData(Map<String, Object> data) {
-		
-	}
+	public void injectData(Map<String, Object> data) {}
 
 	@Override
 	public String getAccessTransformerClass() {

@@ -4,7 +4,7 @@ package DummyCore.Utils;
  * 
  * @author Modbder
  * @version From DummyCore 1.2
- * @Description Used to store the distance betwenn 2 points.
+ * @Description Used to store the distance between 2 points.
  */
 public class DummyDistance {
 	private final float distance;

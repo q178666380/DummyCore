@@ -110,8 +110,8 @@ final class ASMInfoClass {
 		
 		//Using CORE ASM is done with a specific USE ORDER:
 		//1. Creating a class READER, event READER, analyzer, WRITER, etc.
-		//2. Injecting BYTECODE and CHANING it using the ADAPTERS.
-		//3. Retrieving the BYTECODE back to the JVM
+		//2. Injecting BYTECODE and CHANGING it using the ADAPTERS.
+		//3. Giving the BYTECODE back to the JVM
 	}
 	
 	private class ASMPackages

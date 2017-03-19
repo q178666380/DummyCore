@@ -8,6 +8,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.UUID;
 
+import com.google.common.collect.HashMultimap;
+
 import DummyCore.Core.CoreInitialiser;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -75,9 +77,10 @@ public class MiscUtils {
 	public static final Hashtable<String, String> registeredServerWorldData = new Hashtable<String, String>();
 	public static final List<BlockPosition> unbreakableBlocks = new ArrayList<BlockPosition>();
 	public static final List<ScheduledServerAction> actions = new ArrayList<ScheduledServerAction>();
-	public static final Hashtable<Item,ArrayList<IItemDescriptionGraphics>> itemDescriptionGraphics = new Hashtable<Item,ArrayList<IItemDescriptionGraphics>>();
+	public static final HashMultimap<Item, IItemDescriptionGraphics> itemDescriptionGraphics = HashMultimap.<Item,IItemDescriptionGraphics>create();
 	public static final ArrayList<IItemDescriptionGraphics> globalDescriptionGraphics = new ArrayList<IItemDescriptionGraphics>();
 	public static final ArrayList<IHUDElement> hudElements = new ArrayList<IHUDElement>();
+	public static final HashMultimap<Item,IItemOverlayElement> itemOverlayElements = HashMultimap.<Item,IItemOverlayElement>create();
 	//ShaderGroups IDs - 
 	//0 - Pixelated
 	//1 -  Smooth
@@ -1048,8 +1051,7 @@ public class MiscUtils {
 	 * Adds a handler to draw something graphical upon mousing over an item
 	 * @param iidg - the handler
 	 */
-	public static void addGlobalItemGraphicsDescription(IItemDescriptionGraphics iidg)
-	{
+	public static void addGlobalItemGraphicsDescription(IItemDescriptionGraphics iidg) {
 		globalDescriptionGraphics.add(iidg);
 	}
 
@@ -1058,103 +1060,48 @@ public class MiscUtils {
 	 * @param i - the item to register for
 	 * @param iidg - the handler
 	 */
-	public static void addItemGraphicsDescription(Item i, IItemDescriptionGraphics iidg)
-	{
-		if(!itemDescriptionGraphics.containsKey(i))
-			itemDescriptionGraphics.put(i, new ArrayList<IItemDescriptionGraphics>());
-		itemDescriptionGraphics.get(i).add(iidg);
+	public static void addItemGraphicsDescription(Item i, IItemDescriptionGraphics iidg) {
+		itemDescriptionGraphics.put(i, iidg);
 	}
 
 	/**
 	 * Adds an element to be displayed on player's HUD
 	 * @param ihe - the element to register
 	 */
-	public static void addHUDElement(IHUDElement ihe)
-	{
+	public static void addHUDElement(IHUDElement ihe) {
 		hudElements.add(ihe);
 	}
-
-	/**
-	 * Internal. A fix for MC's potion colors being messed up. Through ASM I made the original ItemPotion's function call this method instead of it's getColorForRenderPass
-	 * <BR>This method is much more NBT friendly and allows modmakers to have their custom colors properly displayed
-	 * Note: no longer called
-	 * @param potion - the potion's ItemStack
-	 * @param pass - the render pass
-	 * @return - a correct, NBT sensitive color
-	 */
-	public static int getPotionColor(ItemStack potion, int pass)
-	{
-		if(pass == 1)
-			return 0xffffff;
-
-		if(potion.hasTagCompound())
-		{
-			NBTTagCompound tag = potion.getTagCompound();
-			if(tag.hasKey("CustomPotionEffects", 9))
-			{
-				ArrayList<Integer> colors = new ArrayList<Integer>();
-				List<PotionEffect> pots = PotionUtils.getEffectsFromStack(potion);
-				for(PotionEffect pe : pots)
-				{
-					if(pe != null)
-						colors.add(pe.getPotion().getLiquidColor());
-				}
-
-				int cAm = colors.size();
-
-				double aCR = 0;
-				double aCG = 0;
-				double aCB = 0;
-
-				for(int i = 0; i < cAm; ++i)
-				{
-					int aColor = colors.get(i).intValue();
-					aCR += ((double)((aColor & 0xFF0000) >> 16) / 0xff) / cAm;
-					aCG = ((double)((aColor & 0xFF00) >> 8) / 0xff) / cAm;
-					aCB = ((double)((aColor & 0xFF)) / 0xff) / cAm;
-				}
-
-				return ((int)(aCR * 0xff) << 16) + ((int)(aCG * 0xff) << 8) + ((int)(aCB * 0xff));
-
-			}else
-				return PotionUtils.getPotionColor(PotionUtils.getPotionTypeFromNBT(potion.getTagCompound()));
-		}else
-			return PotionUtils.getPotionColor(PotionUtils.getPotionTypeFromNBT(potion.getTagCompound()));
+	
+	public static void addItemOverlayElement(Item i, IItemOverlayElement iioe) {
+		itemOverlayElements.put(i, iioe);
 	}
 
 	@Deprecated
-	public static <T>ArrayList<T> listOf(T[] array)
-	{
+	public static <T>ArrayList<T> listOf(T[] array) {
 		return PrimitiveUtils.listOf(array);
 	}
 
 	@Deprecated
-	public static <T>boolean checkArray(T[] array, T object)
-	{
+	public static <T>boolean checkArray(T[] array, T object) {
 		return PrimitiveUtils.checkArray(array, object);
 	}
 
-	public static void writeBlockPosToNBT(NBTTagCompound tag, BlockPos toWrite, String key)
-	{
+	public static void writeBlockPosToNBT(NBTTagCompound tag, BlockPos toWrite, String key) {
 		if(toWrite != null)
 			tag.setIntArray(key, new int[]{toWrite.getX(),toWrite.getY(),toWrite.getZ()});
 	}
 
-	public static BlockPos readBlockPosFromNBT(NBTTagCompound tag, String key)
-	{
+	public static BlockPos readBlockPosFromNBT(NBTTagCompound tag, String key) {
 		BlockPos ret = BlockPos.ORIGIN;
-		if(tag.hasKey(key, 11))
-		{
+		if(tag.hasKey(key, 11)) {
 			int[] t = tag.getIntArray(key);
 			ret = new BlockPos(t[0],t[1],t[2]);
 		}
 		return ret;
 	}
 
-	public static ResourceLocation getUniqueIdentifierFor(Object obj)
-	{
-		if(obj instanceof Block || obj instanceof Item || obj instanceof ItemStack)
-		{
+	public static ResourceLocation getUniqueIdentifierFor(Object obj) {
+		if(obj instanceof Block || obj instanceof Item || obj instanceof ItemStack) {
 			if(obj instanceof Block)
 				return GameData.getBlockRegistry().getNameForObject((Block) obj);
 			if(obj instanceof Item)
@@ -1169,43 +1116,36 @@ public class MiscUtils {
 		return null;
 	}
 
-	public static BlockPos fromIntArray(int[] array)
-	{
+	public static BlockPos fromIntArray(int[] array) {
 		if(array.length != 3)
 			return BlockPos.ORIGIN;
 		return new BlockPos(array[0],array[1],array[2]);
 	}
 
-	public static String getUsernameFromPlayer(EntityPlayer player)
-	{
+	public static String getUsernameFromPlayer(EntityPlayer player) {
 		return player.getEntityWorld().isRemote ? "" : UsernameCache.getLastKnownUsername(getUUIDFromPlayer(player));
 	}
 
-	public static EntityPlayer getPlayerFromUsername(String username)
-	{
+	public static EntityPlayer getPlayerFromUsername(String username) {
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
 			return null;
 
 		return FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(username);
 	}
 
-	public static EntityPlayer getPlayerFromUUID(String uuid)
-	{
+	public static EntityPlayer getPlayerFromUUID(String uuid) {
 		return getPlayerFromUsername(getUsernameFromUUID(uuid));
 	}
 
-	public static EntityPlayer getPlayerFromUUID(UUID uuid)
-	{
+	public static EntityPlayer getPlayerFromUUID(UUID uuid) {
 		return getPlayerFromUsername(getUsernameFromUUID(uuid));
 	}
 
-	public static UUID getUUIDFromPlayer(EntityPlayer player)
-	{
+	public static UUID getUUIDFromPlayer(EntityPlayer player) {
 		return player.getGameProfile().getId();
 	}
 
-	public static String getUsernameFromUUID(String uuid)
-	{
+	public static String getUsernameFromUUID(String uuid) {
 		try {
 			return UsernameCache.getLastKnownUsername(UUID.fromString(uuid));
 		}
@@ -1214,8 +1154,7 @@ public class MiscUtils {
 		}
 	}
 
-	public static String getUsernameFromUUID(UUID uuid)
-	{
+	public static String getUsernameFromUUID(UUID uuid) {
 		return UsernameCache.getLastKnownUsername(uuid);
 	}
 }

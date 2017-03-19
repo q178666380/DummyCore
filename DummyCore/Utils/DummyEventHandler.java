@@ -7,6 +7,8 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Mouse;
 
+import com.google.common.collect.Lists;
+
 import DummyCore.Client.GuiButton_ChangeGUI;
 import DummyCore.Client.MainMenuRegistry;
 import DummyCore.Client.ModelUtils;
@@ -290,7 +292,7 @@ public class DummyEventHandler {
 				
 				if(MiscUtils.itemDescriptionGraphics.containsKey(i))
 				{
-					iidLst = MiscUtils.itemDescriptionGraphics.get(i);
+					iidLst = Lists.newArrayList(MiscUtils.itemDescriptionGraphics.get(i));
 					iidLst.addAll(MiscUtils.globalDescriptionGraphics);
 				}
 				else
@@ -346,7 +348,7 @@ public class DummyEventHandler {
 					
 					if(MiscUtils.itemDescriptionGraphics.containsKey(i))
 					{
-						iidLst = MiscUtils.itemDescriptionGraphics.get(i);
+						iidLst = Lists.newArrayList(MiscUtils.itemDescriptionGraphics.get(i));
 						iidLst.addAll(MiscUtils.globalDescriptionGraphics);
 					}
 					else

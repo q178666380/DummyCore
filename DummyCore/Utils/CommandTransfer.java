@@ -19,11 +19,12 @@ public class CommandTransfer extends CommandBase {
 
 	@Override
 	public void execute(MinecraftServer p_71515_0_, ICommandSender p_71515_1_, String[] p_71515_2_) {
-		try{
+		try {
 	    	int var3 = parseInt(p_71515_2_[1],Integer.MIN_VALUE , Integer.MAX_VALUE);
 	        EntityPlayerMP player = p_71515_2_.length == 0 ? getCommandSenderAsPlayer(p_71515_1_) : getPlayer(p_71515_0_, p_71515_1_, p_71515_2_[0]);
 	        player.changeDimension(var3);
-		}catch(Exception e){}
+		}
+		catch(Exception e){}
 	}
 
 	@Override

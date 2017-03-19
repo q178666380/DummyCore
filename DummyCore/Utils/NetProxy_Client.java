@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Logger;
 
@@ -30,6 +31,7 @@ import DummyCore.CreativeTabs.CreativePageItems;
 import DummyCore.Items.ItemRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.renderer.EntityRenderer;
@@ -39,6 +41,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.shader.ShaderGroup;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -67,67 +70,52 @@ public class NetProxy_Client extends NetProxy_Server{
 	public static final Hashtable<Item,Integer[]> cachedMetaI = new Hashtable<Item,Integer[]>();
 
 	//Why vanilla's(or is it forge?) thread checking?
-	public void handlePacketS35(SPacketUpdateTileEntity packetIn)
-	{
+	public void handlePacketS35(SPacketUpdateTileEntity packetIn) {
 		WorldClient world = Minecraft.getMinecraft().theWorld;
-		if(world != null && world.isBlockLoaded(packetIn.getPos()))
-		{
+		if(world != null && world.isBlockLoaded(packetIn.getPos())) {
 			TileEntity tileentity = world.getTileEntity(packetIn.getPos());
 
 			if(tileentity == null)
 				return;
 			int i = packetIn.getTileEntityType();
 
-			if (i == 1 && tileentity instanceof TileEntityMobSpawner || i == 2 && tileentity instanceof TileEntityCommandBlock || i == 3 && tileentity instanceof TileEntityBeacon || i == 4 && tileentity instanceof TileEntitySkull || i == 5 && tileentity instanceof TileEntityFlowerPot || i == 6 && tileentity instanceof TileEntityBanner)
-			{
+			if(i == 1 && tileentity instanceof TileEntityMobSpawner || i == 2 && tileentity instanceof TileEntityCommandBlock || i == 3 && tileentity instanceof TileEntityBeacon || i == 4 && tileentity instanceof TileEntitySkull || i == 5 && tileentity instanceof TileEntityFlowerPot || i == 6 && tileentity instanceof TileEntityBanner) {
 				tileentity.readFromNBT(packetIn.getNbtCompound());
 			}
-			else
-			{
+			else {
 				NetworkManager nm = null;
-				try{
+				try {
 					Field f = Minecraft.class.getDeclaredField(ASMManager.chooseByEnvironment("myNetworkManager", "field_71453_ak"));
 					f.setAccessible(true);
 					nm = NetworkManager.class.cast(f.get(world));
-				}catch(Exception e){
 				}
+				catch(Exception e) {}
 				tileentity.onDataPacket(nm, packetIn);
 			}
 		}
 	}
 
-	public static int getIndex(Item item, int meta)
-	{
+	public static int getIndex(Item item, int meta) {
 		return Item.getIdFromItem(item) << 16 | meta;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void injectOldItemBlockModel(Block b)
-	{
-	}
-
 	@Override
-	public EntityPlayer getPlayerOnSide(INetHandler handler)
-	{
-		if(handler instanceof NetHandlerPlayClient)
-		{
+	public EntityPlayer getPlayerOnSide(INetHandler handler) {
+		if(handler instanceof NetHandlerPlayClient) {
 			return Minecraft.getMinecraft().thePlayer;
 		}
 		return null;
 	}
 
-	public EntityPlayer getClientPlayer()
-	{
+	public EntityPlayer getClientPlayer() {
 		return Minecraft.getMinecraft().thePlayer;
 	}
 
-	public World getClientWorld()
-	{
+	public World getClientWorld() {
 		return Minecraft.getMinecraft().theWorld;
 	}
 
-	public Integer[] createPossibleMetadataCacheFromBlock(Block b)
-	{
+	public Integer[] createPossibleMetadataCacheFromBlock(Block b) {
 		if(cachedMeta.containsKey(b))
 			return cachedMeta.get(b);
 
@@ -136,10 +124,8 @@ public class NetProxy_Client extends NetProxy_Server{
 		i.getSubItems(i, b.getCreativeTabToDisplayOn(), dummyTabsTrick);
 		Integer[] retInt = new Integer[dummyTabsTrick.size()];
 		int count = 0;
-		for(ItemStack is : dummyTabsTrick)
-		{
-			if(is != null && is.getItem() == i)
-			{
+		for(ItemStack is : dummyTabsTrick) {
+			if(is != null && is.getItem() == i) {
 				retInt[count] = is.getItemDamage();
 				++count;
 			}
@@ -149,8 +135,7 @@ public class NetProxy_Client extends NetProxy_Server{
 		return retInt;
 	}
 
-	public Integer[] createPossibleMetadataCacheFromItem(Item i)
-	{
+	public Integer[] createPossibleMetadataCacheFromItem(Item i) {
 		if(cachedMetaI.containsKey(i))
 			return cachedMetaI.get(i);
 
@@ -158,10 +143,8 @@ public class NetProxy_Client extends NetProxy_Server{
 		i.getSubItems(i, i.getCreativeTab(), dummyTabsTrick);
 		Integer[] retInt = new Integer[dummyTabsTrick.size()];
 		int count = 0;
-		for(ItemStack is : dummyTabsTrick)
-		{
-			if(is != null && is.getItem() == i)
-			{
+		for(ItemStack is : dummyTabsTrick) {
+			if(is != null && is.getItem() == i) {
 				retInt[count] = is.getItemDamage();
 				++count;
 			}
@@ -172,8 +155,7 @@ public class NetProxy_Client extends NetProxy_Server{
 	}
 
 	@Override
-	public void registerInfo()
-	{
+	public void registerInfo() {
 		AdvancedModelLoader.registerModelHandler(new ObjModelLoader());
 		AdvancedModelLoader.registerModelHandler(new TechneModelLoader());
 		MainMenuRegistry.initMenuConfigs();
@@ -185,28 +167,7 @@ public class NetProxy_Client extends NetProxy_Server{
 	}
 
 	@Override
-	public void registerInit()
-	{
-		if(CoreInitialiser.cfg.removeMissingTexturesErrors)
-		{
-			try
-			{
-				Class<TextureMap> textureMap = TextureMap.class;
-				Field logger = textureMap.getDeclaredFields()[0];
-				boolean canAccess = logger.isAccessible();
-				if(!canAccess)
-					logger.setAccessible(true);
-				Logger lg = Logger.class.cast(logger.get(null));
-				lg.setLevel(Level.OFF);
-
-				if(!canAccess)
-					logger.setAccessible(false);
-			}
-			catch(Exception e)
-			{
-				Notifier.notifyError("DummyCore was sadly unable to remove missing texture errors :(");
-			}
-		}
+	public void registerInit() {
 		MainMenuRegistry.registerMenuConfigs();
 	}
 
@@ -227,98 +188,39 @@ public class NetProxy_Client extends NetProxy_Server{
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void removeMissingTextureErrors()
-	{
-		if(CoreInitialiser.cfg.removeMissingTexturesErrors)
-		{
-			try
-			{
-				Class<FMLClientHandler> fmlClientHandler = FMLClientHandler.class;
-				Field missingTextures = fmlClientHandler.getDeclaredField("missingTextures");
-				Field badTextureDomains = fmlClientHandler.getDeclaredField("badTextureDomains");
-				Field brokenTextures = fmlClientHandler.getDeclaredField("brokenTextures");
-				boolean canAccess = missingTextures.isAccessible();
-				if(!canAccess)
-					missingTextures.setAccessible(true);
-
-				SetMultimap<String,ResourceLocation> smmp = SetMultimap.class.cast(missingTextures.get(FMLClientHandler.instance()));
-				smmp.clear();
-
-				if(!canAccess)
-					missingTextures.setAccessible(false);
-
-				canAccess = badTextureDomains.isAccessible();
-				if(!canAccess)
-					badTextureDomains.setAccessible(true);
-
-				Set<String> set = Set.class.cast(badTextureDomains.get(FMLClientHandler.instance()));
-				set.clear();
-
-				if(!canAccess)
-					badTextureDomains.setAccessible(false);
-
-				canAccess = brokenTextures.isAccessible();
-				if(!canAccess)
-					brokenTextures.setAccessible(true);
-
-				Table<String, String, Set<ResourceLocation>> table = Table.class.cast(brokenTextures.get(FMLClientHandler.instance()));
-				table.clear();
-
-				if(!canAccess)
-					brokenTextures.setAccessible(false);
-
-				Notifier.notifyWarn("DummyCore has removed all possible texture errors the FML could output to the console!");
-			}
-			catch(Exception e)
-			{
-				Notifier.notifyError("DummyCore was sadly unable to remove missing texture errors :(");
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@Override
-	public void initShaders(ResourceLocation rLoc)
-	{
+	public void initShaders(ResourceLocation rLoc) {
 		Minecraft mc = Minecraft.getMinecraft();
 		EntityRenderer er = mc.entityRenderer;
-		try
-		{
-			if(rLoc == null)
-			{
+		try {
+			if(rLoc == null) {
 				if(er.isShaderActive())
 					er.switchUseShader();
-			}else
-			{
+			}
+			else {
 				Class<? extends EntityRenderer> erclazz = er.getClass();
 				Method loadShader = null;
 				for(Method m : erclazz.getDeclaredMethods())
-					if(m.getParameterCount() == 1 && m.getParameters()[0].getType() == ResourceLocation.class)
-					{
+					if(m.getParameterCount() == 1 && m.getParameters()[0].getType() == ResourceLocation.class) {
 						loadShader = m;
 						break;
 					}
 				if(loadShader != null)
 					loadShader.invoke(er, rLoc);
 			}
-		}catch(Exception e)
-		{
+		}
+		catch(Exception e) {
 			return;
 		}
 	}
 
 	@Override
-	public void choseDisplayStack(CreativePageBlocks blocks)
-	{
+	public void choseDisplayStack(CreativePageBlocks blocks) {
 		World w = Minecraft.getMinecraft().theWorld;
-		if(Minecraft.getMinecraft().thePlayer != null && w.isRemote && Minecraft.getMinecraft().thePlayer.ticksExisted % 60 == 0)
-		{
+		if(Minecraft.getMinecraft().thePlayer != null && w.isRemote && Minecraft.getMinecraft().thePlayer.ticksExisted % 60 == 0) {
 			blocks.delayTime = 0;
 			blocks.blockList = blocks.initialiseBlocksList();
-			if(blocks.blockList != null && !blocks.blockList.isEmpty())
-			{
+			if(blocks.blockList != null && !blocks.blockList.isEmpty()) {
 				Random rand;
 				if(DummyConfig.shouldChangeImage)
 					rand = new Random(Minecraft.getMinecraft().thePlayer.ticksExisted);
@@ -333,15 +235,12 @@ public class NetProxy_Client extends NetProxy_Server{
 	}
 
 	@Override
-	public void choseDisplayStack(CreativePageItems items)
-	{
+	public void choseDisplayStack(CreativePageItems items) {
 		World w = Minecraft.getMinecraft().theWorld;
-		if(Minecraft.getMinecraft().thePlayer != null && w.isRemote && Minecraft.getMinecraft().thePlayer.ticksExisted % 60 == 0)
-		{
+		if(Minecraft.getMinecraft().thePlayer != null && w.isRemote && Minecraft.getMinecraft().thePlayer.ticksExisted % 60 == 0) {
 			items.delayTime = 0;
 			items.itemList = items.initialiseItemsList();
-			if(items.itemList != null && !items.itemList.isEmpty())
-			{
+			if(items.itemList != null && !items.itemList.isEmpty()) {
 				Random rand;
 				if(DummyConfig.shouldChangeImage)
 					rand = new Random(Minecraft.getMinecraft().thePlayer.ticksExisted);
@@ -355,24 +254,24 @@ public class NetProxy_Client extends NetProxy_Server{
 		}
 	}
 
-	public void registerPostInit()
-	{
+	public void registerPostInit() {
 		ModelUtils.registerColors();
 	}
 
-	public void handleBlockRegister(Block b, ItemBlock ib, String name, Class<?> modClass)
-	{
-		if(Core.getBlockTabForMod(modClass) != null)
-		{
+	public void handleBlockRegister(Block b, ItemBlock ib, String name, Class<?> modClass) {
+		if(Core.getBlockTabForMod(modClass) != null) {
 			b.setCreativeTab(Core.getBlockTabForMod(modClass));
 			BlocksRegistry.blocksList.put(b, Core.getBlockTabForMod(modClass).getTabLabel());
 		}
 
 		if(b instanceof IBlockColor)
-			ModelUtils.blockColors.add(b);
+			ModelUtils.blockColors.add(Pair.<IBlockColor, Block>of((IBlockColor)b, b));
+		
+		if(ib != null && b instanceof IItemColor)
+			ModelUtils.itemColors.add(Pair.<IItemColor, Item>of((IItemColor)b, ib));
 
 		if(ib != null && ib instanceof IItemColor)
-			ModelUtils.itemColors.add(ib);
+			ModelUtils.itemColors.add(Pair.<IItemColor, Item>of((IItemColor)ib, ib));
 
 		if(b instanceof IModelRegisterer)
 			((IModelRegisterer)b).registerModels();
@@ -381,16 +280,14 @@ public class NetProxy_Client extends NetProxy_Server{
 			((IModelRegisterer)ib).registerModels();
 	}
 
-	public void handleItemRegister(Item i, String name, Class<?> modClass)
-	{
-		if(Core.getItemTabForMod(modClass) != null)
-		{
+	public void handleItemRegister(Item i, String name, Class<?> modClass) {
+		if(Core.getItemTabForMod(modClass) != null) {
 			i.setCreativeTab(Core.getItemTabForMod(modClass));
 			ItemRegistry.itemsList.put(i, Core.getItemTabForMod(modClass).getTabLabel());
 		}
 
 		if(i instanceof IItemColor)
-			ModelUtils.itemColors.add(i);
+			ModelUtils.itemColors.add(Pair.<IItemColor, Item>of((IItemColor)i, i));
 
 		if(i instanceof IModelRegisterer)
 			((IModelRegisterer)i).registerModels();

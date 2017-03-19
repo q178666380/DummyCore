@@ -26,17 +26,22 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * Some methods to help with model registering
+ * @author TheLMiffy1111
+ * 
+ */
 public class ModelUtils {
-	public static final ArrayList<Block> blockColors = new ArrayList<Block>();
-	public static final ArrayList<Item> itemColors = new ArrayList<Item>();
+	public static final ArrayList<Pair<IBlockColor,Block>> blockColors = new ArrayList<Pair<IBlockColor,Block>>();
+	public static final ArrayList<Pair<IItemColor,Item>> itemColors = new ArrayList<Pair<IItemColor,Item>>();
 	public static final ArrayList<Pair<ModelResourceLocation,IBakedModel>> MODELS = new ArrayList<Pair<ModelResourceLocation,IBakedModel>>();
 
 	@SideOnly(Side.CLIENT)
 	public static void registerColors() {
-		for(Block b : blockColors)
-			Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler((IBlockColor)b, b);
-		for(Item i : itemColors)
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler((IItemColor)i, i);
+		for(Pair<IBlockColor,Block> b : blockColors)
+			Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(b.getLeft(), b.getRight());
+		for(Pair<IItemColor,Item> i : itemColors)
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(i.getLeft(), i.getRight());
 	}
 	
 	/**

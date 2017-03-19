@@ -20,63 +20,40 @@ import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 
 //Internal
-public class NetProxy_Server implements IGuiHandler{
+public class NetProxy_Server implements IGuiHandler {
 
-	public void injectOldItemBlockModel(Block b){}
+	public void handlePacketS35(SPacketUpdateTileEntity pkt) {}
 
-	public void handlePacketS35(SPacketUpdateTileEntity pkt)
-	{
-
-	}
-
-	public EntityPlayer getPlayerOnSide(INetHandler handler)
-	{
-		if(handler instanceof NetHandlerPlayServer)
-		{
+	public EntityPlayer getPlayerOnSide(INetHandler handler) {
+		if(handler instanceof NetHandlerPlayServer) {
 			return ((NetHandlerPlayServer)handler).playerEntity;
 		}
 		return null;
 	}
 
-	public EntityPlayer getClientPlayer()
-	{
+	public EntityPlayer getClientPlayer() {
 		return null;
 	}
 
-	public World getWorldForDim(int dim)
-	{
+	public World getWorldForDim(int dim) {
 		return DimensionManager.getWorld(dim);
 	}
 
-	public World getClientWorld()
-	{
+	public World getClientWorld() {
 		return null;
 	}
 
-	public Integer[] createPossibleMetadataCacheFromBlock(Block b)
-	{
+	public Integer[] createPossibleMetadataCacheFromBlock(Block b) {
 		return new Integer[]{0};
 	}
 
-	public Integer[] createPossibleMetadataCacheFromItem(Item i)
-	{
+	public Integer[] createPossibleMetadataCacheFromItem(Item i) {
 		return new Integer[]{0};
 	}
 
-	public void registerInfo()
-	{
+	public void registerInfo() {}
 
-	}
-
-	public void registerInit()
-	{
-
-	}
-
-	public void removeMissingTextureErrors()
-	{
-
-	}
+	public void registerInit() {}
 
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world,int x, int y, int z) {
@@ -97,33 +74,15 @@ public class NetProxy_Server implements IGuiHandler{
 		return null;
 	}
 
-	public void initShaders(ResourceLocation rLoc)
-	{
+	public void initShaders(ResourceLocation rLoc) {}
 
-	}
+	public void choseDisplayStack(CreativePageBlocks blocks) {}
 
-	public void choseDisplayStack(CreativePageBlocks blocks)
-	{
+	public void choseDisplayStack(CreativePageItems items) {}
 
-	}
+	public void registerPostInit() {}
 
-	public void choseDisplayStack(CreativePageItems items)
-	{
+	public void handleBlockRegister(Block b, ItemBlock ib, String name, Class<?> modClass) {}
 
-	}
-
-	public void registerPostInit()
-	{
-
-	}
-
-	public void handleBlockRegister(Block b, ItemBlock ib, String name, Class<?> modClass)
-	{
-
-	}
-
-	public void handleItemRegister(Item i, String name, Class<?> modClass)
-	{
-
-	}
+	public void handleItemRegister(Item i, String name, Class<?> modClass) {}
 }

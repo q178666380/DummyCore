@@ -7,7 +7,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
 /**
- * In 1.8 Mojang changed the AxisAlignedBB's min/max params to be final, which made a lot of things inconvinient for me
+ * In 1.8 Mojang changed the AxisAlignedBB's min/max params to be final, which made a lot of things inconvenient for me
  * <br>So here is an ExtendedAABB class which is the same as AxisAlignedBB so check for documentation there, but has it's min/max vars not final
  * @author modbder
  *
