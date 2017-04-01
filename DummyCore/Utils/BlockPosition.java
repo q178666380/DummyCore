@@ -36,5 +36,4 @@ public class BlockPosition {
 		metadata = blk.getMetaFromState(bs);
 		blockTile = w.getTileEntity(bp);
 	}
-
 }

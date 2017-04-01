@@ -16,5 +16,4 @@ public interface IDummyConfig {
 	 * @param config - Forge configuration file automatically created.
 	 */
 	public abstract void load(Configuration config);
-
 }

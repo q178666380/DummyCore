@@ -1,6 +1,10 @@
 package DummyCore.Utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+
+import com.google.common.collect.Lists;
 
 /**
  * 
@@ -103,10 +107,10 @@ public class MathUtils {
 	}
 	
 	/**
-	 * Used to convert deciminal number to the Hexadeciminal.
+	 * Used to convert decimal number to hexadecimal.
 	 * @version From DummyCore 1.1
 	 * @param a - the int to be converted
-	 * @return this integer, converted into hexadeciminal
+	 * @return this integer, converted into hexadecimal
 	 */
 	public static int convertToHex(int a)
 	{
@@ -195,7 +199,7 @@ public class MathUtils {
 	}
 	
 	@SafeVarargs
-	public static <T extends Comparable<T>>T max(T...is)
+	public static <T extends Comparable<T>> T max(T...is)
 	{
 		T mI = is.length == 0 ? null : is[0];
 		
@@ -206,5 +210,19 @@ public class MathUtils {
 		return mI;
 	}
 	
-	
+	/**
+	 * Picks a random element from the provided Iterable and Random.
+	 * @param elements An iterable
+	 * @param rnd A Random
+	 * @return A random element in the iterable.
+	 */
+	public static <T> T randomElement(Iterable<? extends T> elements, Random rnd) {
+		if(elements instanceof List<?>) {
+			List<T> lst = (List<T>)elements;
+			return lst.size() == 0 ? null : lst.get(rnd.nextInt(lst.size()));
+		}
+		
+		ArrayList<T> lst = Lists.<T>newArrayList(elements);
+		return lst.size() == 0 ? null : lst.get(rnd.nextInt(lst.size()));
+	}
 }

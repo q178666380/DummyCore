@@ -63,11 +63,11 @@ public class Face
                     offsetV = -offsetV;
                 }
 
-                TessellatorWrapper.instance.addVertexWithUV(vertices[i].x, vertices[i].y, vertices[i].z, textureCoordinates[i].u + offsetU, textureCoordinates[i].v + offsetV);
+                TessellatorWrapper.getInstance().addVertexWithUV(vertices[i].x, vertices[i].y, vertices[i].z, textureCoordinates[i].u + offsetU, textureCoordinates[i].v + offsetV);
             }
             else
             {
-            	TessellatorWrapper.instance.addVertex(vertices[i].x, vertices[i].y, vertices[i].z);
+            	TessellatorWrapper.getInstance().addVertex(vertices[i].x, vertices[i].y, vertices[i].z);
             }
         }
     }

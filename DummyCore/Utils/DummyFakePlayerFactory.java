@@ -6,7 +6,7 @@ import java.util.UUID;
 import com.mojang.authlib.GameProfile;
 
 /**
- * Is a standart FakePlayerFactory, so I've reinvented the wheel for no reason.
+ * Is a standard FakePlayerFactory, so I've reinvented the wheel for no reason.
  * @author modbder
  *
  */

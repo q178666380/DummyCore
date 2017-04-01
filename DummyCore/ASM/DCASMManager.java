@@ -78,7 +78,7 @@ public class DCASMManager implements IClassTransformer {
 			lst.add(new VarInsnNode(Opcodes.ILOAD, 3));
 			lst.add(new VarInsnNode(Opcodes.ILOAD, 4));
 			lst.add(new VarInsnNode(Opcodes.ALOAD, 5));
-			lst.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "DummyCore/Utils/TransformedMethods", "renderItemOverlayIntoGUI", "(Lnet/minecraft/client/gui/FontRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", false));
+			lst.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "DummyCore/Utils/DummyHooks", "renderItemOverlayIntoGUI", "(Lnet/minecraft/client/gui/FontRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", false));
 			
 			mn.instructions.insert(mn.instructions.get(1), lst);
 			

@@ -16,5 +16,4 @@ public interface IAttributeModifier {
 	public abstract String last5OfUUID(ItemStack stack, EntityPlayer p);
 	
 	public abstract int getOperation(ItemStack stack, EntityPlayer p);
-
 }

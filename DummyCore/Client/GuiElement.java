@@ -4,11 +4,12 @@ import DummyCore.Utils.TessellatorWrapper;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 
 /**
- * A GuiElement is an additional object that renders for GuiCommon. One GuiCommon can hold up to N GuiElements, where N is positive infinity?
+ * A GuiElement is an additional object that renders for GuiCommon. One GuiCommon can hold unlimited GuiElements.
  * @author modbder
  *
  */
@@ -53,7 +54,7 @@ public abstract class GuiElement {
 		tessellator.draw();
 	}
 
-	public void drawTexturedModelRectFromIcon(int p_94065_1_, int p_94065_2_, Icon p_94065_3_, int p_94065_4_, int p_94065_5_) {
+	public void drawTexturedModelRectFromIcon(int p_94065_1_, int p_94065_2_, TextureAtlasSprite p_94065_3_, int p_94065_4_, int p_94065_5_) {
 		TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
 		tessellator.startDrawingQuads();
 		tessellator.addVertexWithUV(p_94065_1_ + 0, p_94065_2_ + p_94065_5_, this.zLevel, p_94065_3_.getMinU(), p_94065_3_.getMaxV());

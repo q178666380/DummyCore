@@ -14,6 +14,7 @@ import DummyCore.Utils.DummyEventHandler;
 import DummyCore.Utils.DummyPacketHandler;
 import DummyCore.Utils.DummyPacketIMSG;
 import DummyCore.Utils.DummyPacketIMSG_Tile;
+import DummyCore.Utils.DummyPortalHandler;
 import DummyCore.Utils.DummyTilePacketHandler;
 import DummyCore.Utils.LoadingUtils;
 import DummyCore.Utils.ModVersionChecker;
@@ -42,7 +43,7 @@ import net.minecraftforge.fml.relauncher.Side;
  * @author Modbder
  * @version From DummyCore 1.0
  */
-@Mod(modid = modid, name = modname, version = version, useMetadata = false,acceptedMinecraftVersions=mcVersion)
+@Mod(modid = modid, name = modname, version = version, useMetadata = false, acceptedMinecraftVersions=mcVersion)
 public class CoreInitialiser {
 	public static final String modid = "dummycore";
 	public static final String modname = "DummyCoreUnofficial";
@@ -50,7 +51,7 @@ public class CoreInitialiser {
 	public static final String modVersion = "3";
 	public static final String mcVersion = "1.10.2";
 	public static final String modmcVersion = "1102";
-	public static final String buildVersion = "1";
+	public static final String buildVersion = "2";
 	public static final String buildPostfix = "";
 	public static final String version = globalVersion+'.'+modVersion+'.'+modmcVersion+'.'+buildVersion+'.'+buildPostfix;
 
@@ -81,7 +82,7 @@ public class CoreInitialiser {
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
 		initMetadata(e.getModMetadata());
-		Core.registerModAbsolute(getClass(), "DummyCore", e.getModConfigurationDirectory().getAbsolutePath(),cfg,false);
+		Core.registerModAbsolute(getClass(), "DummyCore", e.getModConfigurationDirectory().getAbsolutePath(), cfg, false);
 
 		if(instance == null) instance = this;
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("DummyCore");
@@ -92,11 +93,12 @@ public class CoreInitialiser {
 
 		MinecraftForge.EVENT_BUS.register(new DummyEventHandler());
 		MinecraftForge.EVENT_BUS.register(new DummyDataUtils());
+		MinecraftForge.EVENT_BUS.register(new DummyPortalHandler());
 
 		if(Loader.isModLoaded(modid))
 			LoadingUtils.knownBigASMModifiers.add("dummycore");
 		if(Loader.isModLoaded("DragonAPI"))
-			LoadingUtils.knownBigASMModifiers.add("DragonAPI"); //<- I have nothing against Reika, I like his mods, I just like to point out that DragonAPI adds quite a lot of ASM hooks
+			LoadingUtils.knownBigASMModifiers.add("DragonAPI");
 		if(Loader.isModLoaded("Optifine") || Loader.isModLoaded("optifine"))
 			LoadingUtils.knownBigASMModifiers.add("Optifine");
 		if(Loader.isModLoaded("CoFHCore"))
@@ -113,6 +115,8 @@ public class CoreInitialiser {
 			LoadingUtils.knownBigASMModifiers.add("CodeChickenCore");
 		if(Loader.isModLoaded("endercore"))
 			LoadingUtils.knownBigASMModifiers.add("EnderCore");
+		if(Loader.isModLoaded("CodeChickenLib"))
+			LoadingUtils.knownBigASMModifiers.add("CodeChickenLib");
 
 		FMLCommonHandler.instance().registerCrashCallable(new DCCrashCallable());
 		ModVersionChecker.addRequest(getClass(), "https://www.dropbox.com/s/iwdfv0mc4qns00f/DummyCoreVersion.txt?dl=1");

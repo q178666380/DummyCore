@@ -342,7 +342,7 @@ public class DCParticleEngine {
 							e.printStackTrace();
 						}
 					}
-					TessellatorWrapper.instance.draw();
+					TessellatorWrapper.getInstance().draw();
 					if(layer.blend)
 						GlStateManager.disableBlend();
 					if(layer.alpha)

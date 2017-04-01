@@ -1,67 +1,97 @@
 package DummyCore.Utils;
 
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 
 public class TessellatorWrapper {
 	
-	public static final TessellatorWrapper instance = new TessellatorWrapper();
+	private Tessellator tess;
 	
-	public void startDrawing(int mode)
-	{
-		Tessellator.getInstance().getBuffer().begin(mode, DefaultVertexFormats.POSITION_TEX);
+	protected TessellatorWrapper() {
+		this(Tessellator.getInstance());
 	}
 	
-	public void startDrawingQuads()
-	{
-		startDrawing(7);
+	protected TessellatorWrapper(Tessellator tess) {
+		this.tess = tess;
 	}
 	
-	public void addVertexWithUV(double x, double y, double z, double u, double v)
-	{
-		Tessellator.getInstance().getBuffer().pos(x, y, z).tex(u, v).endVertex();
+	public static TessellatorWrapper getInstance() {
+		return new TessellatorWrapper();
 	}
 	
-	public void addVertex(double x, double y, double z)
-	{
-		Tessellator.getInstance().getBuffer().pos(x, y, z).endVertex();
+	public TessellatorWrapper begin(int mode, VertexFormat format) {
+		tess.getBuffer().begin(mode, format);
+		return this;
 	}
 	
-	public void draw()
-	{
-		Tessellator.getInstance().draw();
+	public TessellatorWrapper startDrawing(int mode) {
+		begin(mode, DefaultVertexFormats.POSITION_TEX);
+		return this;
 	}
 	
-	public static TessellatorWrapper getInstance()
-	{
-		return instance;
+	public TessellatorWrapper startDrawingWithColor(int mode) {
+		begin(mode, DefaultVertexFormats.POSITION_TEX_COLOR);
+		return this;
 	}
 	
-	public void setColorRGBA_F(float r, float g, float b, float a)
-	{
-		Tessellator.getInstance().getBuffer().color(r,g,b,a);
+	public TessellatorWrapper startDrawingQuads() {
+		startDrawing(GL11.GL_QUADS);
+		return this;
 	}
 	
-	public void setColorOpaque_I(int color)
-	{
+	public TessellatorWrapper startDrawingQuadsWithColor() {
+		startDrawingWithColor(GL11.GL_QUADS);
+		return this;
+	}
+	
+	public TessellatorWrapper addVertexWithUV(double x, double y, double z, double u, double v) {
+		tess.getBuffer().pos(x, y, z).tex(u, v).endVertex();
+		return this;
+	}
+	
+	public TessellatorWrapper addVertex(double x, double y, double z) {
+		tess.getBuffer().pos(x, y, z).endVertex();
+		return this;
+	}
+	
+	public TessellatorWrapper draw() {
+		tess.draw();
+		return this;
+	}
+	
+	public TessellatorWrapper setColorRGBA_F(float r, float g, float b, float a) {
+		tess.getBuffer().color(r,g,b,a);
+		return this;
+	}
+	
+	public TessellatorWrapper setColorOpaque_I(int color) {
 	    float cR = (float)((color & 0xFF0000) >> 16) / 0xff;
 	    float cG = (float)((color & 0xFF00) >> 8) / 0xff;
 	    float cB = (float)((color & 0xFF)) / 0xff;
 		
-		Tessellator.getInstance().getBuffer().color(cR,cG,cB,1);
+		tess.getBuffer().color(cR,cG,cB,1);
+		return this;
 	}
 	
-	public void setColorRGBA_I(int color, int alpha)
-	{
+	public TessellatorWrapper setColorRGBA_I(int color, int alpha) {
 	    float cR = (float)((color & 0xFF0000) >> 16) / 0xff;
 	    float cG = (float)((color & 0xFF00) >> 8) / 0xff;
 	    float cB = (float)((color & 0xFF)) / 0xff;
 		
-		Tessellator.getInstance().getBuffer().color(cR,cG,cB,(float)alpha/255);
+		tess.getBuffer().color(cR,cG,cB,(float)alpha/255);
+		return this;
 	}
 	
-	public void setTranslation(double x, double y, double z)
-	{
-		Tessellator.getInstance().getBuffer().putPosition(x, y, z);
+	public TessellatorWrapper setTranslation(double x, double y, double z) {
+		tess.getBuffer().putPosition(x, y, z);
+		return this;
+	}
+	
+	public TessellatorWrapper setNormal(float x, float y, float z) {
+		tess.getBuffer().normal(x, y, z);
+		return this;
 	}
 }

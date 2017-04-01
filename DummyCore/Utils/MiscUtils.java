@@ -4,8 +4,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.google.common.collect.HashMultimap;
@@ -15,6 +18,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -29,7 +33,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemPotion;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -37,14 +40,12 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.potion.PotionHelper;
-import net.minecraft.potion.PotionUtils;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -83,7 +84,7 @@ public class MiscUtils {
 	public static final HashMultimap<Item,IItemOverlayElement> itemOverlayElements = HashMultimap.<Item,IItemOverlayElement>create();
 	//ShaderGroups IDs - 
 	//0 - Pixelated
-	//1 -  Smooth
+	//1 - Smooth
 	//2 - Bright, Highly blured
 	//3 - High contrast, Pixel outline
 	//4 - Bright, Medium blured
@@ -1156,5 +1157,34 @@ public class MiscUtils {
 
 	public static String getUsernameFromUUID(UUID uuid) {
 		return UsernameCache.getLastKnownUsername(uuid);
+	}
+	
+	public static Set<ItemStack> getSubItemsToDraw(ItemStack stk) {
+		stk = stk.copy();
+		
+		if(stk.getItemDamage() != OreDictionary.WILDCARD_VALUE)
+			return Collections.<ItemStack>singleton(stk);
+		
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+			stk.setItemDamage(0);
+			return Collections.<ItemStack>singleton(stk);
+		}
+		
+		Item it = stk.getItem();
+		HashSet<ItemStack> ret = new HashSet<ItemStack>();
+		for(CreativeTabs tab : it.getCreativeTabs()) {
+			ArrayList<ItemStack> lst = new ArrayList<ItemStack>();
+			it.getSubItems(it, tab, lst);
+			for(int i = 0; i < lst.size(); i++) {
+				ItemStack stk0 = lst.get(i);
+				if(stk0 == null)
+					lst.remove(i);
+				else
+					stk0.stackSize = stk.stackSize;
+			}
+			ret.addAll(lst);
+		}
+		
+		return ret;
 	}
 }

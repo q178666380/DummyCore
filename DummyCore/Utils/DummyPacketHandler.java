@@ -17,17 +17,13 @@ import net.minecraftforge.fml.relauncher.Side;
 public class DummyPacketHandler implements IMessageHandler<DummyPacketIMSG, IMessage> {
 
 	@Override
-	public IMessage onMessage(final DummyPacketIMSG message, final MessageContext ctx) 
-	{
-		FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(new Runnable() {
-			@Override
-			public void run() {
-				handleMessage(message, ctx);
-			}
+	public IMessage onMessage(DummyPacketIMSG message, MessageContext ctx)  {
+		FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
+			handleMessage(message, ctx);
 		});
 		return null;
 	}
-	
+
 	public void handleMessage(DummyPacketIMSG message, MessageContext ctx)
 	{
 		Side s = ctx.side;
@@ -36,27 +32,27 @@ public class DummyPacketHandler implements IMessageHandler<DummyPacketIMSG, IMes
 		else
 			MinecraftForge.EVENT_BUS.post(new DummyEvent_OnPacketRecieved(s, message.dataStr, CoreInitialiser.proxy.getPlayerOnSide(ctx.getServerHandler())));
 	}
-	
+
 	public static void sendToAll(DummyPacketIMSG message)
 	{
 		CoreInitialiser.network.sendToAll(message);
 	}
-	
+
 	public static void sendToAllAround(DummyPacketIMSG message, TargetPoint pnt)
 	{
 		CoreInitialiser.network.sendToAllAround(message, pnt);
 	}
-	
+
 	public static void sendToAllAround(DummyPacketIMSG message, int dim)
 	{
 		CoreInitialiser.network.sendToDimension(message, dim);
 	}
-	
+
 	public static void sendToPlayer(DummyPacketIMSG message, EntityPlayerMP player)
 	{
 		CoreInitialiser.network.sendTo(message, player);
 	}
-	
+
 	public static void sendToServer(DummyPacketIMSG message)
 	{
 		CoreInitialiser.network.sendToServer(message);

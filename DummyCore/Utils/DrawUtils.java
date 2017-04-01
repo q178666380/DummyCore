@@ -7,13 +7,13 @@ import java.util.Random;
 
 import org.lwjgl.opengl.GL11;
 
-import DummyCore.Client.Icon;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
@@ -47,7 +47,7 @@ public class DrawUtils {
 	}
 
 	@Deprecated
-	public static boolean drawScaledTexturedRect_Items(int x, int y, Icon icon, int width, int height, float zLevel)
+	public static boolean drawScaledTexturedRect_Items(int x, int y, TextureAtlasSprite icon, int width, int height, float zLevel)
 	{
 		return drawScaledTexturedRect(x,y,icon,width,height,zLevel);
 	}
@@ -64,7 +64,7 @@ public class DrawUtils {
 	 * @return
 	 */
 	@SideOnly(Side.CLIENT)
-	public static boolean drawScaledTexturedRect(int x, int y, Icon icon, int width, int height, float zLevel)
+	public static boolean drawScaledTexturedRect(int x, int y, TextureAtlasSprite icon, int width, int height, float zLevel)
 	{
 		if(icon == null)
 			return false;
@@ -74,7 +74,7 @@ public class DrawUtils {
 		double maxU = icon.getMaxU();
 		double minV = icon.getMinV();
 		double maxV = icon.getMaxV();
-		TessellatorWrapper tec = TessellatorWrapper.instance;
+		TessellatorWrapper tec = TessellatorWrapper.getInstance();
 		tec.startDrawingQuads();
 		tec.addVertexWithUV(x + 0, y + height, zLevel, minU, minV + ((maxV - minV) * height) / 16D);
 		tec.addVertexWithUV(x + width, y + height, zLevel, minU + ((maxU - minU) * width) / 16D, minV + ((maxV - minV) * height) / 16D);
@@ -96,7 +96,7 @@ public class DrawUtils {
 	 * @return
 	 */
 	@SideOnly(Side.CLIENT)
-	public static void drawTexture(int x, int y, Icon icon, int width, int height, float zLevel)
+	public static void drawTexture(int x, int y, TextureAtlasSprite icon, int width, int height, float zLevel)
 	{
 		for(int i = 0; i < width; i += 16)
 			for(int j = 0; j < height; j += 16)
@@ -106,7 +106,7 @@ public class DrawUtils {
 	}
 
 	@Deprecated
-	public static void drawTexture_Items(int x, int y, Icon icon, int width, int height, float zLevel)
+	public static void drawTexture_Items(int x, int y, TextureAtlasSprite icon, int width, int height, float zLevel)
 	{
 		drawTexture(x,y,icon,width,height,zLevel);
 	}

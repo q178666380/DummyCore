@@ -35,7 +35,7 @@ public class GroupObject
         if (faces.size() > 0)
         {
             Tessellator tessellator = Tessellator.getInstance();
-            TessellatorWrapper.instance.startDrawing(glDrawingMode);
+            TessellatorWrapper.getInstance().startDrawing(glDrawingMode);
             render(tessellator);
             tessellator.draw();
         }

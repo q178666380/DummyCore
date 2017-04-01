@@ -179,11 +179,11 @@ public class WavefrontObject implements IModelCustom
 
         if (currentGroupObject != null)
         {
-        	TessellatorWrapper.instance.startDrawing(currentGroupObject.glDrawingMode);
+        	TessellatorWrapper.getInstance().startDrawing(currentGroupObject.glDrawingMode);
         }
         else
         {
-        	TessellatorWrapper.instance.startDrawing(GL11.GL_TRIANGLES);
+        	TessellatorWrapper.getInstance().startDrawing(GL11.GL_TRIANGLES);
         }
         tessellateAll(tessellator);
 
