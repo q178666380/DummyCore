@@ -21,7 +21,7 @@ import net.minecraftforge.common.DimensionManager;
 public class CommandTransfer extends CommandBase {
 
 	@Override
-	public String getCommandUsage(ICommandSender p_71518_1_) {
+	public String getUsage(ICommandSender p_71518_1_) {
 		return "/tpToDimension <player> <dimensionID> <x> <y> <z>";
 	}
 
@@ -41,13 +41,13 @@ public class CommandTransfer extends CommandBase {
 	}
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return "tpToDimension";
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
-		return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getAllUsernames()) : args.length >= 3 && args.length <= 5 ? getTabCompletionCoordinate(args, 1, pos) : Collections.<String>emptyList();
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
+		return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames()) : args.length >= 3 && args.length <= 5 ? getTabCompletionCoordinate(args, 1, pos) : Collections.<String>emptyList();
 	}
 
 	@Override

@@ -254,7 +254,7 @@ public class DCParticleEngine {
 				currentParticlesForMod += particles.get(le).size();
 		if(currentParticlesForLayer >= layer.maxParticlesFor || (currentParticlesForMod >= layer.owner.maxParticlesForMod && layer.owner.maxParticlesForMod != -1))
 			return;
-		/*if(particle.dimension != Minecraft.getMinecraft().thePlayer.dimension)
+		/*if(particle.dimension != Minecraft.getMinecraft().player.dimension)
 			return;*/
 		allParticles.add(particle);
 		particles.get(layer).add(particle);
@@ -308,7 +308,7 @@ public class DCParticleEngine {
 						GlStateManager.alphaFunc(layer.alpha_index, layer.alpha_func);
 					}
 					Minecraft.getMinecraft().renderEngine.bindTexture(layer.texture);
-					EntityPlayerSP renderViewEntity = Minecraft.getMinecraft().thePlayer;
+					EntityPlayerSP renderViewEntity = Minecraft.getMinecraft().player;
 					float rotationViewX = ActiveRenderInfo.getRotationX();
 			    	float rotationViewZ = ActiveRenderInfo.getRotationZ();
 			    	float rotationViewXY = ActiveRenderInfo.getRotationXY();

@@ -157,7 +157,7 @@ public class DummyBlockAccess implements IBlockAccess {
     }
     
     /**
-     * Sets a default world over to something esle rather than Minecraft.getMinecraft().theWorld
+     * Sets a default world over to something esle rather than Minecraft.getMinecraft().world
      * @param w new world to set to
      * @return current DummyBlockAccess
      */
@@ -289,8 +289,9 @@ public class DummyBlockAccess implements IBlockAccess {
 	}
 
 	@Override
-	public Biome getBiomeGenForCoords(BlockPos pos) {
-		return getBiomeGenForCoords(pos.getX(),pos.getZ());
+	public Biome getBiome(BlockPos pos)
+	{
+		return getBiomeGenForCoords(pos.getX(), pos.getZ());
 	}
 
 	@Override
@@ -322,14 +323,14 @@ public class DummyBlockAccess implements IBlockAccess {
 			super(saveHandlerIn, info, providerIn, profilerIn, client);
 		}
 		
-	    public Biome getBiomeGenForCoords(final BlockPos pos)
+	    public Biome getBiome(final BlockPos pos)
 	    {
-	    	return access.getBiomeGenForCoords(pos);
+	    	return access.getBiome(pos);
 	    }
 	    
-	    public Biome getBiomeGenForCoordsBody(final BlockPos pos)
+	    public Biome getBiomeBody(final BlockPos pos)
 	    {
-	    	return access.getBiomeGenForCoords(pos);
+	    	return access.getBiome(pos);
 	    }
 	    
 	    public BiomeProvider getBiomeProvider()
@@ -420,7 +421,7 @@ public class DummyBlockAccess implements IBlockAccess {
 	    {
 	    	if(access.getTileEntity(pos) != tileEntityIn)
 	    		access.setTileEntity(pos.getX(), pos.getY(), pos.getZ(), tileEntityIn);
-	    	tileEntityIn.setWorldObj(this);
+	    	tileEntityIn.setWorld(this);
 	    	tileEntityIn.setPos(pos);
 	    }
 	    

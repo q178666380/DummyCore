@@ -73,6 +73,6 @@ public class GuiCommon extends GuiContainer {
         int k = (this.width - this.xSize) / 2;
         int l = (this.height - this.ySize) / 2;
         this.mc.renderEngine.bindTexture(slotLocation);
-		this.drawTexturedModalRect(k+slt.xDisplayPosition-1, l+slt.yDisplayPosition-1, 7, 83, 18, 18);
+		this.drawTexturedModalRect(k+slt.xPos-1, l+slt.yPos-1, 7, 83, 18, 18);
 	}
 }

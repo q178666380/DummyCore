@@ -95,7 +95,7 @@ public class DummyDataUtils {
 	@SubscribeEvent
 	public void playerLoad(LoadFromFile event)
 	{
-		if(!event.getEntityPlayer().worldObj.isRemote)
+		if(!event.getEntityPlayer().world.isRemote)
 		{
 			EntityPlayer player = event.getEntityPlayer();
 			boolean exists = true;
@@ -126,7 +126,7 @@ public class DummyDataUtils {
 	@SubscribeEvent
 	public void playerSave(SaveToFile event)
 	{
-		if(!event.getEntityPlayer().worldObj.isRemote)
+		if(!event.getEntityPlayer().world.isRemote)
 		{
 			EntityPlayer player = event.getEntityPlayer();
 			File playerFile = getDataFileForPlayer(player.getGameProfile().getId().toString());
@@ -143,7 +143,7 @@ public class DummyDataUtils {
 	@SubscribeEvent
 	public void playerLogOut(PlayerLoggedOutEvent event)
 	{
-		if(!event.player.worldObj.isRemote)
+		if(!event.player.world.isRemote)
 		{
 			playerFiles.remove(event.player.getGameProfile().getId().toString());
 			playerConfigs.remove(event.player.getGameProfile().getId().toString());

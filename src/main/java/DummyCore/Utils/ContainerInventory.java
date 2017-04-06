@@ -62,7 +62,7 @@ public abstract class ContainerInventory extends Container{
 	
 	@Override
 	public boolean canInteractWith(EntityPlayer player) {
-		return inv.isUseableByPlayer(player);
+		return inv.isUsableByPlayer(player);
 	}
     @Override
     public void onContainerClosed(EntityPlayer player)

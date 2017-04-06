@@ -74,9 +74,9 @@ public class DummyPortalHandler {
 
 		PortalPlayerData playerData = PLAYER_DATA.get(MiscUtils.getUUIDFromPlayer(event.player));
 		BlockPos pos = new BlockPos(event.player.posX,event.player.posY,event.player.posZ);
-		Block block = event.player.worldObj.getBlockState(pos).getBlock();
+		Block block = event.player.getEntityWorld().getBlockState(pos).getBlock();
 		BlockPos posDown = new BlockPos(event.player.posX,event.player.posY-1,event.player.posZ);
-		Block blockDown = event.player.worldObj.getBlockState(posDown).getBlock();
+		Block blockDown = event.player.getEntityWorld().getBlockState(posDown).getBlock();
 
 		if(BLOCK_DATA.containsKey(blockDown)) {
 			PortalBlockData blockData = BLOCK_DATA.get(blockDown);
@@ -117,9 +117,9 @@ public class DummyPortalHandler {
 			return;
 
 		BlockPos pos = new BlockPos(entityIn.posX,entityIn.posY,entityIn.posZ);
-		Block block = entityIn.worldObj.getBlockState(pos).getBlock();
+		Block block = entityIn.getEntityWorld().getBlockState(pos).getBlock();
 		BlockPos posDown = new BlockPos(entityIn.posX,entityIn.posY-1,entityIn.posZ);
-		Block blockDown = entityIn.worldObj.getBlockState(posDown).getBlock();
+		Block blockDown = entityIn.getEntityWorld().getBlockState(posDown).getBlock();
 
 		if(BLOCK_DATA.containsKey(blockDown)) {
 			PortalBlockData blockData = BLOCK_DATA.get(blockDown);
@@ -143,7 +143,7 @@ public class DummyPortalHandler {
 	}
 
 	private static void transferEntityToDimension(PortalBlockData blockData, Entity entityIn, int toDim, boolean isPlayer) {
-		if(entityIn.worldObj.isRemote)
+		if(entityIn.getEntityWorld().isRemote)
 			return;
 
 		MinecraftServer mcServer = entityIn.getServer();
@@ -201,12 +201,12 @@ public class DummyPortalHandler {
 		double d1 = entityIn.posZ * moveFactor;
 		float f = entityIn.rotationYaw;
 		oldWorldIn.theProfiler.startSection("placing");
-		d0 = (double)MathHelper.clamp_int((int)d0, -29999872, 29999872);
-		d1 = (double)MathHelper.clamp_int((int)d1, -29999872, 29999872);
+		d0 = (double)MathHelper.clamp((int)d0, -29999872, 29999872);
+		d1 = (double)MathHelper.clamp((int)d1, -29999872, 29999872);
 		if(entityIn.isEntityAlive()) {
 			entityIn.setLocationAndAngles(d0, entityIn.posY, d1, entityIn.rotationYaw, entityIn.rotationPitch);
 			teleporter.placeInPortal(entityIn, f);
-			toWorldIn.spawnEntityInWorld(entityIn);
+			toWorldIn.spawnEntity(entityIn);
 			toWorldIn.updateEntityWithOptionalForce(entityIn, false);
 		}
 		oldWorldIn.theProfiler.endSection();
@@ -219,7 +219,7 @@ public class DummyPortalHandler {
 			return;
 
 		if(event.getType() == RenderGameOverlayEvent.ElementType.ALL) {
-			EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
+			EntityPlayerSP player = Minecraft.getMinecraft().player;
 			int k = event.getResolution().getScaledWidth();
 			int l = event.getResolution().getScaledHeight();
 

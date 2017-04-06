@@ -21,7 +21,7 @@ public class Generator
 {
 	public static final Generator instance = new Generator();
 	
-	public World worldObj;
+	public World world;
 	public boolean isWorking;
 	public boolean hasOffset;
 	
@@ -72,13 +72,13 @@ public class Generator
 		
 		ArrayList<Coord3D> lst = new ArrayList<Coord3D>();
 		
-		for(int x = MathHelper.floor_double(genBox.minX); x <= MathHelper.floor_double(genBox.maxX); ++x)
+		for(int x = MathHelper.floor(genBox.minX); x <= MathHelper.floor(genBox.maxX); ++x)
 		{
-			for(int y = MathHelper.floor_double(genBox.minY); y <= MathHelper.floor_double(genBox.maxY); ++y)
+			for(int y = MathHelper.floor(genBox.minY); y <= MathHelper.floor(genBox.maxY); ++y)
 			{
-				for(int z = MathHelper.floor_double(genBox.minZ); z <= MathHelper.floor_double(genBox.maxZ); ++z)
+				for(int z = MathHelper.floor(genBox.minZ); z <= MathHelper.floor(genBox.maxZ); ++z)
 				{
-					if(worldObj.getBlockState(new BlockPos(x, y, z)).getBlock() == setTo && (worldObj.getBlockState(new BlockPos(x, y, z)).getBlock().getMetaFromState(worldObj.getBlockState(new BlockPos(x, y, z))) == genMetadata || genMetadata == OreDictionary.WILDCARD_VALUE))
+					if(world.getBlockState(new BlockPos(x, y, z)).getBlock() == setTo && (world.getBlockState(new BlockPos(x, y, z)).getBlock().getMetaFromState(world.getBlockState(new BlockPos(x, y, z))) == genMetadata || genMetadata == OreDictionary.WILDCARD_VALUE))
 					{
 						Coord3D c = new Coord3D(x,y,z);
 						lst.add(c);
@@ -129,7 +129,7 @@ public class Generator
 		offset = null;
 		hasOffset = false;
 		isWorking = true;
-		worldObj = world;
+		this.world = world;
 		setTo = Blocks.AIR;
 		genMetadata = 0;
 		flag = 2;
@@ -145,7 +145,7 @@ public class Generator
 		
 		offset = null;
 		isWorking = false;
-		worldObj = null;
+		world = null;
 		hasOffset = false;
 		setTo = null;
 		genMetadata = 0;
@@ -173,7 +173,7 @@ public class Generator
 		if(!isWorking)
 			throw new IllegalStateException("Can't worlgen if not generating!");
 		
-		if(worldObj.isRemote)
+		if(world.isRemote)
 			throw new IllegalArgumentException("Worldgen on CLIENT side is not allowed!");
 		
 		return isWorking;
@@ -255,12 +255,12 @@ public class Generator
 		
 		prepareBB(genBox);
 		
-		int x = MathHelper.floor_double(genBox.minX);
-		int y = MathHelper.floor_double(genBox.minY);
-		int z = MathHelper.floor_double(genBox.minZ);
-		int eX = MathHelper.floor_double(genBox.maxX);
-		int eY = MathHelper.floor_double(genBox.maxY);
-		int eZ = MathHelper.floor_double(genBox.maxZ);
+		int x = MathHelper.floor(genBox.minX);
+		int y = MathHelper.floor(genBox.minY);
+		int z = MathHelper.floor(genBox.minZ);
+		int eX = MathHelper.floor(genBox.maxX);
+		int eY = MathHelper.floor(genBox.maxY);
+		int eZ = MathHelper.floor(genBox.maxZ);
 		
 		for(int dx = x; dx <= eX; ++dx)
 		{
@@ -268,9 +268,9 @@ public class Generator
 			{
 				for(int dz = z; dz <= eZ; ++dz)
 				{
-					int i = worldObj.rand.nextInt(pairs.length);
-					if(worldObj.getBlockState(new BlockPos(dx,dy,dz)).getBlock() == setTo)
-						worldObj.setBlockState(new BlockPos(dx, dy, dz), pairs[i].getLeft().getStateFromMeta(pairs[i].getRight()), flag);
+					int i = world.rand.nextInt(pairs.length);
+					if(world.getBlockState(new BlockPos(dx,dy,dz)).getBlock() == setTo)
+						world.setBlockState(new BlockPos(dx, dy, dz), pairs[i].getLeft().getStateFromMeta(pairs[i].getRight()), flag);
 				}
 			}
 		}
@@ -293,9 +293,9 @@ public class Generator
 	    double radiusY = (genBox.maxY-genBox.minY)/2;
 	    double radiusZ = (genBox.maxZ-genBox.minZ)/2;
 	    
-	    int dx = MathHelper.floor_double(genBox.minX+radiusX);
-	    int dy = MathHelper.floor_double(genBox.minY+radiusY);
-	    int dz = MathHelper.floor_double(genBox.minZ+radiusZ);
+	    int dx = MathHelper.floor(genBox.minX+radiusX);
+	    int dy = MathHelper.floor(genBox.minY+radiusY);
+	    int dz = MathHelper.floor(genBox.minZ+radiusZ);
 	    
 	    double invRadiusX = 1.0D / radiusX;
 	    double invRadiusY = 1.0D / radiusY;
@@ -332,14 +332,14 @@ public class Generator
 	                if(!filled && lengthSq(nextXn, yn, zn) <= 1.0D && lengthSq(xn, nextYn, zn) <= 1.0D && lengthSq(xn, yn, nextZn) <= 1.0D)
 	                    continue;
 	                
-	                block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz+z));
-	                block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz+z));
-	                block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy-y), MathHelper.floor_float(dz+z));
-	                block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz-z));
-	                block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy-y), MathHelper.floor_float(dz+z));
-	                block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy-y), MathHelper.floor_float(dz-z));
-	                block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz-z));
-	                block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy-y), MathHelper.floor_float(dz-z));
+	                block(MathHelper.floor(dx+x), MathHelper.floor(dy+y), MathHelper.floor(dz+z));
+	                block(MathHelper.floor(dx-x), MathHelper.floor(dy+y), MathHelper.floor(dz+z));
+	                block(MathHelper.floor(dx+x), MathHelper.floor(dy-y), MathHelper.floor(dz+z));
+	                block(MathHelper.floor(dx+x), MathHelper.floor(dy+y), MathHelper.floor(dz-z));
+	                block(MathHelper.floor(dx-x), MathHelper.floor(dy-y), MathHelper.floor(dz+z));
+	                block(MathHelper.floor(dx+x), MathHelper.floor(dy-y), MathHelper.floor(dz-z));
+	                block(MathHelper.floor(dx-x), MathHelper.floor(dy+y), MathHelper.floor(dz-z));
+	                block(MathHelper.floor(dx-x), MathHelper.floor(dy-y), MathHelper.floor(dz-z));
 	            }
 	        }
 	    }
@@ -361,9 +361,9 @@ public class Generator
 	    double height = genBox.maxY-genBox.minY;
 	    double radiusZ = (genBox.maxZ-genBox.minZ)/2;
 	    
-	    int dx = MathHelper.floor_double(genBox.minX+radiusX);
-	    int dy = MathHelper.floor_double(genBox.minY);
-	    int dz = MathHelper.floor_double(genBox.minZ+radiusZ);
+	    int dx = MathHelper.floor(genBox.minX+radiusX);
+	    int dy = MathHelper.floor(genBox.minY);
+	    int dz = MathHelper.floor(genBox.minZ+radiusZ);
 	    
 	    boolean filled = false;
 		
@@ -375,13 +375,13 @@ public class Generator
         if(height < 0)
         {
             height = -height;
-            dy = MathHelper.floor_double(-height);
+            dy = MathHelper.floor(-height);
         }
         if(dy < 0)
             dy = 0;
         else
-        if((dy + height) - 1 > worldObj.getActualHeight())
-            height = (worldObj.getActualHeight() - dy) + 1;
+        if((dy + height) - 1 > world.getActualHeight())
+            height = (world.getActualHeight() - dy) + 1;
         double invRadiusX = 1.0D / radiusX;
         double invRadiusZ = 1.0D / radiusZ;
         int ceilRadiusX = (int)Math.ceil(radiusX);
@@ -407,10 +407,10 @@ public class Generator
                 
                 for(int y = 0; y < height; y++)
                 {
-                   block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz+z));
-                   block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz+z));
-                   block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz-z));
-                   block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz-z));
+                   block(MathHelper.floor(dx+x), MathHelper.floor(dy+y), MathHelper.floor(dz+z));
+                   block(MathHelper.floor(dx-x), MathHelper.floor(dy+y), MathHelper.floor(dz+z));
+                   block(MathHelper.floor(dx+x), MathHelper.floor(dy+y), MathHelper.floor(dz-z));
+                   block(MathHelper.floor(dx-x), MathHelper.floor(dy+y), MathHelper.floor(dz-z));
                 }
             }
         }
@@ -433,9 +433,9 @@ public class Generator
 	    double height = genBox.maxY-genBox.minY;
 	    double radiusZ = (genBox.maxZ-genBox.minZ)/2;
 	    
-	    int dx = MathHelper.floor_double(genBox.minX+radiusX);
-	    int dy = MathHelper.floor_double(genBox.minY);
-	    int dz = MathHelper.floor_double(genBox.minZ+radiusZ);
+	    int dx = MathHelper.floor(genBox.minX+radiusX);
+	    int dy = MathHelper.floor(genBox.minY);
+	    int dz = MathHelper.floor(genBox.minZ+radiusZ);
 	    
 	    boolean filled = true;
 		
@@ -447,13 +447,13 @@ public class Generator
         if(height < 0)
         {
             height = -height;
-            dy = MathHelper.floor_double(-height);
+            dy = MathHelper.floor(-height);
         }
         if(dy < 0)
             dy = 0;
         else
-        if((dy + height) - 1 > worldObj.getActualHeight())
-            height = (worldObj.getActualHeight() - dy) + 1;
+        if((dy + height) - 1 > world.getActualHeight())
+            height = (world.getActualHeight() - dy) + 1;
         double invRadiusX = 1.0D / radiusX;
         double invRadiusZ = 1.0D / radiusZ;
         int ceilRadiusX = (int)Math.ceil(radiusX);
@@ -479,10 +479,10 @@ public class Generator
                 
                 for(int y = 0; y < height; y++)
                 {
-                   block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz+z));
-                   block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz+z));
-                   block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz-z));
-                   block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz-z));
+                   block(MathHelper.floor(dx+x), MathHelper.floor(dy+y), MathHelper.floor(dz+z));
+                   block(MathHelper.floor(dx-x), MathHelper.floor(dy+y), MathHelper.floor(dz+z));
+                   block(MathHelper.floor(dx+x), MathHelper.floor(dy+y), MathHelper.floor(dz-z));
+                   block(MathHelper.floor(dx-x), MathHelper.floor(dy+y), MathHelper.floor(dz-z));
                 }
             }
         }
@@ -505,9 +505,9 @@ public class Generator
 	    double radiusY = (genBox.maxY-genBox.minY)/2;
 	    double radiusZ = (genBox.maxZ-genBox.minZ)/2;
 	    
-	    int dx = MathHelper.floor_double(genBox.minX+radiusX);
-	    int dy = MathHelper.floor_double(genBox.minY+radiusY);
-	    int dz = MathHelper.floor_double(genBox.minZ+radiusZ);
+	    int dx = MathHelper.floor(genBox.minX+radiusX);
+	    int dy = MathHelper.floor(genBox.minY+radiusY);
+	    int dz = MathHelper.floor(genBox.minZ+radiusZ);
 	    
 	    double invRadiusX = 1.0D / radiusX;
 	    double invRadiusY = 1.0D / radiusY;
@@ -544,14 +544,14 @@ public class Generator
 	                if(!filled && lengthSq(nextXn, yn, zn) <= 1.0D && lengthSq(xn, nextYn, zn) <= 1.0D && lengthSq(xn, yn, nextZn) <= 1.0D)
 	                    continue;
 	                
-	                block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz+z));
-	                block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz+z));
-	                block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy-y), MathHelper.floor_float(dz+z));
-	                block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz-z));
-	                block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy-y), MathHelper.floor_float(dz+z));
-	                block(MathHelper.floor_float(dx+x), MathHelper.floor_float(dy-y), MathHelper.floor_float(dz-z));
-	                block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy+y), MathHelper.floor_float(dz-z));
-	                block(MathHelper.floor_float(dx-x), MathHelper.floor_float(dy-y), MathHelper.floor_float(dz-z));
+	                block(MathHelper.floor(dx+x), MathHelper.floor(dy+y), MathHelper.floor(dz+z));
+	                block(MathHelper.floor(dx-x), MathHelper.floor(dy+y), MathHelper.floor(dz+z));
+	                block(MathHelper.floor(dx+x), MathHelper.floor(dy-y), MathHelper.floor(dz+z));
+	                block(MathHelper.floor(dx+x), MathHelper.floor(dy+y), MathHelper.floor(dz-z));
+	                block(MathHelper.floor(dx-x), MathHelper.floor(dy-y), MathHelper.floor(dz+z));
+	                block(MathHelper.floor(dx+x), MathHelper.floor(dy-y), MathHelper.floor(dz-z));
+	                block(MathHelper.floor(dx-x), MathHelper.floor(dy+y), MathHelper.floor(dz-z));
+	                block(MathHelper.floor(dx-x), MathHelper.floor(dy-y), MathHelper.floor(dz-z));
 	            }
 	        }
 	    }
@@ -592,7 +592,7 @@ public class Generator
 	{
 		gen();
 		
-		return worldObj.setBlockState(new BlockPos(x, y, z), setTo.getStateFromMeta(genMetadata), flag);
+		return world.setBlockState(new BlockPos(x, y, z), setTo.getStateFromMeta(genMetadata), flag);
 	}
 	
 	/**
@@ -604,12 +604,12 @@ public class Generator
 		gen();
 		prepareBB(genBox);
 		
-		int x = MathHelper.floor_double(genBox.minX);
-		int y = MathHelper.floor_double(genBox.minY);
-		int z = MathHelper.floor_double(genBox.minZ);
-		int eX = MathHelper.floor_double(genBox.maxX);
-		int eY = MathHelper.floor_double(genBox.maxY);
-		int eZ = MathHelper.floor_double(genBox.maxZ);
+		int x = MathHelper.floor(genBox.minX);
+		int y = MathHelper.floor(genBox.minY);
+		int z = MathHelper.floor(genBox.minZ);
+		int eX = MathHelper.floor(genBox.maxX);
+		int eY = MathHelper.floor(genBox.maxY);
+		int eZ = MathHelper.floor(genBox.maxZ);
 		
 		addCuboid(x,y,z,eX,eY,eZ);
 		

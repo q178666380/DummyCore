@@ -180,7 +180,7 @@ public class DrawUtils {
 		GlStateManager.translate(offsetX, offsetY+0.0625F, offsetZ);
 
 		IBakedModel ibakedmodel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(itemstack);
-		ibakedmodel = ibakedmodel.getOverrides().handleItemState(ibakedmodel, itemstack, Minecraft.getMinecraft().theWorld, (EntityLivingBase)null);
+		ibakedmodel = ibakedmodel.getOverrides().handleItemState(ibakedmodel, itemstack, Minecraft.getMinecraft().world, (EntityLivingBase)null);
 		int i = getISRenderPasses(itemstack, screenPosX, screenPosY, screenPosZ, TimerHijack.mcTimer.renderPartialTicks, ibakedmodel, force3DRender, rotation, rotationZ);
 
 		for(int j = 0; j < i; ++j) {
@@ -275,7 +275,7 @@ public class DrawUtils {
 	 */
 	public static void renderItemStackGUIInformation(ItemStack stk, int x, int y, FontRenderer font, double zLevel, int colorStart, int colorEnd, int colorBorder)
 	{
-		List<String> lst = stk.getTooltip(Minecraft.getMinecraft().thePlayer, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
+		List<String> lst = stk.getTooltip(Minecraft.getMinecraft().player, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
 		if (!lst.isEmpty())
 		{
 			int k = 0;

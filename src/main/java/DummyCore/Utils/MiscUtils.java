@@ -214,7 +214,7 @@ public class MiscUtils {
 							entityitem.motionX = (float)par1World.rand.nextGaussian() * f3;
 							entityitem.motionY = (float)par1World.rand.nextGaussian() * f3 + 0.2F;
 							entityitem.motionZ = (float)par1World.rand.nextGaussian() * f3;
-							par1World.spawnEntityInWorld(entityitem);
+							par1World.spawnEntity(entityitem);
 						}
 					}
 				}
@@ -274,7 +274,7 @@ public class MiscUtils {
 		if(p.getAttributeMap().getAttributeInstance(attrib).getModifier(UUID.fromString(genUUIDString+uuidLast5Symbols)) == null)
 		{
 			if(!remove)
-				p.getAttributeMap().getAttributeInstance(attrib).applyModifier(new AttributeModifier(UUID.fromString(genUUIDString+uuidLast5Symbols),"dam."+type+"."+attrib.getAttributeUnlocalizedName(), modifier, operation));
+				p.getAttributeMap().getAttributeInstance(attrib).applyModifier(new AttributeModifier(UUID.fromString(genUUIDString+uuidLast5Symbols),"dam."+type+"."+attrib.getName(), modifier, operation));
 		}else if(remove)
 		{
 			if(p.getAttributeMap().getAttributeInstance(attrib).getModifier(UUID.fromString(genUUIDString+uuidLast5Symbols)) != null)
@@ -285,7 +285,7 @@ public class MiscUtils {
 	/**
 	 * Used to send packets from SERVER to CLIENT.
 	 * @version From DummyCore 1.7
-	 * @param w - the worldObj that we are operating in
+	 * @param w - the getEntityWorld() that we are operating in
 	 * @param pkt - the packet to send
 	 * @param x - the X coordinate
 	 * @param y - the Y coordinate
@@ -320,8 +320,7 @@ public class MiscUtils {
 	/**
 	 * Used to send packets from SERVER to CLIENT.
 	 * @version From DummyCore 1.7
-	 * @param w - the worldObj that we are operating in
-	 * @param distance - the distance at which the players will get found.
+	 * @param w - the getEntityWorld() that we are operating in
 	 */
 	@SuppressWarnings({ "rawtypes" })
 	public static void sendPacketToAll(World w,Packet pkt)
@@ -346,7 +345,7 @@ public class MiscUtils {
 	/**
 	 * Used to send packets from SERVER to CLIENT.
 	 * @version From DummyCore 1.7
-	 * @param w - the worldObj that we are operating in
+	 * @param w - the getEntityWorld() that we are operating in
 	 * @param pkt - the packet to send
 	 * @param dimId - the ID of the dimension to look the players. 
 	 */
@@ -374,7 +373,7 @@ public class MiscUtils {
 	/**
 	 * Used to send packets from SERVER to CLIENT.
 	 * @version From DummyCore 1.7
-	 * @param w - the worldObj that we are operating in
+	 * @param w - the getEntityWorld() that we are operating in
 	 * @param pkt - the packet to send
 	 * @param player - the player to whom we are sending the packet.
 	 */
@@ -570,7 +569,7 @@ public class MiscUtils {
 		Entity retEntity = null;
 		try
 		{
-			retEntity = e.getClass().getConstructor(World.class).newInstance(e.worldObj);
+			retEntity = e.getClass().getConstructor(World.class).newInstance(e.getEntityWorld());
 			try {
 				Method m = retEntity.getClass().getMethod("copyDataFromOld", Entity.class);
 				m.setAccessible(true);
@@ -801,7 +800,7 @@ public class MiscUtils {
 	 * @param buttonID - the ID on the button in the code. Can be get via yourGuiButton.id
 	 * @param parentClass - the GUI class, that contains the button
 	 * @param buttonClass - the GUI class of the button
-	 * @param presser - the player, who presses the button. Usually Minecraft.getMinecraft().thePlayer but sometimes you may want to send packets of other SMP players(maybe?)
+	 * @param presser - the player, who presses the button. Usually Minecraft.getMinecraft().player but sometimes you may want to send packets of other SMP players(maybe?)
 	 */
 	@SideOnly(Side.CLIENT)
 	public static void handleButtonPress(int buttonID, Class<? extends Gui> parentClass, Class<? extends GuiButton> buttonClass, EntityPlayer presser, int bX, int bY, int bZ)
@@ -814,7 +813,7 @@ public class MiscUtils {
 	 * @param buttonID - the ID on the button in the code. Can be get via yourGuiButton.id
 	 * @param parentClass - the GUI class, that contains the button
 	 * @param buttonClass - the GUI class of the button
-	 * @param presser - the player, who presses the button. Usually Minecraft.getMinecraft().thePlayer but sometimes you may want to send packets of other SMP players(maybe?)
+	 * @param presser - the player, who presses the button. Usually Minecraft.getMinecraft().player but sometimes you may want to send packets of other SMP players(maybe?)
 	 * @param additionalData - Some additional data, that you might want to carry around. Should be a String, representing the DummyData, otherwise will get added tp the Z coordinate and make it unreadable.
 	 */
 	@SideOnly(Side.CLIENT)
@@ -844,7 +843,7 @@ public class MiscUtils {
 
 	/**
 	 * Searches for the first block, that matches the given condition at the given coordinates in the given Y range. 
-	 * @param w - the WorldObj where we are searching the block at
+	 * @param w - the getEntityWorld() where we are searching the block at
 	 * @param toSearch - the block that we are searching for
 	 * @param x - the X coordinate
 	 * @param z - the Z coordinate

@@ -84,7 +84,7 @@ public class DummyEventHandler {
 	@SubscribeEvent
 	public void onBlockBeingBroken(PlayerEvent.BreakSpeed event)
 	{
-		if(MiscUtils.isBlockUnbreakable(event.getEntityPlayer().worldObj, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ()))
+		if(MiscUtils.isBlockUnbreakable(event.getEntityPlayer().world, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ()))
 		{
 			event.setCanceled(true);
 		}
@@ -140,7 +140,7 @@ public class DummyEventHandler {
 					int x = Integer.parseInt(packetData[1].fieldValue);
 					int y = Integer.parseInt(packetData[2].fieldValue);
 					int z = Integer.parseInt(packetData[3].fieldValue);
-					TileEntity tile = event.recievedEntity.worldObj.getTileEntity(new BlockPos(x, y, z));
+					TileEntity tile = event.recievedEntity.getEntityWorld().getTileEntity(new BlockPos(x, y, z));
 					if(tile != null && tile instanceof ITEHasGameData)
 					{
 						DummyData[] tileShouldRecieve = Arrays.copyOfRange(packetData, 4, packetData.length);
@@ -156,7 +156,7 @@ public class DummyEventHandler {
 					double r = Double.parseDouble(packetData[5].fieldValue);
 					double g = Double.parseDouble(packetData[6].fieldValue);
 					double b = Double.parseDouble(packetData[7].fieldValue);
-					event.recievedEntity.worldObj.spawnParticle(EnumParticleTypes.valueOf(type.toUpperCase()), x, y, z, r, g, b);
+					event.recievedEntity.getEntityWorld().spawnParticle(EnumParticleTypes.valueOf(type.toUpperCase()), x, y, z, r, g, b);
 				}
 				if(modData.fieldName.equalsIgnoreCase("mod") && modData.fieldValue.equalsIgnoreCase("dummycore.sound"))
 				{
@@ -166,7 +166,7 @@ public class DummyEventHandler {
 					float vol = Float.parseFloat(packetData[4].fieldValue);
 					float pitch = Float.parseFloat(packetData[5].fieldValue);
 					String snd = packetData[6].fieldValue;
-					event.recievedEntity.worldObj.playSound(x, y, z, SoundEvent.REGISTRY.getObject(new ResourceLocation(snd)), SoundCategory.MASTER, vol, pitch, false);
+					event.recievedEntity.getEntityWorld().playSound(x, y, z, SoundEvent.REGISTRY.getObject(new ResourceLocation(snd)), SoundCategory.MASTER, vol, pitch, false);
 				}
 				if(modData.fieldName.equalsIgnoreCase("mod") && modData.fieldValue.equalsIgnoreCase("dummycore.infosync"))
 				{
@@ -188,7 +188,7 @@ public class DummyEventHandler {
 					int x = Integer.parseInt(packetData[1].fieldValue);
 					int z = Integer.parseInt(packetData[2].fieldValue);
 					int id = Integer.parseInt(packetData[3].fieldValue);
-					World world = event.recievedEntity.worldObj;
+					World world = event.recievedEntity.getEntityWorld();
 					Chunk chunk = world.getChunkFromBlockCoords(new BlockPos(x,world.getActualHeight(),z));
 					byte[] biome = chunk.getBiomeArray();
 					int cbiome = biome[(z & 0xf) << 4 | x & 0xf];
@@ -338,7 +338,7 @@ public class DummyEventHandler {
 			
 			GuiContainer gc = GuiContainer.class.cast(gui);
 			Slot slot = ReflectionHelper.getPrivateValue(GuiContainer.class, gc, new String[]{"theSlot","","field_147006_u","u"});
-			if(slot != null && slot.getHasStack() && mc.thePlayer.inventory.getItemStack() == null)
+			if(slot != null && slot.getHasStack() && mc.player.inventory.getItemStack() == null)
 			{
 				ItemStack stk = slot.getStack();
 				if(stk != null)
@@ -356,8 +356,8 @@ public class DummyEventHandler {
 					ArrayList<IItemDescriptionGraphics> inDesc = new ArrayList<IItemDescriptionGraphics>();
 					ArrayList<IItemDescriptionGraphics> aboveDesc = new ArrayList<IItemDescriptionGraphics>();
 					for(IItemDescriptionGraphics iig : iidLst)
-						if(iig.doDisplay(stk, Minecraft.getMinecraft().thePlayer))
-							if(iig.displayInDescription(stk, Minecraft.getMinecraft().thePlayer))
+						if(iig.doDisplay(stk, Minecraft.getMinecraft().player))
+							if(iig.displayInDescription(stk, Minecraft.getMinecraft().player))
 								inDesc.add(iig);
 							else
 								aboveDesc.add(iig);
@@ -369,7 +369,7 @@ public class DummyEventHandler {
 					
 					List<String> tooltip;
 					try {
-						tooltip = stk.getTooltip(mc.thePlayer, mc.gameSettings.advancedItemTooltips);
+						tooltip = stk.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips);
 					}catch(Exception e){
 						tooltip = new ArrayList<String>();
 					}
@@ -403,14 +403,14 @@ public class DummyEventHandler {
 					int indexed = 0;
 					for(IItemDescriptionGraphics iidg : inDesc)
 					{
-						iidg.draw(gc, stk, Minecraft.getMinecraft().thePlayer, mouseX + dx, mouseY - dy - height+(positions.size() == 0 ? 0 : (positions.get(Math.min(indexed,positions.size()-1))+1)*10), mouseX, mouseY, event.getRenderPartialTicks(), offscreen);
+						iidg.draw(gc, stk, Minecraft.getMinecraft().player, mouseX + dx, mouseY - dy - height+(positions.size() == 0 ? 0 : (positions.get(Math.min(indexed,positions.size()-1))+1)*10), mouseX, mouseY, event.getRenderPartialTicks(), offscreen);
 						++indexed;
 					}
 					
 					int iindexed = 1;
 					for(IItemDescriptionGraphics iidg : aboveDesc)
 					{
-						iidg.draw(gc, stk, Minecraft.getMinecraft().thePlayer, mouseX + dx, mouseY - dy - height-iindexed * iidg.getYSize(stk, Minecraft.getMinecraft().thePlayer), mouseX, mouseY, event.getRenderPartialTicks(), offscreen);
+						iidg.draw(gc, stk, Minecraft.getMinecraft().player, mouseX + dx, mouseY - dy - height-iindexed * iidg.getYSize(stk, Minecraft.getMinecraft().player), mouseX, mouseY, event.getRenderPartialTicks(), offscreen);
 						++iindexed;
 					}
 					
@@ -425,7 +425,7 @@ public class DummyEventHandler {
 	@SubscribeEvent
 	public void drawHUDEvent(TickEvent.RenderTickEvent event)
 	{
-		if(event.phase == Phase.END && Minecraft.getMinecraft().theWorld != null)
+		if(event.phase == Phase.END && Minecraft.getMinecraft().world != null)
 		{
 			ScaledResolution scaledRes = new ScaledResolution(Minecraft.getMinecraft());
 			GuiScreen gs = Minecraft.getMinecraft().currentScreen;

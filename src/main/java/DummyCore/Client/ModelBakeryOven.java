@@ -112,7 +112,7 @@ public class ModelBakeryOven {
     public int getFaceShadeColor(EnumFacing face)
     {
         float f = getFaceBrightness(face);
-        int i = MathHelper.clamp_int((int)(f * 255.0F), 0, 255);
+        int i = MathHelper.clamp((int)(f * 255.0F), 0, 255);
         return -16777216 | i << 16 | i << 8 | i;
     }
     

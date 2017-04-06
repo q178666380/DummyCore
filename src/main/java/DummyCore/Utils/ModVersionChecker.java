@@ -139,7 +139,7 @@ public class ModVersionChecker {
 			default:
 				break;
 			}
-			player.addChatMessage(new TextComponentString(steppedString).setStyle(new Style().setColor(TextFormatting.RED)));
+			player.sendMessage(new TextComponentString(steppedString).setStyle(new Style().setColor(TextFormatting.RED)));
 		}
 	}
 	
@@ -148,7 +148,7 @@ public class ModVersionChecker {
 	{
 		EntityPlayer player = CoreInitialiser.proxy.getClientPlayer();
 		if(player != null)
-			player.addChatMessage(new TextComponentString(String.format("%s is outdated(Your version is %s, latest is %s)! Consider updating!", mod.ufName, mod.version, latest)).setStyle(new Style().setColor(TextFormatting.RED)));
+			player.sendMessage(new TextComponentString(String.format("%s is outdated(Your version is %s, latest is %s)! Consider updating!", mod.ufName, mod.version, latest)).setStyle(new Style().setColor(TextFormatting.RED)));
 	}
 	
 	//Internal

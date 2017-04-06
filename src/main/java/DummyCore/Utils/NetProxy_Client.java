@@ -71,7 +71,7 @@ public class NetProxy_Client extends NetProxy_Server{
 
 	//Why vanilla's(or is it forge?) thread checking?
 	public void handlePacketS35(SPacketUpdateTileEntity packetIn) {
-		WorldClient world = Minecraft.getMinecraft().theWorld;
+		WorldClient world = Minecraft.getMinecraft().world;
 		if(world != null && world.isBlockLoaded(packetIn.getPos())) {
 			TileEntity tileentity = world.getTileEntity(packetIn.getPos());
 
@@ -102,17 +102,17 @@ public class NetProxy_Client extends NetProxy_Server{
 	@Override
 	public EntityPlayer getPlayerOnSide(INetHandler handler) {
 		if(handler instanceof NetHandlerPlayClient) {
-			return Minecraft.getMinecraft().thePlayer;
+			return Minecraft.getMinecraft().player;
 		}
 		return null;
 	}
 
 	public EntityPlayer getClientPlayer() {
-		return Minecraft.getMinecraft().thePlayer;
+		return Minecraft.getMinecraft().player;
 	}
 
 	public World getClientWorld() {
-		return Minecraft.getMinecraft().theWorld;
+		return Minecraft.getMinecraft().world;
 	}
 
 	public Integer[] createPossibleMetadataCacheFromBlock(Block b) {
@@ -216,14 +216,14 @@ public class NetProxy_Client extends NetProxy_Server{
 
 	@Override
 	public void choseDisplayStack(CreativePageBlocks blocks) {
-		World w = Minecraft.getMinecraft().theWorld;
-		if(Minecraft.getMinecraft().thePlayer != null && w.isRemote && Minecraft.getMinecraft().thePlayer.ticksExisted % 60 == 0) {
+		World w = Minecraft.getMinecraft().world;
+		if(Minecraft.getMinecraft().player != null && w.isRemote && Minecraft.getMinecraft().player.ticksExisted % 60 == 0) {
 			blocks.delayTime = 0;
 			blocks.blockList = blocks.initialiseBlocksList();
 			if(blocks.blockList != null && !blocks.blockList.isEmpty()) {
 				Random rand;
 				if(DummyConfig.shouldChangeImage)
-					rand = new Random(Minecraft.getMinecraft().thePlayer.ticksExisted);
+					rand = new Random(Minecraft.getMinecraft().player.ticksExisted);
 				else
 					rand = new Random(0);
 				int random = rand.nextInt(blocks.blockList.size());
@@ -236,14 +236,14 @@ public class NetProxy_Client extends NetProxy_Server{
 
 	@Override
 	public void choseDisplayStack(CreativePageItems items) {
-		World w = Minecraft.getMinecraft().theWorld;
-		if(Minecraft.getMinecraft().thePlayer != null && w.isRemote && Minecraft.getMinecraft().thePlayer.ticksExisted % 60 == 0) {
+		World w = Minecraft.getMinecraft().world;
+		if(Minecraft.getMinecraft().player != null && w.isRemote && Minecraft.getMinecraft().player.ticksExisted % 60 == 0) {
 			items.delayTime = 0;
 			items.itemList = items.initialiseItemsList();
 			if(items.itemList != null && !items.itemList.isEmpty()) {
 				Random rand;
 				if(DummyConfig.shouldChangeImage)
-					rand = new Random(Minecraft.getMinecraft().thePlayer.ticksExisted);
+					rand = new Random(Minecraft.getMinecraft().player.ticksExisted);
 				else
 					rand = new Random(0);
 				int random = rand.nextInt(items.itemList.size());

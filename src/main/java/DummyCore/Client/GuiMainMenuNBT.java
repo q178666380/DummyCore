@@ -787,7 +787,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 	    		GL11.glTranslated(x, y, zLevel);
 	    		
 	    		if(!gifImage.errored)
-	    			gifImage.drawOnScreen(MathHelper.floor_double(frameTime+partialTicks) % gifImage.frames, minU, minV, maxU, maxV, sizeX, sizeY);
+	    			gifImage.drawOnScreen(MathHelper.floor(frameTime+partialTicks) % gifImage.frames, minU, minV, maxU, maxV, sizeX, sizeY);
 	            
 	            GL11.glTranslated(-x, -y, -zLevel);
 	    		
