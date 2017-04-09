@@ -51,7 +51,7 @@ public class CoreInitialiser {
 	public static final String modVersion = "3";
 	public static final String mcVersion = "1.10.2";
 	public static final String modmcVersion = "1102";
-	public static final String buildVersion = "2";
+	public static final String buildVersion = "4";
 	public static final String buildPostfix = "";
 	public static final String version = globalVersion+'.'+modVersion+'.'+modmcVersion+'.'+buildVersion+'.'+buildPostfix;
 
@@ -119,7 +119,6 @@ public class CoreInitialiser {
 			LoadingUtils.knownBigASMModifiers.add("CodeChickenLib");
 
 		FMLCommonHandler.instance().registerCrashCallable(new DCCrashCallable());
-		ModVersionChecker.addRequest(getClass(), "https://www.dropbox.com/s/iwdfv0mc4qns00f/DummyCoreVersion.txt?dl=1");
 
 		proxy.registerInfo();
 	}
@@ -142,7 +141,6 @@ public class CoreInitialiser {
 
 	@EventHandler
 	public void serverStart(FMLServerStartingEvent event) {
-		MinecraftServer mcserver = event.getServer();
-		((CommandHandler)mcserver.getCommandManager()).registerCommand(new CommandTransfer());
+		event.registerServerCommand(new CommandTransfer());
 	}
 }

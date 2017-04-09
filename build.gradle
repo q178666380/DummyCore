@@ -10,9 +10,9 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 
-version = "1.0"
+version = "2.3.1102.4"
 group= "DummyCore"
-archivesBaseName = "DummyCore"
+archivesBaseName = "DummyCoreUnofficial"
 
 sourceCompatibility = targetCompatibility = "1.8"
 compileJava {

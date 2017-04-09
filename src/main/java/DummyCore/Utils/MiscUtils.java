@@ -22,6 +22,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttribute;
@@ -566,28 +567,8 @@ public class MiscUtils {
 	 */
 	public static Entity cloneEntity(Entity e)
 	{
-		Entity retEntity = null;
-		try
-		{
-			retEntity = e.getClass().getConstructor(World.class).newInstance(e.getEntityWorld());
-			try {
-				Method m = retEntity.getClass().getMethod("copyDataFromOld", Entity.class);
-				m.setAccessible(true);
-				m.invoke(retEntity, e);
-			}
-			catch(Exception e1) {
-				try {
-					Method m = retEntity.getClass().getMethod("func_180432_n", Entity.class);
-					m.setAccessible(true);
-					m.invoke(retEntity, e);
-				}
-				catch(Exception e2) {}
-			}
-		}
-		catch(Exception exc)
-		{
-			return retEntity;
-		}
+		Entity retEntity = EntityList.createEntityByName(EntityList.getEntityString(e), e.getEntityWorld());
+		retEntity.readFromNBT(e.writeToNBT(new NBTTagCompound()));
 		return retEntity;
 	}
 

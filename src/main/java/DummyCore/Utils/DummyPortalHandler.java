@@ -213,6 +213,7 @@ public class DummyPortalHandler {
 		entityIn.setWorld(toWorldIn);
 	}
 
+	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onOverlayRender(RenderGameOverlayEvent.Post event) {
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
