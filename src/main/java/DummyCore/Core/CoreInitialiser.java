@@ -51,7 +51,7 @@ public class CoreInitialiser {
 	public static final String modVersion = "3";
 	public static final String mcVersion = "1.10.2";
 	public static final String modmcVersion = "1102";
-	public static final String buildVersion = "4";
+	public static final String buildVersion = "5";
 	public static final String buildPostfix = "";
 	public static final String version = globalVersion+'.'+modVersion+'.'+modmcVersion+'.'+buildVersion+'.'+buildPostfix;
 

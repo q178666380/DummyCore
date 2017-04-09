@@ -6,42 +6,32 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
-import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.Logger;
-
-import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Table;
 
 import DummyCore.Blocks.BlocksRegistry;
 import DummyCore.Client.AdvancedModelLoader;
 import DummyCore.Client.GuiMainMenuOld;
 import DummyCore.Client.GuiMainMenuVanilla;
+import DummyCore.Client.IBlockColor;
+import DummyCore.Client.IItemColor;
 import DummyCore.Client.IModelRegisterer;
 import DummyCore.Client.MainMenuRegistry;
 import DummyCore.Client.ModelUtils;
 import DummyCore.Client.obj.ObjModelLoader;
 import DummyCore.Client.techne.TechneModelLoader;
 import DummyCore.Core.Core;
-import DummyCore.Core.CoreInitialiser;
 import DummyCore.CreativeTabs.CreativePageBlocks;
 import DummyCore.CreativeTabs.CreativePageItems;
 import DummyCore.Items.ItemRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.color.IBlockColor;
-import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.shader.ShaderGroup;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -60,7 +50,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.FMLClientHandler;
 
 //Internal
 public class NetProxy_Client extends NetProxy_Server{

@@ -10,7 +10,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 
-version = "2.3.1102.4"
+version = "2.3.1102.5"
 group= "DummyCore"
 archivesBaseName = "DummyCoreUnofficial"
 

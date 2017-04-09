@@ -1,27 +1,20 @@
 package DummyCore.Client;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.function.IntFunction;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.google.common.collect.ImmutableSortedMap;
-
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.color.IBlockColor;
-import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StringUtils;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -39,9 +32,9 @@ public class ModelUtils {
 	@SideOnly(Side.CLIENT)
 	public static void registerColors() {
 		for(Pair<IBlockColor,Block> b : blockColors)
-			Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(b.getLeft(), b.getRight());
+			Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(b.getLeft().toMCBlockColor(), b.getRight());
 		for(Pair<IItemColor,Item> i : itemColors)
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(i.getLeft(), i.getRight());
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(i.getLeft().toMCItemColor(), i.getRight());
 	}
 	
 	/**
