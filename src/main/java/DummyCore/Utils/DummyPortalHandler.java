@@ -8,9 +8,9 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -149,12 +149,12 @@ public class DummyPortalHandler {
 		MinecraftServer mcServer = entityIn.getServer();
 
 		if(!TO_TELEPORTERS.containsKey(blockData.toDim)) {
-			WorldServer server = mcServer.worldServerForDimension(blockData.toDim);
+			WorldServer server = mcServer.getWorld(blockData.toDim);
 			TO_TELEPORTERS.put(blockData.toDim, new DummyTeleporter(server, blockData.generator, true));
 		}
 
 		if(!RETURN_TELEPORTERS.containsKey(blockData.toDim)) {
-			WorldServer server = mcServer.worldServerForDimension(blockData.retDim);
+			WorldServer server = mcServer.getWorld(blockData.retDim);
 			RETURN_TELEPORTERS.put(blockData.toDim, new DummyTeleporter(server, blockData.generator, true));
 		}
 
@@ -165,7 +165,7 @@ public class DummyPortalHandler {
 			transferPlayerToDimension((EntityPlayerMP)entityIn, toDim, teleporter);
 		}
 		else {
-			transferEntityToWorld(entityIn, entityIn.dimension, mcServer.worldServerForDimension(entityIn.dimension), mcServer.worldServerForDimension(toDim), teleporter);
+			transferEntityToWorld(entityIn, entityIn.dimension, mcServer.getWorld(entityIn.dimension), mcServer.getWorld(toDim), teleporter);
 		}
 	}
 
@@ -173,9 +173,9 @@ public class DummyPortalHandler {
 		int i = player.dimension;
 		MinecraftServer mcServer = player.mcServer;
 		PlayerList list = mcServer.getPlayerList();
-		WorldServer worldserver = mcServer.worldServerForDimension(player.dimension);
+		WorldServer worldserver = mcServer.getWorld(player.dimension);
 		player.dimension = dimensionIn;
-		WorldServer worldserver1 = mcServer.worldServerForDimension(player.dimension);
+		WorldServer worldserver1 = mcServer.getWorld(player.dimension);
 		player.connection.sendPacket(new SPacketRespawn(player.dimension, worldserver1.getDifficulty(), worldserver1.getWorldInfo().getTerrainType(), player.interactionManager.getGameType()));
 		list.updatePermissionLevel(player);
 		worldserver.removeEntityDangerously(player);
@@ -200,7 +200,7 @@ public class DummyPortalHandler {
 		double d0 = entityIn.posX * moveFactor;
 		double d1 = entityIn.posZ * moveFactor;
 		float f = entityIn.rotationYaw;
-		oldWorldIn.theProfiler.startSection("placing");
+		oldWorldIn.profiler.startSection("placing");
 		d0 = (double)MathHelper.clamp((int)d0, -29999872, 29999872);
 		d1 = (double)MathHelper.clamp((int)d1, -29999872, 29999872);
 		if(entityIn.isEntityAlive()) {
@@ -209,7 +209,7 @@ public class DummyPortalHandler {
 			toWorldIn.spawnEntity(entityIn);
 			toWorldIn.updateEntityWithOptionalForce(entityIn, false);
 		}
-		oldWorldIn.theProfiler.endSection();
+		oldWorldIn.profiler.endSection();
 		entityIn.setWorld(toWorldIn);
 	}
 
@@ -242,7 +242,7 @@ public class DummyPortalHandler {
 					float f3 = iicon.getMaxU();
 					float f4 = iicon.getMaxV();
 					Tessellator tessellator = Tessellator.getInstance();
-					VertexBuffer vertexbuffer = tessellator.getBuffer();
+					BufferBuilder vertexbuffer = tessellator.getBuffer();
 					vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
 					vertexbuffer.pos(0.0D, (double)l, -90.0D).tex((double)f1, (double)f4).endVertex();
 					vertexbuffer.pos((double)k, (double)l, -90.0D).tex((double)f3, (double)f4).endVertex();

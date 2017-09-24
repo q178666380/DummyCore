@@ -51,7 +51,7 @@ import net.minecraftforge.fml.common.Loader;
  *
  */
 public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
-	
+
 	public static final Hashtable<Integer,NBTTagCompound> idToTagMapping = new Hashtable<Integer,NBTTagCompound>();
 	public static final Random rand = new Random();
 	public ArrayList<Pair<Integer,ResourceLocation>> menuTextures = new ArrayList<Pair<Integer,ResourceLocation>>();
@@ -82,421 +82,426 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 	public int gifTick;
 	public GIFImage gifImage;
 	public URI clickedURI;
-	
+
 	public List<String> textLeft = new ArrayList<String>();
 	public List<String> textRight = new ArrayList<String>();
-	
-    protected void actionPerformed(GuiButton button)
-    {
-    	try
-    	{
-    		super.actionPerformed(button);
-	    	if(button instanceof CustomButton)
-	    	{
-	    		CustomButton cb = CustomButton.class.cast(button);
-	    		if(cb.url != null)
-	    		{
-	                if (this.mc.gameSettings.chatLinksPrompt)
-	                {
-	                    this.clickedURI = new URI(cb.url.toString());
-	                    this.mc.displayGuiScreen(new GuiConfirmOpenLink(this, clickedURI.toString(), button.id, false));
-	                }
-	                else
-	                {
-	                    this.openURI(new URI(cb.url.toString()));
-	                }
-	    		}
-	    	}
-    	}catch(Exception e)
-    	{
-    		e.printStackTrace();
-    	}
-    }
-    
-    public void openURI(URI uri)
-    {
-        try
-        {
-            Class<?> oclass = Class.forName("java.awt.Desktop");
-            Object object = oclass.getMethod("getDesktop", new Class[0]).invoke((Object)null, new Object[0]);
-            oclass.getMethod("browse", new Class[] {URI.class}).invoke(object, new Object[] {uri});
-            clickedURI = null;
-        }
-        catch (Throwable throwable)
-        {
-            Notifier.notifyError("Couldn\'t open link");
-        }
-    }
-	
-    public void confirmClicked(boolean yes, int id)
-    {
-    	super.confirmClicked(yes, id);
-    	for(GuiButton btn : (List<GuiButton>)this.buttonList)
-    		if(btn.id == id && btn instanceof CustomButton && CustomButton.class.cast(btn).url != null)
-    		{
-    			if(yes)
-    				this.openURI(clickedURI);
-    			
-    			this.mc.displayGuiScreen(this);
-    			break;
-    		}
-    }
-    
-    public void updateScreen()
-    {
-    	for(int i = 0; i < objects.size(); ++i)
-    		objects.get(i).guiTick();
-    	
-        ++this.panoramaTimer;
-        if(menuType == 5)
-        {
-        	++gifTick;
-        	if(gifTick >= overlayTimeList.get(currentGifFrame))
-        	{
-        		if(currentGifFrame+1 >= overlayTimeList.size())
-        		{
-        			gifTick = 0;
-        			currentGifFrame = 0;
-        		}else
-        		{
-        			++currentGifFrame;
-        			gifTick = 0;
-        		}
-        	}
-        }
-        if(menuType == 3 || menuType == 4)
-        {
-	        ++tickTime;
-	        if(!menuTextures.isEmpty())
-	        {
-	        	int maxTicks = menuTextures.get(textureIndex).getLeft() + (menuType == 3 ? 0 : overlayTimeList.get(textureIndex));
-	        	if(tickTime >= maxTicks)
-	        	{
-	        		if(textureIndex+1 >= menuTextures.size())
-	        		{
-	        			textureIndex = 0;
-	        			tickTime = 0;
-	        			overlayTickTime = 0;
-	        		}else
-	        		{
-	        			++textureIndex;
-	        			tickTime = 0;
-	        			overlayTickTime = 0;
-	        		}
-	        	}
-	        	if(tickTime >= maxTicks-overlayTimeList.get(textureIndex))
-	        	{
-	        		++overlayTickTime;
-	        	}
-	        }
-        }
-    }
-    
-    public void drawScreen(int mouseX, int mouseY, float partialTicks)
-    {
-    	GL11.glPushMatrix();
-    	GL11.glEnable(GL11.GL_ALPHA_TEST);
-    	if(menuType == 0)
-    	{
-	    	mc.renderEngine.bindTexture(menuTexture);
-	    	TessellatorWrapper tec = TessellatorWrapper.getInstance();
-	    	tec.startDrawingQuads();
-	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
-	    	tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
-	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
-	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
-	    	tec.draw();
-    	}
-    	if(menuType == 1)
-    	{
-    		GL11.glPushMatrix();
-            GL11.glDisable(GL11.GL_ALPHA_TEST);
-            this.renderSkybox(mouseX, mouseY, partialTicks);
-            GL11.glEnable(GL11.GL_ALPHA_TEST);
-            GL11.glColor4d(1, 1, 1, 1);
-            GL11.glPopMatrix();
-    	}
-    	if(menuType == 2)
-    		this.drawBackground(textureRepeat);
-    	if(menuType == 3)
-    	{
-	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getRight());
-	    	TessellatorWrapper tec = TessellatorWrapper.getInstance();
-	    	tec.startDrawingQuads();
-	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
-	    	tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
-	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
-	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
-	    	tec.draw();
-    	}
-    	if(menuType == 4)
-    	{
-    		int maxTicks = menuTextures.get(textureIndex).getLeft();
-	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getRight());
-	    	TessellatorWrapper tec = TessellatorWrapper.getInstance();
-	    	tec.startDrawingQuads();
-	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
-	    	tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
-	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
-	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
-	    	tec.draw();
-        	if(tickTime >= maxTicks)
-        	{
-        		GL11.glDisable(GL11.GL_ALPHA_TEST);
-        		GL11.glEnable(GL11.GL_BLEND);
-        		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-        		
-    	    	mc.renderEngine.bindTexture(menuTextures.get(textureIndex +1 >= menuTextures.size() ? 0 : textureIndex+1).getRight());
-    	    	float maxFadeIndex = overlayTimeList.get(textureIndex);
-    	    	float currentFadeIndex = (overlayTickTime + partialTicks) / maxFadeIndex;
-    	    	zLevel += 10;
-    	    	tec.startDrawingQuads();
-    	    	tec.setColorRGBA_F(1, 1, 1, currentFadeIndex);
-    	    	tec.addVertexWithUV(0, 0, zLevel, 0, 0);
-    	    	tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
-    	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
-    	    	tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
-    	    	tec.draw();
-    	    	tec.setColorRGBA_F(1, 1, 1, 1);
-    	    	GL11.glColor4d(1, 1, 1, 1);
-    	    	zLevel -= 10;
-        		GL11.glDisable(GL11.GL_BLEND);
-        		GL11.glEnable(GL11.GL_ALPHA_TEST);
-        	}
-    	}
-    	if(menuType == 5)
-    	{
-    		GL11.glPushMatrix();
 
-    		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
-    		GL11.glDisable(GL11.GL_ALPHA_TEST);
-    		GL11.glEnable(GL11.GL_BLEND);
-    		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-    		
-    		gifImage.drawOnScreen(currentGifFrame, 0, 0, 1, 1, mcRes.getScaledWidth(), mcRes.getScaledHeight());
-    		
-            GL11.glDisable(GL11.GL_BLEND);
-            GL11.glEnable(GL11.GL_ALPHA_TEST);
-    		GL11.glPopMatrix();
-    	}
-    	
-    	if(this.hasGradient)
-    	{
-    		this.zLevel += 10;
-    		this.drawGradientRect(0, 0, this.width, this.height, this.gradientColorStart, this.gradientColorEnd);
-    		this.drawGradientRect(0, 0, this.width, this.height, 0, Integer.MIN_VALUE);
-    		this.zLevel -= 10;
-    	}
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-    	
-        for (int i = 0; i < this.textLeft.size(); i++)
-        {
-            String brd = textLeft.get(i);
-            if (!Strings.isNullOrEmpty(brd))
-                this.drawString(this.fontRendererObj, brd, 2, this.height - ( 10 + i * (this.fontRendererObj.FONT_HEIGHT + 1)), 16777215);
-        }
-        
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        
-        for (int i = 0; i < this.textRight.size(); i++)
-        {
-            String brd = textRight.get(i);
-            if (!Strings.isNullOrEmpty(brd))
-                this.drawString(this.fontRendererObj, brd, this.width - this.fontRendererObj.getStringWidth(brd) - 2, this.height - ( 10 + i * (this.fontRendererObj.FONT_HEIGHT + 1)), 16777215);
-        }
-        
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        
-        ForgeHooksClient.renderMainMenu(this, fontRendererObj, width, height, "");
-        
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        
-    	for(AbstractGUIObject obj : objects)
-    		obj.drawOnScreen(mouseX, mouseY, partialTicks,zLevel+10);
-    	
-    	for(GuiButton button : (ArrayList<GuiButton>)this.buttonList)
-    		if(!objects.contains(button))
-    		{
-    			GL11.glTranslated(0, 0, 20);
-    			button.drawButton(mc, mouseX, mouseY);
-    			GL11.glTranslated(0, 0, -20);
-    		}
-    	
-    	for(GuiLabel label : (ArrayList<GuiLabel>)this.labelList)
-    		if(!objects.contains(label))
-    		{
-    			GL11.glTranslated(0, 0, 20);
-    			label.drawLabel(mc, mouseX, mouseY);
-    			GL11.glTranslated(0, 0, -20);
-    		}
-    	GL11.glPopMatrix();
-    }
-    
-    public void drawBackground(int repeat)
-    {
-    	boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
-    	boolean fog = GL11.glIsEnabled(GL11.GL_FOG);
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_FOG);
-        TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
-        this.mc.getTextureManager().bindTexture(menuTexture);
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        float f = 32.0F;
-        tessellator.startDrawingQuads();
-        tessellator.setColorOpaque_I(4210752);
-        tessellator.addVertexWithUV(0.0D, this.height, 0.0D, 0.0D, this.height / f + repeat);
-        tessellator.addVertexWithUV(this.width, this.height, 0.0D, this.width / f, this.height / f + repeat);
-        tessellator.addVertexWithUV(this.width, 0.0D, 0.0D, this.width / f, repeat);
-        tessellator.addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, repeat);
-        tessellator.draw();
-        if(lighting)
-        	GL11.glEnable(GL11.GL_LIGHTING);
-        if(fog)
-        	GL11.glEnable(GL11.GL_FOG);
-    }
-    
-    public void drawPanorama(int mouseX, int mouseY, float partialTicks)
-    {
-        TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-        Project.gluPerspective(120.0F, 1.0F, 0.05F, 10.0F);
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPushMatrix();
-        GL11.glLoadIdentity();
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
-        GL11.glRotatef(90.0F, 0.0F, 0.0F, 1.0F);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GL11.glDisable(GL11.GL_CULL_FACE);
-        GL11.glDepthMask(false);
-        OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-        byte b0 = 8;
+	@Override
+	protected void actionPerformed(GuiButton button)
+	{
+		try
+		{
+			super.actionPerformed(button);
+			if(button instanceof CustomButton)
+			{
+				CustomButton cb = CustomButton.class.cast(button);
+				if(cb.url != null)
+				{
+					if (this.mc.gameSettings.chatLinksPrompt)
+					{
+						this.clickedURI = new URI(cb.url.toString());
+						this.mc.displayGuiScreen(new GuiConfirmOpenLink(this, clickedURI.toString(), button.id, false));
+					}
+					else
+					{
+						this.openURI(new URI(cb.url.toString()));
+					}
+				}
+			}
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 
-        for (int k = 0; k < b0 * b0; ++k)
-        {
-            GL11.glPushMatrix();
-            float f1 = ((float)(k % b0) / (float)b0 - 0.5F) / 64.0F;
-            float f2 = ((float)(k / b0) / (float)b0 - 0.5F) / 64.0F;
-            float f3 = 0.0F;
-            GL11.glTranslatef(f1, f2, f3);
-            GL11.glRotatef(MathHelper.sin((this.panoramaTimer + partialTicks) / 400.0F) * 25.0F + 20.0F, 1.0F, 0.0F, 0.0F);
-            GL11.glRotatef(-(this.panoramaTimer + partialTicks) * 0.1F, 0.0F, 1.0F, 0.0F);
+	public void openURI(URI uri)
+	{
+		try
+		{
+			Class<?> oclass = Class.forName("java.awt.Desktop");
+			Object object = oclass.getMethod("getDesktop", new Class[0]).invoke((Object)null, new Object[0]);
+			oclass.getMethod("browse", new Class[] {URI.class}).invoke(object, new Object[] {uri});
+			clickedURI = null;
+		}
+		catch (Throwable throwable)
+		{
+			Notifier.notifyError("Couldn\'t open link");
+		}
+	}
 
-            for (int l = 0; l < 6; ++l)
-            {
-                GL11.glPushMatrix();
+	@Override
+	public void confirmClicked(boolean yes, int id)
+	{
+		super.confirmClicked(yes, id);
+		for(GuiButton btn : (List<GuiButton>)this.buttonList)
+			if(btn.id == id && btn instanceof CustomButton && CustomButton.class.cast(btn).url != null)
+			{
+				if(yes)
+					this.openURI(clickedURI);
 
-                if (l == 1)
-                    GL11.glRotated(90, 0, 1, 0);
+				this.mc.displayGuiScreen(this);
+				break;
+			}
+	}
 
-                if (l == 2)
-                    GL11.glRotated(180, 0, 1, 0);
+	@Override
+	public void updateScreen()
+	{
+		for(int i = 0; i < objects.size(); ++i)
+			objects.get(i).guiTick();
 
-                if (l == 3)
-                    GL11.glRotated(-90, 0, 1, 0);
+		++this.panoramaTimer;
+		if(menuType == 5)
+		{
+			++gifTick;
+			if(gifTick >= overlayTimeList.get(currentGifFrame))
+			{
+				if(currentGifFrame+1 >= overlayTimeList.size())
+				{
+					gifTick = 0;
+					currentGifFrame = 0;
+				}else
+				{
+					++currentGifFrame;
+					gifTick = 0;
+				}
+			}
+		}
+		if(menuType == 3 || menuType == 4)
+		{
+			++tickTime;
+			if(!menuTextures.isEmpty())
+			{
+				int maxTicks = menuTextures.get(textureIndex).getLeft() + (menuType == 3 ? 0 : overlayTimeList.get(textureIndex));
+				if(tickTime >= maxTicks)
+				{
+					if(textureIndex+1 >= menuTextures.size())
+					{
+						textureIndex = 0;
+						tickTime = 0;
+						overlayTickTime = 0;
+					}else
+					{
+						++textureIndex;
+						tickTime = 0;
+						overlayTickTime = 0;
+					}
+				}
+				if(tickTime >= maxTicks-overlayTimeList.get(textureIndex))
+				{
+					++overlayTickTime;
+				}
+			}
+		}
+	}
 
-                if (l == 4)
-                    GL11.glRotated(90, 1, 0, 0);
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+	{
+		GL11.glPushMatrix();
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		if(menuType == 0)
+		{
+			mc.renderEngine.bindTexture(menuTexture);
+			TessellatorWrapper tec = TessellatorWrapper.getInstance();
+			tec.startDrawingQuads();
+			tec.addVertexWithUV(0, 0, zLevel, 0, 0);
+			tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
+			tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
+			tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
+			tec.draw();
+		}
+		if(menuType == 1)
+		{
+			GL11.glPushMatrix();
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			this.renderSkybox(mouseX, mouseY, partialTicks);
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
+			GL11.glColor4d(1, 1, 1, 1);
+			GL11.glPopMatrix();
+		}
+		if(menuType == 2)
+			this.drawBackground(textureRepeat);
+		if(menuType == 3)
+		{
+			mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getRight());
+			TessellatorWrapper tec = TessellatorWrapper.getInstance();
+			tec.startDrawingQuads();
+			tec.addVertexWithUV(0, 0, zLevel, 0, 0);
+			tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
+			tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
+			tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
+			tec.draw();
+		}
+		if(menuType == 4)
+		{
+			int maxTicks = menuTextures.get(textureIndex).getLeft();
+			mc.renderEngine.bindTexture(menuTextures.get(textureIndex).getRight());
+			TessellatorWrapper tec = TessellatorWrapper.getInstance();
+			tec.startDrawingQuads();
+			tec.addVertexWithUV(0, 0, zLevel, 0, 0);
+			tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
+			tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
+			tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
+			tec.draw();
+			if(tickTime >= maxTicks)
+			{
+				GL11.glDisable(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
 
-                if (l == 5)
-                    GL11.glRotated(-90, 1, 0, 0);
+				mc.renderEngine.bindTexture(menuTextures.get(textureIndex +1 >= menuTextures.size() ? 0 : textureIndex+1).getRight());
+				float maxFadeIndex = overlayTimeList.get(textureIndex);
+				float currentFadeIndex = (overlayTickTime + partialTicks) / maxFadeIndex;
+				zLevel += 10;
+				tec.startDrawingQuads();
+				tec.setColorRGBA_F(1, 1, 1, currentFadeIndex);
+				tec.addVertexWithUV(0, 0, zLevel, 0, 0);
+				tec.addVertexWithUV(0, mcRes.getScaledHeight_double(), zLevel, 0, 1);
+				tec.addVertexWithUV(mcRes.getScaledWidth_double(), mcRes.getScaledHeight_double(), zLevel, 1, 1);
+				tec.addVertexWithUV(mcRes.getScaledWidth_double(), 0, zLevel, 1, 0);
+				tec.draw();
+				tec.setColorRGBA_F(1, 1, 1, 1);
+				GL11.glColor4d(1, 1, 1, 1);
+				zLevel -= 10;
+				GL11.glDisable(GL11.GL_BLEND);
+				GL11.glEnable(GL11.GL_ALPHA_TEST);
+			}
+		}
+		if(menuType == 5)
+		{
+			GL11.glPushMatrix();
 
-                this.mc.getTextureManager().bindTexture(menuTextures.get(l).getRight());
-                tessellator.startDrawingQuads();
-                tessellator.setColorRGBA_I(0xffffff, 255 / (k + 1));
-                float f4 = 0.0F;
-                tessellator.addVertexWithUV(-1.0D, -1.0D, 1.0D, 0.0F + f4, 0.0F + f4);
-                tessellator.addVertexWithUV(1.0D, -1.0D, 1.0D, 1.0F - f4, 0.0F + f4);
-                tessellator.addVertexWithUV(1.0D, 1.0D, 1.0D, 1.0F - f4, 1.0F - f4);
-                tessellator.addVertexWithUV(-1.0D, 1.0D, 1.0D, 0.0F + f4, 1.0F - f4);
-                tessellator.draw();
-                GL11.glPopMatrix();
-            }
+			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
+			GL11.glDisable(GL11.GL_ALPHA_TEST);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-            GL11.glPopMatrix();
-            GL11.glColorMask(true, true, true, false);
-        }
+			gifImage.drawOnScreen(currentGifFrame, 0, 0, 1, 1, mcRes.getScaledWidth(), mcRes.getScaledHeight());
 
-        tessellator.setTranslation(0.0D, 0.0D, 0.0D);
-        GL11.glColorMask(true, true, true, true);
-        GL11.glMatrixMode(GL11.GL_PROJECTION);
-        GL11.glPopMatrix();
-        GL11.glMatrixMode(GL11.GL_MODELVIEW);
-        GL11.glPopMatrix();
-        GL11.glDepthMask(true);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-    }
-	
-    public void rotateAndBlurSkybox(float partialTicks)
-    {
-        this.mc.getTextureManager().bindTexture(menuTexture);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-        GL11.glCopyTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, 0, 0, 256, 256);
-        GL11.glEnable(GL11.GL_BLEND);
-        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-        GL11.glColorMask(true, true, true, false);
-        TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
-        tessellator.startDrawingQuads();
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        byte b0 = 3;
+			GL11.glDisable(GL11.GL_BLEND);
+			GL11.glEnable(GL11.GL_ALPHA_TEST);
+			GL11.glPopMatrix();
+		}
 
-        for (int i = 0; i < b0; ++i)
-        {
-            tessellator.setColorRGBA_F(1.0F, 1.0F, 1.0F, 1.0F / (i + 1));
-            int j = this.width;
-            int k = this.height;
-            float f1 = (i - b0 / 2) / 256.0F;
-            tessellator.addVertexWithUV(j, k, this.zLevel, 0.0F + f1, 1.0D);
-            tessellator.addVertexWithUV(j, 0.0D, this.zLevel, 1.0F + f1, 1.0D);
-            tessellator.addVertexWithUV(0.0D, 0.0D, this.zLevel, 1.0F + f1, 0.0D);
-            tessellator.addVertexWithUV(0.0D, k, this.zLevel, 0.0F + f1, 0.0D);
-        }
+		if(this.hasGradient)
+		{
+			this.zLevel += 10;
+			this.drawGradientRect(0, 0, this.width, this.height, this.gradientColorStart, this.gradientColorEnd);
+			this.drawGradientRect(0, 0, this.width, this.height, 0, Integer.MIN_VALUE);
+			this.zLevel -= 10;
+		}
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
-        tessellator.draw();
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glColorMask(true, true, true, true);
-    }
-    
-    public void renderSkybox(int mouseX, int mouseY, float partialTicks)
-    {
-        this.mc.getFramebuffer().unbindFramebuffer();
-        GL11.glViewport(0, 0, 256, 256);
-        this.drawPanorama(mouseX, mouseY, partialTicks);
-        this.rotateAndBlurSkybox(partialTicks);
-        this.rotateAndBlurSkybox(partialTicks);
-        this.rotateAndBlurSkybox(partialTicks);
-        this.rotateAndBlurSkybox(partialTicks);
-        this.rotateAndBlurSkybox(partialTicks);
-        this.rotateAndBlurSkybox(partialTicks);
-        this.rotateAndBlurSkybox(partialTicks);
-        this.mc.getFramebuffer().bindFramebuffer(true);
-        GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
-        TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
-        tessellator.startDrawingQuads();
-        float f1 = this.width > this.height ? 120.0F / this.width : 120.0F / this.height;
-        float f2 = this.height * f1 / 256.0F;
-        float f3 = this.width * f1 / 256.0F;
-        tessellator.setColorRGBA_F(1.0F, 1.0F, 1.0F, 1.0F);
-        int k = this.width;
-        int l = this.height;
-        tessellator.addVertexWithUV(0.0D, l, this.zLevel, 0.5F - f2, 0.5F + f3);
-        tessellator.addVertexWithUV(k, l, this.zLevel, 0.5F - f2, 0.5F - f3);
-        tessellator.addVertexWithUV(k, 0.0D, this.zLevel, 0.5F + f2, 0.5F - f3);
-        tessellator.addVertexWithUV(0.0D, 0.0D, this.zLevel, 0.5F + f2, 0.5F + f3);
-        tessellator.draw();
-    }
-    
+		for (int i = 0; i < this.textLeft.size(); i++)
+		{
+			String brd = textLeft.get(i);
+			if (!Strings.isNullOrEmpty(brd))
+				this.drawString(this.fontRenderer, brd, 2, this.height - ( 10 + i * (this.fontRenderer.FONT_HEIGHT + 1)), 16777215);
+		}
+
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+		for (int i = 0; i < this.textRight.size(); i++)
+		{
+			String brd = textRight.get(i);
+			if (!Strings.isNullOrEmpty(brd))
+				this.drawString(this.fontRenderer, brd, this.width - this.fontRenderer.getStringWidth(brd) - 2, this.height - ( 10 + i * (this.fontRenderer.FONT_HEIGHT + 1)), 16777215);
+		}
+
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+		ForgeHooksClient.renderMainMenu(this, fontRenderer, width, height, "");
+
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+		for(AbstractGUIObject obj : objects)
+			obj.drawOnScreen(mouseX, mouseY, partialTicks,zLevel+10);
+
+		for(GuiButton button : (ArrayList<GuiButton>)this.buttonList)
+			if(!objects.contains(button))
+			{
+				GL11.glTranslated(0, 0, 20);
+				button.drawButton(mc, mouseX, mouseY, partialTicks);
+				GL11.glTranslated(0, 0, -20);
+			}
+
+		for(GuiLabel label : (ArrayList<GuiLabel>)this.labelList)
+			if(!objects.contains(label))
+			{
+				GL11.glTranslated(0, 0, 20);
+				label.drawLabel(mc, mouseX, mouseY);
+				GL11.glTranslated(0, 0, -20);
+			}
+		GL11.glPopMatrix();
+	}
+
+	@Override
+	public void drawBackground(int repeat)
+	{
+		boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
+		boolean fog = GL11.glIsEnabled(GL11.GL_FOG);
+		GL11.glDisable(GL11.GL_LIGHTING);
+		GL11.glDisable(GL11.GL_FOG);
+		TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
+		this.mc.getTextureManager().bindTexture(menuTexture);
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		float f = 32.0F;
+		tessellator.startDrawingQuads();
+		tessellator.setColorOpaque_I(4210752);
+		tessellator.addVertexWithUV(0.0D, this.height, 0.0D, 0.0D, this.height / f + repeat);
+		tessellator.addVertexWithUV(this.width, this.height, 0.0D, this.width / f, this.height / f + repeat);
+		tessellator.addVertexWithUV(this.width, 0.0D, 0.0D, this.width / f, repeat);
+		tessellator.addVertexWithUV(0.0D, 0.0D, 0.0D, 0.0D, repeat);
+		tessellator.draw();
+		if(lighting)
+			GL11.glEnable(GL11.GL_LIGHTING);
+		if(fog)
+			GL11.glEnable(GL11.GL_FOG);
+	}
+
+	public void drawPanorama(int mouseX, int mouseY, float partialTicks)
+	{
+		TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glPushMatrix();
+		GL11.glLoadIdentity();
+		Project.gluPerspective(120.0F, 1.0F, 0.05F, 10.0F);
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		GL11.glPushMatrix();
+		GL11.glLoadIdentity();
+		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+		GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
+		GL11.glRotatef(90.0F, 0.0F, 0.0F, 1.0F);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glDisable(GL11.GL_ALPHA_TEST);
+		GL11.glDisable(GL11.GL_CULL_FACE);
+		GL11.glDepthMask(false);
+		OpenGlHelper.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+		byte b0 = 8;
+
+		for (int k = 0; k < b0 * b0; ++k)
+		{
+			GL11.glPushMatrix();
+			float f1 = ((float)(k % b0) / (float)b0 - 0.5F) / 64.0F;
+			float f2 = ((float)(k / b0) / (float)b0 - 0.5F) / 64.0F;
+			float f3 = 0.0F;
+			GL11.glTranslatef(f1, f2, f3);
+			GL11.glRotatef(MathHelper.sin((this.panoramaTimer + partialTicks) / 400.0F) * 25.0F + 20.0F, 1.0F, 0.0F, 0.0F);
+			GL11.glRotatef(-(this.panoramaTimer + partialTicks) * 0.1F, 0.0F, 1.0F, 0.0F);
+
+			for (int l = 0; l < 6; ++l)
+			{
+				GL11.glPushMatrix();
+
+				if (l == 1)
+					GL11.glRotated(90, 0, 1, 0);
+
+				if (l == 2)
+					GL11.glRotated(180, 0, 1, 0);
+
+				if (l == 3)
+					GL11.glRotated(-90, 0, 1, 0);
+
+				if (l == 4)
+					GL11.glRotated(90, 1, 0, 0);
+
+				if (l == 5)
+					GL11.glRotated(-90, 1, 0, 0);
+
+				this.mc.getTextureManager().bindTexture(menuTextures.get(l).getRight());
+				tessellator.startDrawingQuads();
+				tessellator.setColorRGBA_I(0xffffff, 255 / (k + 1));
+				float f4 = 0.0F;
+				tessellator.addVertexWithUV(-1.0D, -1.0D, 1.0D, 0.0F + f4, 0.0F + f4);
+				tessellator.addVertexWithUV(1.0D, -1.0D, 1.0D, 1.0F - f4, 0.0F + f4);
+				tessellator.addVertexWithUV(1.0D, 1.0D, 1.0D, 1.0F - f4, 1.0F - f4);
+				tessellator.addVertexWithUV(-1.0D, 1.0D, 1.0D, 0.0F + f4, 1.0F - f4);
+				tessellator.draw();
+				GL11.glPopMatrix();
+			}
+
+			GL11.glPopMatrix();
+			GL11.glColorMask(true, true, true, false);
+		}
+
+		tessellator.setTranslation(0.0D, 0.0D, 0.0D);
+		GL11.glColorMask(true, true, true, true);
+		GL11.glMatrixMode(GL11.GL_PROJECTION);
+		GL11.glPopMatrix();
+		GL11.glMatrixMode(GL11.GL_MODELVIEW);
+		GL11.glPopMatrix();
+		GL11.glDepthMask(true);
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		GL11.glEnable(GL11.GL_DEPTH_TEST);
+	}
+
+	public void rotateAndBlurSkybox(float partialTicks)
+	{
+		this.mc.getTextureManager().bindTexture(menuTexture);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+		GL11.glCopyTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, 0, 0, 256, 256);
+		GL11.glEnable(GL11.GL_BLEND);
+		OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+		GL11.glColorMask(true, true, true, false);
+		TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
+		tessellator.startDrawingQuads();
+		GL11.glDisable(GL11.GL_ALPHA_TEST);
+		byte b0 = 3;
+
+		for (int i = 0; i < b0; ++i)
+		{
+			tessellator.setColorRGBA_F(1.0F, 1.0F, 1.0F, 1.0F / (i + 1));
+			int j = this.width;
+			int k = this.height;
+			float f1 = (i - b0 / 2) / 256.0F;
+			tessellator.addVertexWithUV(j, k, this.zLevel, 0.0F + f1, 1.0D);
+			tessellator.addVertexWithUV(j, 0.0D, this.zLevel, 1.0F + f1, 1.0D);
+			tessellator.addVertexWithUV(0.0D, 0.0D, this.zLevel, 1.0F + f1, 0.0D);
+			tessellator.addVertexWithUV(0.0D, k, this.zLevel, 0.0F + f1, 0.0D);
+		}
+
+		tessellator.draw();
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glColorMask(true, true, true, true);
+	}
+
+	public void renderSkybox(int mouseX, int mouseY, float partialTicks)
+	{
+		this.mc.getFramebuffer().unbindFramebuffer();
+		GL11.glViewport(0, 0, 256, 256);
+		this.drawPanorama(mouseX, mouseY, partialTicks);
+		this.rotateAndBlurSkybox(partialTicks);
+		this.rotateAndBlurSkybox(partialTicks);
+		this.rotateAndBlurSkybox(partialTicks);
+		this.rotateAndBlurSkybox(partialTicks);
+		this.rotateAndBlurSkybox(partialTicks);
+		this.rotateAndBlurSkybox(partialTicks);
+		this.rotateAndBlurSkybox(partialTicks);
+		this.mc.getFramebuffer().bindFramebuffer(true);
+		GL11.glViewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
+		TessellatorWrapper tessellator = TessellatorWrapper.getInstance();
+		tessellator.startDrawingQuads();
+		float f1 = this.width > this.height ? 120.0F / this.width : 120.0F / this.height;
+		float f2 = this.height * f1 / 256.0F;
+		float f3 = this.width * f1 / 256.0F;
+		tessellator.setColorRGBA_F(1.0F, 1.0F, 1.0F, 1.0F);
+		int k = this.width;
+		int l = this.height;
+		tessellator.addVertexWithUV(0.0D, l, this.zLevel, 0.5F - f2, 0.5F + f3);
+		tessellator.addVertexWithUV(k, l, this.zLevel, 0.5F - f2, 0.5F - f3);
+		tessellator.addVertexWithUV(k, 0.0D, this.zLevel, 0.5F + f2, 0.5F - f3);
+		tessellator.addVertexWithUV(0.0D, 0.0D, this.zLevel, 0.5F + f2, 0.5F + f3);
+		tessellator.draw();
+	}
+
 	public GuiMainMenuNBT()
 	{
 		this.mc = Minecraft.getMinecraft();
 		setupNBTInfo();
 	}
-	
+
 	@Override
 	public void initGui()
 	{
@@ -505,7 +510,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 		initNBTInfo();
 		mcRes = new ScaledResolution(mc);
 	}
-	
+
 	public void initNBTInfo()
 	{
 		objects.clear();
@@ -521,7 +526,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 				image.gif = tg.getString("Texture").endsWith(".gif");
 				if(image.gif)
 					image.gifImage = new GIFImage(image.texture);
-				
+
 				int defaultX = tg.getInteger("XAlignment") == 0 ? 0 : tg.getInteger("XAlignment") == 1 ? this.width / 2 : tg.getInteger("XAlignment") == 2 ? this.width : this.width/tg.getInteger("XAlignment");
 				int defaultY = tg.getInteger("YAlignment") == 0 ? 0 : tg.getInteger("YAlignment") == 1 ? this.height / 2 : tg.getInteger("YAlignment") == 2 ? this.height : this.height/tg.getInteger("YAlignment");
 				image.x = defaultX + tg.getInteger("X");
@@ -573,7 +578,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 						button.url = new URL(tg.getString("URL"));
 					}
 					catch(Exception e){
-						
+
 					}
 				}
 				objects.add(button);
@@ -581,45 +586,45 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 			}
 		}
 	}
-	
+
 	public String createRandomSplash(ResourceLocation splashesLoc)
 	{
 		String retStr = "missingno";
-		
+
 		BufferedReader bufferedreader = null;
-		
+
 		try
-	    {
+		{
 			ArrayList<String> arraylist = new ArrayList<String>();
-	        bufferedreader = new BufferedReader(new InputStreamReader(Minecraft.getMinecraft().getResourceManager().getResource(splashesLoc).getInputStream(), "UTF-8"));
-	        String s;
-	        while ((s = bufferedreader.readLine()) != null)
-	        {
-	        	s = s.trim();
-	            if (!s.isEmpty())
-	            	arraylist.add(s);
-	        }
-	        if (!arraylist.isEmpty())
-	            retStr = arraylist.get(rand.nextInt(arraylist.size()));
-	        
-	    }
-	    catch (IOException e){
-	    	e.printStackTrace();
-	    }
-	    finally
-	    {
-	        if (bufferedreader != null)
-	        {
-	            try
-	            {
-	                bufferedreader.close();
-	            }
-	            catch (IOException ioexception){}
-	        }
-	    }
+			bufferedreader = new BufferedReader(new InputStreamReader(Minecraft.getMinecraft().getResourceManager().getResource(splashesLoc).getInputStream(), "UTF-8"));
+			String s;
+			while ((s = bufferedreader.readLine()) != null)
+			{
+				s = s.trim();
+				if (!s.isEmpty())
+					arraylist.add(s);
+			}
+			if (!arraylist.isEmpty())
+				retStr = arraylist.get(rand.nextInt(arraylist.size()));
+
+		}
+		catch (IOException e){
+			e.printStackTrace();
+		}
+		finally
+		{
+			if (bufferedreader != null)
+			{
+				try
+				{
+					bufferedreader.close();
+				}
+				catch (IOException ioexception){}
+			}
+		}
 		return "|Splash|"+retStr;
 	}
-	
+
 	public void setupNBTInfo()
 	{
 		menuTextures.clear();
@@ -627,7 +632,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 		overlayTimeList.clear();
 		textLeft.clear();
 		textRight.clear();
-		
+
 		NBTTagCompound tag = idToTagMapping.get(DummyConfig.getMainMenu());
 		menuType = tag.getInteger("MenuType");
 		if(tag.hasKey("GradientStart") && tag.hasKey("GradientEnd"))
@@ -638,7 +643,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 		}
 		if(tag.hasKey("TextureRepeats"))
 			this.textureRepeat = tag.getInteger("TextureRepeats");
-			
+
 		if(tag.hasKey("Textures", 9))
 		{
 			NBTTagList nbtLst = tag.getTagList("Textures", 10);
@@ -659,7 +664,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 					gifImage = new GIFImage(new ResourceLocation(tag.getString("Texture")));
 					for(int i = 0; i < gifImage.frames; ++i)
 						overlayTimeList.add(tag.getInteger("FrameDelay"));
-					
+
 					if(tag.hasKey("FramesDelay",10))
 					{
 						NBTTagCompound framesDelay = tag.getCompoundTag("FramesDelay");
@@ -696,7 +701,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 			}
 			textLeft = Lists.reverse(textLeft);
 		}
-		
+
 		if(tag.hasKey("TextRight",9))
 		{
 			NBTTagList nbtLst = tag.getTagList("TextRight", 8);
@@ -718,7 +723,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 			menuTexture = this.mc.getTextureManager().getDynamicTextureLocation("background", this.viewportTexture);
 		}
 	}
-	
+
 	public String parsePossibleLink(String s)
 	{
 		if(s.equals("|MC|"))
@@ -731,23 +736,23 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 			s = "";
 		if(s.equals("|FMLBranding|"))
 			s = Loader.instance().getFMLBrandingProperties().containsKey("fmlbranding") ? Loader.instance().getFMLBrandingProperties().get("fmlbranding") : "";
-		if(s.equals("|Mods|"))
-		{
-            int tModCount = Loader.instance().getModList().size();
-            int aModCount = Loader.instance().getActiveModList().size();
-            s = String.format("%d mod%s loaded, %d mod%s active", tModCount, tModCount!=1 ? "s" :"", aModCount, aModCount!=1 ? "s" :"" );
-		}
-		if(s.equals("|Copyright|"))
-			s = "Copyright Mojang AB. Do not distribute!";
-		return s;
+			if(s.equals("|Mods|"))
+			{
+				int tModCount = Loader.instance().getModList().size();
+				int aModCount = Loader.instance().getActiveModList().size();
+				s = String.format("%d mod%s loaded, %d mod%s active", tModCount, tModCount!=1 ? "s" :"", aModCount, aModCount!=1 ? "s" :"" );
+			}
+			if(s.equals("|Copyright|"))
+				s = "Copyright Mojang AB. Do not distribute!";
+			return s;
 	}
-	
+
 	public static interface AbstractGUIObject
 	{
 		public void drawOnScreen(int mouseX, int mouseY, float partialTicks, double zLevel);
 		public void guiTick();
 	}
-	
+
 	public static class CustomImage extends GuiScreen implements AbstractGUIObject
 	{
 		public ResourceLocation texture = null;
@@ -759,44 +764,45 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 		public double minU,minV,maxU,maxV;
 		public GIFImage gifImage;
 		public int frameTime;
-		
+
+		@Override
 		public void drawOnScreen(int mouseX, int mouseY, float partialTicks, double zLevel)
 		{
 			if(mc == null)
 				mc = Minecraft.getMinecraft();
-			
+
 			if(!gif)
 			{
 				mc.renderEngine.bindTexture(texture);
 				TessellatorWrapper tec = TessellatorWrapper.getInstance();
 				tec.startDrawingQuads();
-				
+
 				tec.addVertexWithUV(x, y, zLevel, minU, minV);
 				tec.addVertexWithUV(x, y+sizeY, zLevel, minU, maxV);
 				tec.addVertexWithUV(x+sizeX, y+sizeY, zLevel, maxU, maxV);
 				tec.addVertexWithUV(x+sizeX, y, zLevel, maxU, minV);
-				
+
 				tec.draw();
 			}else{
-				
-	    		GL11.glPushMatrix();
-	    		
-	    		GL11.glDisable(GL11.GL_ALPHA_TEST);
-	    		GL11.glEnable(GL11.GL_BLEND);
-	    		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-	    		GL11.glTranslated(x, y, zLevel);
-	    		
-	    		if(!gifImage.errored)
-	    			gifImage.drawOnScreen(MathHelper.floor(frameTime+partialTicks) % gifImage.frames, minU, minV, maxU, maxV, sizeX, sizeY);
-	            
-	            GL11.glTranslated(-x, -y, -zLevel);
-	    		
-	            GL11.glDisable(GL11.GL_BLEND);
-	            GL11.glEnable(GL11.GL_ALPHA_TEST);
-	    		GL11.glPopMatrix();
-				
+
+				GL11.glPushMatrix();
+
+				GL11.glDisable(GL11.GL_ALPHA_TEST);
+				GL11.glEnable(GL11.GL_BLEND);
+				GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+				GL11.glTranslated(x, y, zLevel);
+
+				if(!gifImage.errored)
+					gifImage.drawOnScreen(MathHelper.floor(frameTime+partialTicks) % gifImage.frames, minU, minV, maxU, maxV, sizeX, sizeY);
+
+				GL11.glTranslated(-x, -y, -zLevel);
+
+				GL11.glDisable(GL11.GL_BLEND);
+				GL11.glEnable(GL11.GL_ALPHA_TEST);
+				GL11.glPopMatrix();
+
 			}
-			
+
 			if(!additionalText.isEmpty())
 			{
 				for(Pair<Coord2D,String> p : additionalText)
@@ -805,34 +811,34 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 					boolean splash = text.contains("|Splash|");
 					if(splash)
 						text = text.substring(8);
-					
+
 					double dx = p.getLeft().x;
 					double dy = p.getLeft().z;
 					GL11.glPushMatrix();
-					
+
 					GL11.glTranslated(x+dx, y+dy, zLevel+10);
-					
+
 					GL11.glRotated(textAngle, 0, 0, 1);
-					
+
 					double scale = 1.8D;
 					if(splash)
 					{
 						scale = 1.8D - MathHelper.abs(MathHelper.sin(Minecraft.getSystemTime() % 1000L / 1000.0F * (float)Math.PI * 2.0F) * 0.1F);
-						scale = scale * 100.0F / (mc.fontRendererObj.getStringWidth(text) + 32);
+						scale = scale * 100.0F / (mc.fontRenderer.getStringWidth(text) + 32);
 					}
-					
+
 					GL11.glScaled(scale, scale, 1);
-					
-					this.drawCenteredString(mc.fontRendererObj, text, 0, -8, -256);
-					
+
+					this.drawCenteredString(mc.fontRenderer, text, 0, -8, -256);
+
 					GL11.glScaled(1/scale, 1/scale, 1);
-					
+
 					GL11.glRotated(-textAngle, 0, 0, 1);
-					
+
 					GL11.glTranslated(-(x+dx), -(y+dy), -(zLevel+10));
-					
+
 					GL11.glColor4d(1, 1, 1, 1);
-					
+
 					GL11.glPopMatrix();
 				}
 			}
@@ -844,7 +850,7 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 				++frameTime;
 		}
 	}
-	
+
 	public static class CustomButton extends GuiButton implements AbstractGUIObject
 	{
 		public ResourceLocation texture = null;
@@ -852,25 +858,26 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 		public double minU,minV,maxU,maxV;
 		public double buttonYOffset;
 		public URL url;
-		
+
 		public CustomButton(int id, int x, int y, int sizeX, int sizeY, String text)
 		{
 			super(id,x,y,sizeX,sizeY,text);
 		}
-		
-	    public void func_146113_a(SoundHandler sh)
-	    {
-	    	sh.playSound(PositionedSoundRecord.getMasterRecord(sound != null ? SoundEvent.REGISTRY.getObject(sound) : SoundEvents.UI_BUTTON_CLICK, 1.0F));
-	    }
-		
-	    public void drawOnScreen(int mouseX, int mouseY, float partialTicks, double zLevel)
-	    {
+
+		public void func_146113_a(SoundHandler sh)
+		{
+			sh.playSound(PositionedSoundRecord.getMasterRecord(sound != null ? SoundEvent.REGISTRY.getObject(sound) : SoundEvents.UI_BUTTON_CLICK, 1.0F));
+		}
+
+		@Override
+		public void drawOnScreen(int mouseX, int mouseY, float partialTicks, double zLevel)
+		{
 			Minecraft mc = Minecraft.getMinecraft();
-			
+
 			mc.renderEngine.bindTexture(texture);
 			TessellatorWrapper tec = TessellatorWrapper.getInstance();
 			tec.startDrawingQuads();
-			
+
 			int l = 0xe0e0e0;
 			double offsetY = buttonYOffset;
 			if(!this.enabled)
@@ -878,32 +885,32 @@ public class GuiMainMenuNBT extends GuiMainMenu implements IMainMenu{
 				offsetY = 0;
 				l = 0xa0a0a0;
 			}
-			
-			if(mouseX >= xPosition && mouseX <= xPosition+width)
+
+			if(mouseX >= x && mouseX <= x+width)
 			{
-				if(mouseY >= yPosition && mouseY <= yPosition+height)
+				if(mouseY >= y && mouseY <= y+height)
 				{
 					offsetY = buttonYOffset * 2;
 					l = 0xffffff;
 				}
 			}
-			
-			tec.addVertexWithUV(xPosition, yPosition, zLevel, minU, minV+offsetY);
-			tec.addVertexWithUV(xPosition, yPosition+height, zLevel, minU, maxV+offsetY);
-			tec.addVertexWithUV(xPosition+width, yPosition+height, zLevel, maxU, maxV+offsetY);
-			tec.addVertexWithUV(xPosition+width, yPosition, zLevel, maxU, minV+offsetY);
-			
+
+			tec.addVertexWithUV(x, y, zLevel, minU, minV+offsetY);
+			tec.addVertexWithUV(x, y+height, zLevel, minU, maxV+offsetY);
+			tec.addVertexWithUV(x+width, y+height, zLevel, maxU, maxV+offsetY);
+			tec.addVertexWithUV(x+width, y, zLevel, maxU, minV+offsetY);
+
 			tec.draw();
-			
+
 			GL11.glTranslated(0, 0, 100);
-			this.drawCenteredString(mc.fontRendererObj, displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, l);
+			this.drawCenteredString(mc.fontRenderer, displayString, this.x + this.width / 2, this.y + (this.height - 8) / 2, l);
 			GL11.glTranslated(0, 0, -100);
 			GL11.glColor4d(1, 1, 1, 1);
-	    }
+		}
 
 		@Override
 		public void guiTick() {
-			
+
 		}
 	}
 }

@@ -23,10 +23,12 @@ public enum EnumLayer implements IStringSerializable {
 		index2 = i3;
 	}
 	
+	@Override
 	public String getName() {
 		return name;
 	}
 	
+	@Override
 	public String toString() {
 		return name;
 	}

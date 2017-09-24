@@ -18,8 +18,7 @@ public class Coord3D {
 	 * @param posY - y
 	 * @param posZ - z
 	 */
-	public Coord3D(double posX, double posY, double posZ)
-	{
+	public Coord3D(double posX, double posY, double posZ) {
 		this.x = (float) posX;
 		this.y = (float) posY;
 		this.z = (float) posZ;
@@ -31,8 +30,7 @@ public class Coord3D {
 	 * @param j - y
 	 * @param k - z
 	 */
-	public Coord3D(float i, float k, float j)
-	{
+	public Coord3D(float i, float k, float j) {
 		this.x = i;
 		this.y = k;
 		this.z = j;
@@ -49,6 +47,7 @@ public class Coord3D {
 	/**
 	 * Not only transforms the coord to a string,  but also does it in a way that it can be later parsed by DummyData
 	 */
+	@Override
 	public String toString()
 	{
 		return "||x:"+x+"||y:"+y+"||z:"+z;
@@ -68,6 +67,7 @@ public class Coord3D {
 		return new Coord3D(cX,cY,cZ);
 	}
 
+	@Override
 	public boolean equals(Object obj)
 	{
 		return obj instanceof Coord3D ? x == ((Coord3D)obj).x && y == ((Coord3D)obj).y && z == ((Coord3D)obj).z : super.equals(obj);

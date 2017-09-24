@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.regex.PatternSyntaxException;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
 import DummyCore.Core.Core;
 import DummyCore.Core.CoreInitialiser;
 import DummyCore.Core.DCMod;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
 
 /**
  * Checks thegiven mod for the new version based on the URL given

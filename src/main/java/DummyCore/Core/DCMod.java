@@ -53,6 +53,7 @@ public class DCMod{
 		return this;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return ufName+"[modid:"+modid+",classPath:"+modClass+"]";

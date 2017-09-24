@@ -80,6 +80,6 @@ public class Face
 
         normalVector = v1.crossProduct(v2).normalize();
 
-        return new Vertex((float) normalVector.xCoord, (float) normalVector.yCoord, (float) normalVector.zCoord);
+        return new Vertex((float) normalVector.x, (float) normalVector.y, (float) normalVector.z);
     }
 }

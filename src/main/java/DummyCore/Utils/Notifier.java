@@ -113,7 +113,7 @@ public class Notifier {
 		notify(Level.INFO,"","",modname,s);
 	}
 	
-	public static String buildString(String...strings)
+	public static String buildString(String... strings)
 	{
 		return strings[0] + " " + strings[1] + " " + strings[2] + " " + strings[3] + " ";
 	}

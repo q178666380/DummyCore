@@ -133,7 +133,7 @@ public class PrimitiveUtils {
     	return ret;
     }
     
-    public static <T>ArrayList<T> listOf(T[] array)
+    public static <T>ArrayList<T> listOf(T... array)
     {
     	ArrayList<T> ret = new ArrayList<T>(array.length);
     	for(T obj : array)

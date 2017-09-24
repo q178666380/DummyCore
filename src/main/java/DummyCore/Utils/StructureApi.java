@@ -25,11 +25,11 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 /**
  * This is an API for structure-like code. Allows storing structures from world into .str files to parse later
@@ -243,7 +243,7 @@ public class StructureApi
 			else
 				bid = st;
 			
-			Block b = GameRegistry.findBlock(bid.substring(0,bid.indexOf(':')), bid.substring(bid.indexOf(':')+1));
+			Block b = Block.REGISTRY.getObject(new ResourceLocation(bid));
 			int meta;
 			if(st.indexOf('|') != -1)
 				meta = Integer.parseInt(st.substring(st.indexOf('|')+1));

@@ -33,6 +33,7 @@ public class Coord2D {
 	/**
 	 * Not only transforms the coord to a string,  but also does it in a way that it can be later parsed by DummyData
 	 */
+	@Override
 	public String toString()
 	{
 		return "||x:"+x+"||z:"+z;
@@ -51,6 +52,7 @@ public class Coord2D {
 		return new Coord2D(cX,cZ);
 	}
 	
+	@Override
 	public boolean equals(Object obj)
 	{
 		return obj instanceof Coord2D ? x == ((Coord2D)obj).x && z == ((Coord2D)obj).z : super.equals(obj);

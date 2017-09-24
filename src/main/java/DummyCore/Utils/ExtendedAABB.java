@@ -1,8 +1,8 @@
 package DummyCore.Utils;
 
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
@@ -13,362 +13,363 @@ import net.minecraft.util.math.Vec3d;
  *
  */
 public class ExtendedAABB {
-    public double minX;
-    public double minY;
-    public double minZ;
-    public double maxX;
-    public double maxY;
-    public double maxZ;
-    
-    public ExtendedAABB(AxisAlignedBB aabb)
-    {
-    	this(aabb.minX,aabb.maxX,aabb.minY,aabb.maxY,aabb.minZ,aabb.maxZ);
-    }
-    
-    public ExtendedAABB(double x1, double y1, double z1, double x2, double y2, double z2)
-    {
-        this.minX = Math.min(x1, x2);
-        this.minY = Math.min(y1, y2);
-        this.minZ = Math.min(z1, z2);
-        this.maxX = Math.max(x1, x2);
-        this.maxY = Math.max(y1, y2);
-        this.maxZ = Math.max(z1, z2);
-    }
-    
-    public ExtendedAABB(BlockPos pos1, BlockPos pos2)
-    {
-        this.minX = pos1.getX();
-        this.minY = pos1.getY();
-        this.minZ = pos1.getZ();
-        this.maxX = pos2.getX();
-        this.maxY = pos2.getY();
-        this.maxZ = pos2.getZ();
-    }
-    
-    public ExtendedAABB addCoord(double x, double y, double z)
-    {
-        double d3 = this.minX;
-        double d4 = this.minY;
-        double d5 = this.minZ;
-        double d6 = this.maxX;
-        double d7 = this.maxY;
-        double d8 = this.maxZ;
+	public double minX;
+	public double minY;
+	public double minZ;
+	public double maxX;
+	public double maxY;
+	public double maxZ;
 
-        if (x < 0.0D)
-        {
-            d3 += x;
-        }
-        else if (x > 0.0D)
-        {
-            d6 += x;
-        }
+	public ExtendedAABB(AxisAlignedBB aabb)
+	{
+		this(aabb.minX,aabb.maxX,aabb.minY,aabb.maxY,aabb.minZ,aabb.maxZ);
+	}
 
-        if (y < 0.0D)
-        {
-            d4 += y;
-        }
-        else if (y > 0.0D)
-        {
-            d7 += y;
-        }
+	public ExtendedAABB(double x1, double y1, double z1, double x2, double y2, double z2)
+	{
+		this.minX = Math.min(x1, x2);
+		this.minY = Math.min(y1, y2);
+		this.minZ = Math.min(z1, z2);
+		this.maxX = Math.max(x1, x2);
+		this.maxY = Math.max(y1, y2);
+		this.maxZ = Math.max(z1, z2);
+	}
 
-        if (z < 0.0D)
-        {
-            d5 += z;
-        }
-        else if (z > 0.0D)
-        {
-            d8 += z;
-        }
+	public ExtendedAABB(BlockPos pos1, BlockPos pos2)
+	{
+		this.minX = pos1.getX();
+		this.minY = pos1.getY();
+		this.minZ = pos1.getZ();
+		this.maxX = pos2.getX();
+		this.maxY = pos2.getY();
+		this.maxZ = pos2.getZ();
+	}
 
-        return new ExtendedAABB(d3, d4, d5, d6, d7, d8);
-    }
-    
-    public ExtendedAABB expand(double x, double y, double z)
-    {
-        this.minX -= x;
-        this.minY -= y;
-        this.minZ -= z;
-        this.maxX += x;
-        this.maxY += y;
-        this.maxZ += z;
-        return this;
-    }
-    
-    public ExtendedAABB union(ExtendedAABB other)
-    {
-        double d0 = Math.min(this.minX, other.minX);
-        double d1 = Math.min(this.minY, other.minY);
-        double d2 = Math.min(this.minZ, other.minZ);
-        double d3 = Math.max(this.maxX, other.maxX);
-        double d4 = Math.max(this.maxY, other.maxY);
-        double d5 = Math.max(this.maxZ, other.maxZ);
-        return new ExtendedAABB(d0, d1, d2, d3, d4, d5);
-    }
-    
-    public static ExtendedAABB fromPos(BlockPos pos1, BlockPos pos2)
-    {
-    	return fromBounds(pos1.getX(),pos1.getY(),pos1.getZ(),pos2.getX(),pos2.getY(),pos2.getZ());
-    }	
-    
-    public static ExtendedAABB fromBounds(double x1, double y1, double z1, double x2, double y2, double z2)
-    {
-        double d6 = Math.min(x1, x2);
-        double d7 = Math.min(y1, y2);
-        double d8 = Math.min(z1, z2);
-        double d9 = Math.max(x1, x2);
-        double d10 = Math.max(y1, y2);
-        double d11 = Math.max(z1, z2);
-        return new ExtendedAABB(d6, d7, d8, d9, d10, d11);
-    }
-    
+	public ExtendedAABB addCoord(double x, double y, double z)
+	{
+		double d3 = this.minX;
+		double d4 = this.minY;
+		double d5 = this.minZ;
+		double d6 = this.maxX;
+		double d7 = this.maxY;
+		double d8 = this.maxZ;
 
-    public ExtendedAABB offset(double x, double y, double z)
-    {
-        return new ExtendedAABB(this.minX + x, this.minY + y, this.minZ + z, this.maxX + x, this.maxY + y, this.maxZ + z);
-    }
+		if (x < 0.0D)
+		{
+			d3 += x;
+		}
+		else if (x > 0.0D)
+		{
+			d6 += x;
+		}
 
-    public double calculateXOffset(ExtendedAABB other, double p_72316_2_)
-    {
-        if (other.maxY > this.minY && other.minY < this.maxY && other.maxZ > this.minZ && other.minZ < this.maxZ)
-        {
-            double d1;
+		if (y < 0.0D)
+		{
+			d4 += y;
+		}
+		else if (y > 0.0D)
+		{
+			d7 += y;
+		}
 
-            if (p_72316_2_ > 0.0D && other.maxX <= this.minX)
-            {
-                d1 = this.minX - other.maxX;
+		if (z < 0.0D)
+		{
+			d5 += z;
+		}
+		else if (z > 0.0D)
+		{
+			d8 += z;
+		}
 
-                if (d1 < p_72316_2_)
-                {
-                    p_72316_2_ = d1;
-                }
-            }
-            else if (p_72316_2_ < 0.0D && other.minX >= this.maxX)
-            {
-                d1 = this.maxX - other.minX;
+		return new ExtendedAABB(d3, d4, d5, d6, d7, d8);
+	}
 
-                if (d1 > p_72316_2_)
-                {
-                    p_72316_2_ = d1;
-                }
-            }
+	public ExtendedAABB expand(double x, double y, double z)
+	{
+		this.minX -= x;
+		this.minY -= y;
+		this.minZ -= z;
+		this.maxX += x;
+		this.maxY += y;
+		this.maxZ += z;
+		return this;
+	}
 
-            return p_72316_2_;
-        }
+	public ExtendedAABB union(ExtendedAABB other)
+	{
+		double d0 = Math.min(this.minX, other.minX);
+		double d1 = Math.min(this.minY, other.minY);
+		double d2 = Math.min(this.minZ, other.minZ);
+		double d3 = Math.max(this.maxX, other.maxX);
+		double d4 = Math.max(this.maxY, other.maxY);
+		double d5 = Math.max(this.maxZ, other.maxZ);
+		return new ExtendedAABB(d0, d1, d2, d3, d4, d5);
+	}
+
+	public static ExtendedAABB fromPos(BlockPos pos1, BlockPos pos2)
+	{
+		return fromBounds(pos1.getX(),pos1.getY(),pos1.getZ(),pos2.getX(),pos2.getY(),pos2.getZ());
+	}	
+
+	public static ExtendedAABB fromBounds(double x1, double y1, double z1, double x2, double y2, double z2)
+	{
+		double d6 = Math.min(x1, x2);
+		double d7 = Math.min(y1, y2);
+		double d8 = Math.min(z1, z2);
+		double d9 = Math.max(x1, x2);
+		double d10 = Math.max(y1, y2);
+		double d11 = Math.max(z1, z2);
+		return new ExtendedAABB(d6, d7, d8, d9, d10, d11);
+	}
+
+
+	public ExtendedAABB offset(double x, double y, double z)
+	{
+		return new ExtendedAABB(this.minX + x, this.minY + y, this.minZ + z, this.maxX + x, this.maxY + y, this.maxZ + z);
+	}
+
+	public double calculateXOffset(ExtendedAABB other, double p_72316_2_)
+	{
+		if (other.maxY > this.minY && other.minY < this.maxY && other.maxZ > this.minZ && other.minZ < this.maxZ)
+		{
+			double d1;
+
+			if (p_72316_2_ > 0.0D && other.maxX <= this.minX)
+			{
+				d1 = this.minX - other.maxX;
+
+				if (d1 < p_72316_2_)
+				{
+					p_72316_2_ = d1;
+				}
+			}
+			else if (p_72316_2_ < 0.0D && other.minX >= this.maxX)
+			{
+				d1 = this.maxX - other.minX;
+
+				if (d1 > p_72316_2_)
+				{
+					p_72316_2_ = d1;
+				}
+			}
+
+			return p_72316_2_;
+		}
 		return p_72316_2_;
-    }
+	}
 
-    public double calculateYOffset(ExtendedAABB other, double p_72323_2_)
-    {
-        if (other.maxX > this.minX && other.minX < this.maxX && other.maxZ > this.minZ && other.minZ < this.maxZ)
-        {
-            double d1;
+	public double calculateYOffset(ExtendedAABB other, double p_72323_2_)
+	{
+		if (other.maxX > this.minX && other.minX < this.maxX && other.maxZ > this.minZ && other.minZ < this.maxZ)
+		{
+			double d1;
 
-            if (p_72323_2_ > 0.0D && other.maxY <= this.minY)
-            {
-                d1 = this.minY - other.maxY;
+			if (p_72323_2_ > 0.0D && other.maxY <= this.minY)
+			{
+				d1 = this.minY - other.maxY;
 
-                if (d1 < p_72323_2_)
-                {
-                    p_72323_2_ = d1;
-                }
-            }
-            else if (p_72323_2_ < 0.0D && other.minY >= this.maxY)
-            {
-                d1 = this.maxY - other.minY;
+				if (d1 < p_72323_2_)
+				{
+					p_72323_2_ = d1;
+				}
+			}
+			else if (p_72323_2_ < 0.0D && other.minY >= this.maxY)
+			{
+				d1 = this.maxY - other.minY;
 
-                if (d1 > p_72323_2_)
-                {
-                    p_72323_2_ = d1;
-                }
-            }
+				if (d1 > p_72323_2_)
+				{
+					p_72323_2_ = d1;
+				}
+			}
 
-            return p_72323_2_;
-        }
+			return p_72323_2_;
+		}
 		return p_72323_2_;
-    }
+	}
 
-    public double calculateZOffset(ExtendedAABB other, double p_72322_2_)
-    {
-        if (other.maxX > this.minX && other.minX < this.maxX && other.maxY > this.minY && other.minY < this.maxY)
-        {
-            double d1;
+	public double calculateZOffset(ExtendedAABB other, double p_72322_2_)
+	{
+		if (other.maxX > this.minX && other.minX < this.maxX && other.maxY > this.minY && other.minY < this.maxY)
+		{
+			double d1;
 
-            if (p_72322_2_ > 0.0D && other.maxZ <= this.minZ)
-            {
-                d1 = this.minZ - other.maxZ;
+			if (p_72322_2_ > 0.0D && other.maxZ <= this.minZ)
+			{
+				d1 = this.minZ - other.maxZ;
 
-                if (d1 < p_72322_2_)
-                {
-                    p_72322_2_ = d1;
-                }
-            }
-            else if (p_72322_2_ < 0.0D && other.minZ >= this.maxZ)
-            {
-                d1 = this.maxZ - other.minZ;
+				if (d1 < p_72322_2_)
+				{
+					p_72322_2_ = d1;
+				}
+			}
+			else if (p_72322_2_ < 0.0D && other.minZ >= this.maxZ)
+			{
+				d1 = this.maxZ - other.minZ;
 
-                if (d1 > p_72322_2_)
-                {
-                    p_72322_2_ = d1;
-                }
-            }
+				if (d1 > p_72322_2_)
+				{
+					p_72322_2_ = d1;
+				}
+			}
 
-            return p_72322_2_;
-        }
+			return p_72322_2_;
+		}
 		return p_72322_2_;
-    }
+	}
 
-    public boolean intersectsWith(ExtendedAABB other)
-    {
-        return other.maxX > this.minX && other.minX < this.maxX ? (other.maxY > this.minY && other.minY < this.maxY ? other.maxZ > this.minZ && other.minZ < this.maxZ : false) : false;
-    }
+	public boolean intersectsWith(ExtendedAABB other)
+	{
+		return other.maxX > this.minX && other.minX < this.maxX ? (other.maxY > this.minY && other.minY < this.maxY ? other.maxZ > this.minZ && other.minZ < this.maxZ : false) : false;
+	}
 
-    public boolean isVecInside(Vec3d vec)
-    {
-        return vec.xCoord > this.minX && vec.xCoord < this.maxX ? (vec.yCoord > this.minY && vec.yCoord < this.maxY ? vec.zCoord > this.minZ && vec.zCoord < this.maxZ : false) : false;
-    }
-    
-    public double getAverageEdgeLength()
-    {
-        double d0 = this.maxX - this.minX;
-        double d1 = this.maxY - this.minY;
-        double d2 = this.maxZ - this.minZ;
-        return (d0 + d1 + d2) / 3.0D;
-    }
+	public boolean isVecInside(Vec3d vec)
+	{
+		return vec.x > this.minX && vec.x < this.maxX ? (vec.y > this.minY && vec.y < this.maxY ? vec.z > this.minZ && vec.z < this.maxZ : false) : false;
+	}
 
-    public ExtendedAABB contract(double x, double y, double z)
-    {
-        double d3 = this.minX + x;
-        double d4 = this.minY + y;
-        double d5 = this.minZ + z;
-        double d6 = this.maxX - x;
-        double d7 = this.maxY - y;
-        double d8 = this.maxZ - z;
-        return new ExtendedAABB(d3, d4, d5, d6, d7, d8);
-    }
+	public double getAverageEdgeLength()
+	{
+		double d0 = this.maxX - this.minX;
+		double d1 = this.maxY - this.minY;
+		double d2 = this.maxZ - this.minZ;
+		return (d0 + d1 + d2) / 3.0D;
+	}
 
-    public RayTraceResult calculateIntercept(Vec3d p_72327_1_, Vec3d p_72327_2_)
-    {
-        Vec3d vec32 = p_72327_1_.getIntermediateWithXValue(p_72327_2_, this.minX);
-        Vec3d vec33 = p_72327_1_.getIntermediateWithXValue(p_72327_2_, this.maxX);
-        Vec3d vec34 = p_72327_1_.getIntermediateWithYValue(p_72327_2_, this.minY);
-        Vec3d vec35 = p_72327_1_.getIntermediateWithYValue(p_72327_2_, this.maxY);
-        Vec3d vec36 = p_72327_1_.getIntermediateWithZValue(p_72327_2_, this.minZ);
-        Vec3d vec37 = p_72327_1_.getIntermediateWithZValue(p_72327_2_, this.maxZ);
+	public ExtendedAABB contract(double x, double y, double z)
+	{
+		double d3 = this.minX + x;
+		double d4 = this.minY + y;
+		double d5 = this.minZ + z;
+		double d6 = this.maxX - x;
+		double d7 = this.maxY - y;
+		double d8 = this.maxZ - z;
+		return new ExtendedAABB(d3, d4, d5, d6, d7, d8);
+	}
 
-        if (!this.isVecInYZ(vec32))
-        {
-            vec32 = null;
-        }
+	public RayTraceResult calculateIntercept(Vec3d p_72327_1_, Vec3d p_72327_2_)
+	{
+		Vec3d vec32 = p_72327_1_.getIntermediateWithXValue(p_72327_2_, this.minX);
+		Vec3d vec33 = p_72327_1_.getIntermediateWithXValue(p_72327_2_, this.maxX);
+		Vec3d vec34 = p_72327_1_.getIntermediateWithYValue(p_72327_2_, this.minY);
+		Vec3d vec35 = p_72327_1_.getIntermediateWithYValue(p_72327_2_, this.maxY);
+		Vec3d vec36 = p_72327_1_.getIntermediateWithZValue(p_72327_2_, this.minZ);
+		Vec3d vec37 = p_72327_1_.getIntermediateWithZValue(p_72327_2_, this.maxZ);
 
-        if (!this.isVecInYZ(vec33))
-        {
-            vec33 = null;
-        }
+		if (!this.isVecInYZ(vec32))
+		{
+			vec32 = null;
+		}
 
-        if (!this.isVecInXZ(vec34))
-        {
-            vec34 = null;
-        }
+		if (!this.isVecInYZ(vec33))
+		{
+			vec33 = null;
+		}
 
-        if (!this.isVecInXZ(vec35))
-        {
-            vec35 = null;
-        }
+		if (!this.isVecInXZ(vec34))
+		{
+			vec34 = null;
+		}
 
-        if (!this.isVecInXY(vec36))
-        {
-            vec36 = null;
-        }
+		if (!this.isVecInXZ(vec35))
+		{
+			vec35 = null;
+		}
 
-        if (!this.isVecInXY(vec37))
-        {
-            vec37 = null;
-        }
+		if (!this.isVecInXY(vec36))
+		{
+			vec36 = null;
+		}
 
-        Vec3d vec38 = null;
+		if (!this.isVecInXY(vec37))
+		{
+			vec37 = null;
+		}
 
-        if (vec32 != null)
-        {
-            vec38 = vec32;
-        }
+		Vec3d vec38 = null;
 
-        if (vec33 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec33) < p_72327_1_.squareDistanceTo(vec38)))
-        {
-            vec38 = vec33;
-        }
+		if (vec32 != null)
+		{
+			vec38 = vec32;
+		}
 
-        if (vec34 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec34) < p_72327_1_.squareDistanceTo(vec38)))
-        {
-            vec38 = vec34;
-        }
+		if (vec33 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec33) < p_72327_1_.squareDistanceTo(vec38)))
+		{
+			vec38 = vec33;
+		}
 
-        if (vec35 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec35) < p_72327_1_.squareDistanceTo(vec38)))
-        {
-            vec38 = vec35;
-        }
+		if (vec34 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec34) < p_72327_1_.squareDistanceTo(vec38)))
+		{
+			vec38 = vec34;
+		}
 
-        if (vec36 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec36) < p_72327_1_.squareDistanceTo(vec38)))
-        {
-            vec38 = vec36;
-        }
+		if (vec35 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec35) < p_72327_1_.squareDistanceTo(vec38)))
+		{
+			vec38 = vec35;
+		}
 
-        if (vec37 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec37) < p_72327_1_.squareDistanceTo(vec38)))
-        {
-            vec38 = vec37;
-        }
+		if (vec36 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec36) < p_72327_1_.squareDistanceTo(vec38)))
+		{
+			vec38 = vec36;
+		}
 
-        if (vec38 == null)
-        {
-            return null;
-        }
+		if (vec37 != null && (vec38 == null || p_72327_1_.squareDistanceTo(vec37) < p_72327_1_.squareDistanceTo(vec38)))
+		{
+			vec38 = vec37;
+		}
+
+		if (vec38 == null)
+		{
+			return null;
+		}
 		EnumFacing enumfacing = null;
 
 		if (vec38 == vec32)
 		{
-		    enumfacing = EnumFacing.WEST;
+			enumfacing = EnumFacing.WEST;
 		}
 		else if (vec38 == vec33)
 		{
-		    enumfacing = EnumFacing.EAST;
+			enumfacing = EnumFacing.EAST;
 		}
 		else if (vec38 == vec34)
 		{
-		    enumfacing = EnumFacing.DOWN;
+			enumfacing = EnumFacing.DOWN;
 		}
 		else if (vec38 == vec35)
 		{
-		    enumfacing = EnumFacing.UP;
+			enumfacing = EnumFacing.UP;
 		}
 		else if (vec38 == vec36)
 		{
-		    enumfacing = EnumFacing.NORTH;
+			enumfacing = EnumFacing.NORTH;
 		}
 		else
 		{
-		    enumfacing = EnumFacing.SOUTH;
+			enumfacing = EnumFacing.SOUTH;
 		}
 
 		return new RayTraceResult(vec38, enumfacing);
-    }
+	}
 
-    public boolean isVecInYZ(Vec3d vec)
-    {
-        return vec == null ? false : vec.yCoord >= this.minY && vec.yCoord <= this.maxY && vec.zCoord >= this.minZ && vec.zCoord <= this.maxZ;
-    }
+	public boolean isVecInYZ(Vec3d vec)
+	{
+		return vec == null ? false : vec.y >= this.minY && vec.y <= this.maxY && vec.z >= this.minZ && vec.z <= this.maxZ;
+	}
 
-    public boolean isVecInXZ(Vec3d vec)
-    {
-        return vec == null ? false : vec.xCoord >= this.minX && vec.xCoord <= this.maxX && vec.zCoord >= this.minZ && vec.zCoord <= this.maxZ;
-    }
+	public boolean isVecInXZ(Vec3d vec)
+	{
+		return vec == null ? false : vec.x >= this.minX && vec.x <= this.maxX && vec.z >= this.minZ && vec.z <= this.maxZ;
+	}
 
-    public boolean isVecInXY(Vec3d vec)
-    {
-        return vec == null ? false : vec.xCoord >= this.minX && vec.xCoord <= this.maxX && vec.yCoord >= this.minY && vec.yCoord <= this.maxY;
-    }
+	public boolean isVecInXY(Vec3d vec)
+	{
+		return vec == null ? false : vec.x >= this.minX && vec.x <= this.maxX && vec.y >= this.minY && vec.y <= this.maxY;
+	}
 
-    public String toString()
-    {
-        return "box[" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
-    }
+	@Override
+	public String toString()
+	{
+		return "box[" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
+	}
 }

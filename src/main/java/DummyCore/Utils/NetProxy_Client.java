@@ -3,13 +3,11 @@ package DummyCore.Utils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import DummyCore.Blocks.BlocksRegistry;
 import DummyCore.Client.AdvancedModelLoader;
 import DummyCore.Client.GuiMainMenuOld;
 import DummyCore.Client.GuiMainMenuVanilla;
@@ -23,7 +21,8 @@ import DummyCore.Client.techne.TechneModelLoader;
 import DummyCore.Core.Core;
 import DummyCore.CreativeTabs.CreativePageBlocks;
 import DummyCore.CreativeTabs.CreativePageItems;
-import DummyCore.Items.ItemRegistry;
+import DummyCore.Registries.BlockRegistry;
+import DummyCore.Registries.ItemRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;
@@ -46,6 +45,7 @@ import net.minecraft.tileentity.TileEntityCommandBlock;
 import net.minecraft.tileentity.TileEntityFlowerPot;
 import net.minecraft.tileentity.TileEntityMobSpawner;
 import net.minecraft.tileentity.TileEntitySkull;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -59,6 +59,7 @@ public class NetProxy_Client extends NetProxy_Server{
 	public static final Hashtable<Item,Integer[]> cachedMetaI = new Hashtable<Item,Integer[]>();
 
 	//Why vanilla's(or is it forge?) thread checking?
+	@Override
 	public void handlePacketS35(SPacketUpdateTileEntity packetIn) {
 		WorldClient world = Minecraft.getMinecraft().world;
 		if(world != null && world.isBlockLoaded(packetIn.getPos())) {
@@ -96,25 +97,28 @@ public class NetProxy_Client extends NetProxy_Server{
 		return null;
 	}
 
+	@Override
 	public EntityPlayer getClientPlayer() {
 		return Minecraft.getMinecraft().player;
 	}
 
+	@Override
 	public World getClientWorld() {
 		return Minecraft.getMinecraft().world;
 	}
 
+	@Override
 	public Integer[] createPossibleMetadataCacheFromBlock(Block b) {
 		if(cachedMeta.containsKey(b))
 			return cachedMeta.get(b);
 
 		Item i = Item.getItemFromBlock(b);
-		ArrayList<ItemStack> dummyTabsTrick = new ArrayList<ItemStack>();
-		i.getSubItems(i, b.getCreativeTabToDisplayOn(), dummyTabsTrick);
+		NonNullList<ItemStack> dummyTabsTrick = NonNullList.<ItemStack>create();
+		i.getSubItems(b.getCreativeTabToDisplayOn(), dummyTabsTrick);
 		Integer[] retInt = new Integer[dummyTabsTrick.size()];
 		int count = 0;
 		for(ItemStack is : dummyTabsTrick) {
-			if(is != null && is.getItem() == i) {
+			if(is.getItem() == i) {
 				retInt[count] = is.getItemDamage();
 				++count;
 			}
@@ -124,16 +128,17 @@ public class NetProxy_Client extends NetProxy_Server{
 		return retInt;
 	}
 
+	@Override
 	public Integer[] createPossibleMetadataCacheFromItem(Item i) {
 		if(cachedMetaI.containsKey(i))
 			return cachedMetaI.get(i);
 
-		ArrayList<ItemStack> dummyTabsTrick = new ArrayList<ItemStack>();
-		i.getSubItems(i, i.getCreativeTab(), dummyTabsTrick);
+		NonNullList<ItemStack> dummyTabsTrick = NonNullList.<ItemStack>create();
+		i.getSubItems(i.getCreativeTab(), dummyTabsTrick);
 		Integer[] retInt = new Integer[dummyTabsTrick.size()];
 		int count = 0;
 		for(ItemStack is : dummyTabsTrick) {
-			if(is != null && is.getItem() == i) {
+			if(is.getItem() == i) {
 				retInt[count] = is.getItemDamage();
 				++count;
 			}
@@ -217,7 +222,7 @@ public class NetProxy_Client extends NetProxy_Server{
 					rand = new Random(0);
 				int random = rand.nextInt(blocks.blockList.size());
 				ItemStack itm = blocks.blockList.get(random);
-				if(itm != null && itm.getItem() != null)
+				if(!itm.isEmpty() && itm.getItem() != null)
 					blocks.displayStack = itm;
 			}
 		}
@@ -237,30 +242,32 @@ public class NetProxy_Client extends NetProxy_Server{
 					rand = new Random(0);
 				int random = rand.nextInt(items.itemList.size());
 				ItemStack itm = items.itemList.get(random);
-				if(itm != null && itm.getItem() != null)
+				if(!itm.isEmpty() && itm.getItem() != null)
 					items.displayStack = itm;
 			}
 		}
 	}
 
+	@Override
 	public void registerPostInit() {
 		ModelUtils.registerColors();
 	}
 
+	@Override
 	public void handleBlockRegister(Block b, ItemBlock ib, String name, Class<?> modClass) {
 		if(Core.getBlockTabForMod(modClass) != null) {
 			b.setCreativeTab(Core.getBlockTabForMod(modClass));
-			BlocksRegistry.blocksList.put(b, Core.getBlockTabForMod(modClass).getTabLabel());
+			BlockRegistry.blocksList.put(b, Core.getBlockTabForMod(modClass).getTabLabel());
 		}
 
 		if(b instanceof IBlockColor)
-			ModelUtils.blockColors.add(Pair.<IBlockColor, Block>of((IBlockColor)b, b));
-		
+			ModelUtils.BLOCK_COLORS.add(Pair.<IBlockColor, Block>of((IBlockColor)b, b));
+
 		if(ib != null && b instanceof IItemColor)
-			ModelUtils.itemColors.add(Pair.<IItemColor, Item>of((IItemColor)b, ib));
+			ModelUtils.ITEM_COLORS.add(Pair.<IItemColor, Item>of((IItemColor)b, ib));
 
 		if(ib != null && ib instanceof IItemColor)
-			ModelUtils.itemColors.add(Pair.<IItemColor, Item>of((IItemColor)ib, ib));
+			ModelUtils.ITEM_COLORS.add(Pair.<IItemColor, Item>of((IItemColor)ib, ib));
 
 		if(b instanceof IModelRegisterer)
 			((IModelRegisterer)b).registerModels();
@@ -269,6 +276,7 @@ public class NetProxy_Client extends NetProxy_Server{
 			((IModelRegisterer)ib).registerModels();
 	}
 
+	@Override
 	public void handleItemRegister(Item i, String name, Class<?> modClass) {
 		if(Core.getItemTabForMod(modClass) != null) {
 			i.setCreativeTab(Core.getItemTabForMod(modClass));
@@ -276,7 +284,7 @@ public class NetProxy_Client extends NetProxy_Server{
 		}
 
 		if(i instanceof IItemColor)
-			ModelUtils.itemColors.add(Pair.<IItemColor, Item>of((IItemColor)i, i));
+			ModelUtils.ITEM_COLORS.add(Pair.<IItemColor, Item>of((IItemColor)i, i));
 
 		if(i instanceof IModelRegisterer)
 			((IModelRegisterer)i).registerModels();

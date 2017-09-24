@@ -9,15 +9,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import joptsimple.internal.Strings;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.NBTTagCompound;
-
 import org.apache.commons.io.IOUtils;
+
+import com.google.common.collect.Iterators;
 
 import DummyCore.Core.Core;
 import DummyCore.Utils.DummyConfig;
@@ -25,8 +19,13 @@ import DummyCore.Utils.DummyData;
 import DummyCore.Utils.IMainMenu;
 import DummyCore.Utils.LoadingUtils;
 import DummyCore.Utils.Notifier;
-
-import com.google.common.collect.Iterators;
+import joptsimple.internal.Strings;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
 
 /**
  * This allows you to register your Main Menus using DC

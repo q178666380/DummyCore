@@ -63,7 +63,7 @@ public class GuiMenuList extends GuiScreen{
 
     public int drawLine(String line, int offset, int shifty)
     {
-        this.fontRendererObj.drawString(line, offset, shifty, 0xd7edea);
+        this.fontRenderer.drawString(line, offset, shifty, 0xd7edea);
         return shifty + 10;
     }
 
@@ -74,7 +74,7 @@ public class GuiMenuList extends GuiScreen{
     public void drawScreen(int p_571_1_, int p_571_2_, float p_571_3_)
     {
         this.modList.drawScreen(p_571_1_, p_571_2_, p_571_3_);
-        this.drawCenteredString(this.fontRendererObj, "Menu List", this.width / 2, 16, 0xFFFFFF);
+        this.drawCenteredString(this.fontRenderer, "Menu List", this.width / 2, 16, 0xFFFFFF);
         int offset = this.listWidth  + 20;
         if (selectedMod != null) 
         {
@@ -82,8 +82,8 @@ public class GuiMenuList extends GuiScreen{
             GL11.glEnable(GL11.GL_BLEND);
         	{
                 offset = ( this.listWidth + this.width ) / 2;
-                this.drawCenteredString(this.fontRendererObj, data.fieldName, offset, 35, 0xFFFFFF);
-                this.drawCenteredString(this.fontRendererObj, data.fieldValue, offset, 45, 0xFFFFFF);
+                this.drawCenteredString(this.fontRenderer, data.fieldName, offset, 35, 0xFFFFFF);
+                this.drawCenteredString(this.fontRenderer, data.fieldValue, offset, 45, 0xFFFFFF);
             }
             GL11.glDisable(GL11.GL_BLEND);
         }
@@ -97,7 +97,7 @@ public class GuiMenuList extends GuiScreen{
 
     FontRenderer getFontRenderer() {
         /** The FontRenderer used by GuiScreen */
-        return fontRendererObj;
+        return fontRenderer;
     }
 
     /**

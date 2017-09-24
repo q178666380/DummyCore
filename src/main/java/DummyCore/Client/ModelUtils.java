@@ -25,15 +25,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * 
  */
 public class ModelUtils {
-	public static final ArrayList<Pair<IBlockColor,Block>> blockColors = new ArrayList<Pair<IBlockColor,Block>>();
-	public static final ArrayList<Pair<IItemColor,Item>> itemColors = new ArrayList<Pair<IItemColor,Item>>();
+	public static final ArrayList<Pair<IBlockColor,Block>> BLOCK_COLORS = new ArrayList<Pair<IBlockColor,Block>>();
+	public static final ArrayList<Pair<IItemColor,Item>> ITEM_COLORS = new ArrayList<Pair<IItemColor,Item>>();
 	public static final ArrayList<Pair<ModelResourceLocation,IBakedModel>> MODELS = new ArrayList<Pair<ModelResourceLocation,IBakedModel>>();
 
 	@SideOnly(Side.CLIENT)
 	public static void registerColors() {
-		for(Pair<IBlockColor,Block> b : blockColors)
+		for(Pair<IBlockColor,Block> b : BLOCK_COLORS)
 			Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler(b.getLeft().toMCBlockColor(), b.getRight());
-		for(Pair<IItemColor,Item> i : itemColors)
+		for(Pair<IItemColor,Item> i : ITEM_COLORS)
 			Minecraft.getMinecraft().getItemColors().registerItemColorHandler(i.getLeft().toMCItemColor(), i.getRight());
 	}
 	

@@ -6,7 +6,6 @@ import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.util.ResourceLocation;
 
 /**
  * Internal. The button for changing the main menu.

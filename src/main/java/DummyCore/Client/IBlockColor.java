@@ -13,6 +13,7 @@ public interface IBlockColor {
 	default public net.minecraft.client.renderer.color.IBlockColor toMCBlockColor() {
 		IBlockColor itf = this;
 		return new net.minecraft.client.renderer.color.IBlockColor() {
+			@Override
 			public int colorMultiplier(IBlockState state, IBlockAccess world, BlockPos pos, int tintIndex) {
 				return itf.colorMultiplier(state, world, pos, tintIndex);
 			}

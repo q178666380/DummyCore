@@ -1,7 +1,7 @@
 package DummyCore.Client;
 
-import net.minecraft.client.gui.GuiMainMenu;
 import DummyCore.Utils.IMainMenu;
+import net.minecraft.client.gui.GuiMainMenu;
 
 /**
  * This is a vanilla Main Menu as it is. As you can see there is literally nothing mine in this class - it is the regular and most basic GuiMainMenu, just with the IMainMenu interface on top of it

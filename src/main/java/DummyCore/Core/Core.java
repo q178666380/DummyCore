@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraftforge.common.config.Configuration;
 import DummyCore.CreativeTabs.CreativePageBlocks;
 import DummyCore.CreativeTabs.CreativePageItems;
 import DummyCore.Utils.IDummyConfig;
 import DummyCore.Utils.LoadingUtils;
 import DummyCore.Utils.Notifier;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraftforge.common.config.Configuration;
 
 /**
  * The main class for all registration in DC

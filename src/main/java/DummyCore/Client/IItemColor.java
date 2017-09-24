@@ -11,6 +11,7 @@ public interface IItemColor {
 	default public net.minecraft.client.renderer.color.IItemColor toMCItemColor() {
 		IItemColor itf = this;
 		return new net.minecraft.client.renderer.color.IItemColor() {
+			@Override
 			public int getColorFromItemstack(ItemStack stack, int layer) {
 				return itf.getColorFromItemstack(stack, layer);
 			}

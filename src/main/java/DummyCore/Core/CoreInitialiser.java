@@ -8,6 +8,7 @@ import static DummyCore.Core.CoreInitialiser.version;
 import java.util.Arrays;
 
 import DummyCore.Utils.CommandTransfer;
+import DummyCore.Utils.DummyChunkLoader;
 import DummyCore.Utils.DummyConfig;
 import DummyCore.Utils.DummyDataUtils;
 import DummyCore.Utils.DummyEventHandler;
@@ -17,11 +18,9 @@ import DummyCore.Utils.DummyPacketIMSG_Tile;
 import DummyCore.Utils.DummyPortalHandler;
 import DummyCore.Utils.DummyTilePacketHandler;
 import DummyCore.Utils.LoadingUtils;
-import DummyCore.Utils.ModVersionChecker;
 import DummyCore.Utils.NetProxy_Server;
 import DummyCore.Utils.PrimitiveUtils;
-import net.minecraft.command.CommandHandler;
-import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
@@ -48,10 +47,10 @@ public class CoreInitialiser {
 	public static final String modid = "dummycore";
 	public static final String modname = "DummyCoreUnofficial";
 	public static final String globalVersion = "2";
-	public static final String modVersion = "3";
-	public static final String mcVersion = "1.10.2";
-	public static final String modmcVersion = "1102";
-	public static final String buildVersion = "5";
+	public static final String modVersion = "4";
+	public static final String mcVersion = "[1.12,1.13)";
+	public static final String modmcVersion = "112";
+	public static final String buildVersion = "0";
 	public static final String buildPostfix = "";
 	public static final String version = globalVersion+'.'+modVersion+'.'+modmcVersion+'.'+buildVersion+'.'+buildPostfix;
 
@@ -74,7 +73,8 @@ public class CoreInitialiser {
 				"TheDen2099",
 				"MrDangerDen",
 				"TheMysticDark",
-				"TheLMiffy1111"
+				"TheLMiffy1111",
+				"mrAppleXZ"
 		});
 		meta.description="Dummy Core is a required package to launch mods made by Dummy Thinking team.";
 	}
@@ -91,6 +91,7 @@ public class CoreInitialiser {
 		network.registerMessage(DummyTilePacketHandler.class, DummyPacketIMSG_Tile.class, 1, Side.SERVER);
 		network.registerMessage(DummyTilePacketHandler.class, DummyPacketIMSG_Tile.class, 1, Side.CLIENT);
 
+		ForgeChunkManager.setForcedChunkLoadingCallback(instance, new DummyChunkLoader.TicketHandler());
 		MinecraftForge.EVENT_BUS.register(new DummyEventHandler());
 		MinecraftForge.EVENT_BUS.register(new DummyDataUtils());
 		MinecraftForge.EVENT_BUS.register(new DummyPortalHandler());
@@ -115,7 +116,7 @@ public class CoreInitialiser {
 			LoadingUtils.knownBigASMModifiers.add("CodeChickenCore");
 		if(Loader.isModLoaded("endercore"))
 			LoadingUtils.knownBigASMModifiers.add("EnderCore");
-		if(Loader.isModLoaded("CodeChickenLib"))
+		if(Loader.isModLoaded("codechickenlib"))
 			LoadingUtils.knownBigASMModifiers.add("CodeChickenLib");
 
 		FMLCommonHandler.instance().registerCrashCallable(new DCCrashCallable());

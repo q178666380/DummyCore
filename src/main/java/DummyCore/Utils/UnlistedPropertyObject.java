@@ -1,4 +1,4 @@
-package DummyCore.Blocks.Properties;
+package DummyCore.Utils;
 
 import java.util.Objects;
 

@@ -13,8 +13,8 @@ import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.network.IGuiHandler;
@@ -26,7 +26,7 @@ public class NetProxy_Server implements IGuiHandler {
 
 	public EntityPlayer getPlayerOnSide(INetHandler handler) {
 		if(handler instanceof NetHandlerPlayServer) {
-			return ((NetHandlerPlayServer)handler).playerEntity;
+			return ((NetHandlerPlayServer)handler).player;
 		}
 		return null;
 	}

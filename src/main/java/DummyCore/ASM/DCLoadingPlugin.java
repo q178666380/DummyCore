@@ -12,7 +12,6 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
  * @author modbder
  * @Description Internal
  */
-@MCVersion(value=mcVersion)
 public class DCLoadingPlugin implements IFMLLoadingPlugin {
 
 	public DCLoadingPlugin() {}

@@ -3,8 +3,6 @@ package DummyCore.Client;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -68,6 +66,13 @@ public class GuiCommon extends GuiContainer {
 		GlStateManager.color(1, 1, 1);
 	}
 	
+	@Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		this.drawDefaultBackground();
+		super.drawScreen(mouseX, mouseY, partialTicks);
+		this.renderHoveredToolTip(mouseX, mouseY);
+	}
+
 	public void renderSlot(Slot slt) {
 		GlStateManager.color(1, 1, 1);
         int k = (this.width - this.xSize) / 2;

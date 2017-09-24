@@ -1,10 +1,57 @@
 package DummyCore.Utils;
 
+import static DummyCore.Utils.OreDictUtils.CommonOres.AGATE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.ALUMINIUM;
+import static DummyCore.Utils.OreDictUtils.CommonOres.AMBER;
+import static DummyCore.Utils.OreDictUtils.CommonOres.AMETHYST;
+import static DummyCore.Utils.OreDictUtils.CommonOres.APATITE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.ARDITE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.BLUETOPAZ;
+import static DummyCore.Utils.OreDictUtils.CommonOres.CHIMERITE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.CINNABAR;
+import static DummyCore.Utils.OreDictUtils.CommonOres.COAL;
+import static DummyCore.Utils.OreDictUtils.CommonOres.COBALT;
+import static DummyCore.Utils.OreDictUtils.CommonOres.COPPER;
+import static DummyCore.Utils.OreDictUtils.CommonOres.DIAMOND;
+import static DummyCore.Utils.OreDictUtils.CommonOres.EMERALD;
+import static DummyCore.Utils.OreDictUtils.CommonOres.GALENA;
+import static DummyCore.Utils.OreDictUtils.CommonOres.GOLD;
+import static DummyCore.Utils.OreDictUtils.CommonOres.HEMATITE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.IRIDIUM;
+import static DummyCore.Utils.OreDictUtils.CommonOres.IRON;
+import static DummyCore.Utils.OreDictUtils.CommonOres.JASPER;
+import static DummyCore.Utils.OreDictUtils.CommonOres.LAPIS;
+import static DummyCore.Utils.OreDictUtils.CommonOres.LEAD;
+import static DummyCore.Utils.OreDictUtils.CommonOres.MALACHITE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.MOONSTONE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.MYTHRIL;
+import static DummyCore.Utils.OreDictUtils.CommonOres.NICKEL;
+import static DummyCore.Utils.OreDictUtils.CommonOres.NICKOLITE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.OSMIUM;
+import static DummyCore.Utils.OreDictUtils.CommonOres.PERIDOT;
+import static DummyCore.Utils.OreDictUtils.CommonOres.PLATINUM;
+import static DummyCore.Utils.OreDictUtils.CommonOres.PLUTONIUM;
+import static DummyCore.Utils.OreDictUtils.CommonOres.QUARTZ;
+import static DummyCore.Utils.OreDictUtils.CommonOres.REDSTONE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.RUBY;
+import static DummyCore.Utils.OreDictUtils.CommonOres.SALTPETER;
+import static DummyCore.Utils.OreDictUtils.CommonOres.SAPPHIRE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.SILICON;
+import static DummyCore.Utils.OreDictUtils.CommonOres.SILVER;
+import static DummyCore.Utils.OreDictUtils.CommonOres.SULFUR;
+import static DummyCore.Utils.OreDictUtils.CommonOres.SUNSTONE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.TESLATITE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.TIN;
+import static DummyCore.Utils.OreDictUtils.CommonOres.TOURMALINE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.TUNGSTEN;
+import static DummyCore.Utils.OreDictUtils.CommonOres.TURQUOISE;
+import static DummyCore.Utils.OreDictUtils.CommonOres.URANIUM;
+import static DummyCore.Utils.OreDictUtils.CommonOres.ZINC;
+
 import java.util.Arrays;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
-import static DummyCore.Utils.OreDictUtils.CommonOres.*;
 
 /**
  * Some OreDict utils are here
@@ -91,6 +138,7 @@ public class OreDictUtils {
 			return new UnformedItemStack(names);
 		}
 		
+		@Override
 		public String toString()
 		{
 			return names != null && names.length > 0 ? Arrays.asList(names).toString() : super.toString();
@@ -152,7 +200,7 @@ public class OreDictUtils {
 	
 	public static boolean compareIS(ItemStack is, String oreName)
 	{
-		if(is != null && oreDictionaryContains(oreName))
+		if(!is.isEmpty() && oreDictionaryContains(oreName))
 		{
 			int[] ids = OreDictionary.getOreIDs(is);
 			if(ids != null && ids.length > 0)
@@ -183,7 +231,7 @@ public class OreDictUtils {
 	 */
 	public static boolean oreDictionaryCompare(ItemStack stk, ItemStack stk1)
 	{
-		if(stk == null || stk1 == null)
+		if(stk.isEmpty() || stk1.isEmpty())
 			return false;
 		
 		if(OreDictionary.getOreIDs(stk) == null || OreDictionary.getOreIDs(stk).length == 0 || OreDictionary.getOreIDs(stk1) == null || OreDictionary.getOreIDs(stk1).length == 0)

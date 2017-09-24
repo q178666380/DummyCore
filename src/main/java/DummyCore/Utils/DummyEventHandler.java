@@ -27,6 +27,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
@@ -61,10 +62,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * @Description Used for internal DummyCore features. Do NOT change!
  */
 public class DummyEventHandler {
-	
+
 	public static int syncTime;
 	public static boolean[] isKeyPressed;
-	
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void textureInit(TextureStitchEvent.Pre event) {
@@ -72,7 +73,7 @@ public class DummyEventHandler {
 			event.getMap().registerSprite(rl);
 		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void modelInit(ModelBakeEvent event) {
@@ -80,7 +81,7 @@ public class DummyEventHandler {
 			event.getModelRegistry().putObject(pair.getLeft(), pair.getRight());
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void onBlockBeingBroken(PlayerEvent.BreakSpeed event)
 	{
@@ -89,7 +90,7 @@ public class DummyEventHandler {
 			event.setCanceled(true);
 		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onMainMenuGUISetup(InitGuiEvent.Pre event) {
@@ -106,13 +107,13 @@ public class DummyEventHandler {
 			}
 		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onMainMenuGUISetup(InitGuiEvent.Post event) {
 		if(!CoreInitialiser.cfg.allowCustomMainMenu)
 			return;
-		
+
 		if(event.getGui() instanceof IMainMenu) {
 			boolean add = true;
 			for(int i = 0; i < event.getButtonList().size(); ++i) {
@@ -126,7 +127,7 @@ public class DummyEventHandler {
 				event.getButtonList().add(new GuiButton_ChangeGUI(65535, event.getGui().width/2 + 104, event.getGui().height/4 + 24 + 72, 100, 20, "Change Main Menu"));
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void onPacketRecieved(DummyEvent_OnPacketRecieved event)
 	{
@@ -213,7 +214,7 @@ public class DummyEventHandler {
 						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnKeyboardKeyPressed_Server(id, name, player,pressed));
 					}
 				}
-				*/
+				 */
 				if(modData.fieldName.equalsIgnoreCase("mod") && modData.fieldValue.equalsIgnoreCase("dummyCore.guiButton"))
 				{
 					int id = Integer.parseInt(packetData[1].fieldValue);
@@ -233,14 +234,14 @@ public class DummyEventHandler {
 						MinecraftForge.EVENT_BUS.post(new DummyEvent_OnClientGUIButtonPress(id, pClName, bClName, player,x,y,z,data));
 					}
 				}
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 				return;
 			}
 		}
 	}
-	
+
 	@SubscribeEvent
 	public void onServerTick(TickEvent.ServerTickEvent event)
 	{
@@ -255,7 +256,7 @@ public class DummyEventHandler {
 			actionsTick();
 		}
 	}
-	
+
 	private void actionsTick()
 	{
 		if(!MiscUtils.actions.isEmpty())
@@ -270,63 +271,63 @@ public class DummyEventHandler {
 				}
 			}
 	}
-	
+
 	@SubscribeEvent
 	public void clientWorldLoad(EntityJoinWorldEvent event)
 	{
 		if(event.getEntity() instanceof EntityPlayer && event.getWorld().isRemote)
 			ModVersionChecker.dispatchModChecks();
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void descriptionAdded(ItemTooltipEvent event)
 	{
 		Item i = event.getItemStack().getItem();
 
-			GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
-			if(currentScreen instanceof GuiContainer)
+		GuiScreen currentScreen = Minecraft.getMinecraft().currentScreen;
+		if(currentScreen instanceof GuiContainer)
+		{
+
+			ArrayList<IItemDescriptionGraphics> iidLst = null;
+
+			if(MiscUtils.itemDescriptionGraphics.containsKey(i))
 			{
-				
-				ArrayList<IItemDescriptionGraphics> iidLst = null;
-				
-				if(MiscUtils.itemDescriptionGraphics.containsKey(i))
+				iidLst = Lists.newArrayList(MiscUtils.itemDescriptionGraphics.get(i));
+				iidLst.addAll(MiscUtils.globalDescriptionGraphics);
+			}
+			else
+				iidLst = MiscUtils.globalDescriptionGraphics;
+
+			if(iidLst == null || iidLst.isEmpty())
+				return;
+
+			ArrayList<IItemDescriptionGraphics> inDesc = new ArrayList<IItemDescriptionGraphics>();
+			for(IItemDescriptionGraphics iig : iidLst)
+				if(iig.doDisplay(event.getItemStack(), event.getEntityPlayer()) && iig.displayInDescription(event.getItemStack(), event.getEntityPlayer()))
+					inDesc.add(iig);
+
+			for(IItemDescriptionGraphics iig : inDesc)
+			{
+				String firstLine = "\uD836\uDE80";
+				for(int i1 = 0; i1 < Math.max(1, iig.getYSize(event.getItemStack(), event.getEntityPlayer())/10); ++i1)
 				{
-					iidLst = Lists.newArrayList(MiscUtils.itemDescriptionGraphics.get(i));
-					iidLst.addAll(MiscUtils.globalDescriptionGraphics);
-				}
-				else
-					iidLst = MiscUtils.globalDescriptionGraphics;
-				
-				if(iidLst == null || iidLst.isEmpty())
-					return;
-				
-				ArrayList<IItemDescriptionGraphics> inDesc = new ArrayList<IItemDescriptionGraphics>();
-				for(IItemDescriptionGraphics iig : iidLst)
-					if(iig.doDisplay(event.getItemStack(), event.getEntityPlayer()) && iig.displayInDescription(event.getItemStack(), event.getEntityPlayer()))
-						inDesc.add(iig);
-				
-				for(IItemDescriptionGraphics iig : inDesc)
-				{
-					String firstLine = "\uD836\uDE80";
-					for(int i1 = 0; i1 < Math.max(1, iig.getYSize(event.getItemStack(), event.getEntityPlayer())/10); ++i1)
+					int spaces = Math.max(1, iig.getXSize(event.getItemStack(), event.getEntityPlayer())/4);
+					String added = Strings.repeat(' ', spaces);
+					if(i1 == 0)
 					{
-						int spaces = Math.max(1, iig.getXSize(event.getItemStack(), event.getEntityPlayer())/4);
-						String added = Strings.repeat(' ', spaces);
-						if(i1 == 0)
-						{
-							firstLine += added;
-							event.getToolTip().add(firstLine);
-						}else
-						{
-							event.getToolTip().add(added);
-						}
+						firstLine += added;
+						event.getToolTip().add(firstLine);
+					}else
+					{
+						event.getToolTip().add(added);
 					}
 				}
-			}	
-		
+			}
+		}	
+
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void guiRenderedEvent(GuiScreenEvent.DrawScreenEvent.Post event)
@@ -335,17 +336,17 @@ public class DummyEventHandler {
 		GuiScreen gui = event.getGui();
 		if(gui != null && gui instanceof GuiContainer)
 		{
-			
+
 			GuiContainer gc = GuiContainer.class.cast(gui);
-			Slot slot = ReflectionHelper.getPrivateValue(GuiContainer.class, gc, new String[]{"theSlot","","field_147006_u","u"});
-			if(slot != null && slot.getHasStack() && mc.player.inventory.getItemStack() == null)
+			Slot slot = ReflectionHelper.getPrivateValue(GuiContainer.class, gc, new String[]{"hoveredSlot","","field_147006_u","u"});
+			if(slot != null && slot.getHasStack() && mc.player.inventory.getItemStack().isEmpty())
 			{
 				ItemStack stk = slot.getStack();
-				if(stk != null)
+				if(!stk.isEmpty())
 				{
 					Item i = stk.getItem();
 					ArrayList<IItemDescriptionGraphics> iidLst = null;
-					
+
 					if(MiscUtils.itemDescriptionGraphics.containsKey(i))
 					{
 						iidLst = Lists.newArrayList(MiscUtils.itemDescriptionGraphics.get(i));
@@ -361,19 +362,19 @@ public class DummyEventHandler {
 								inDesc.add(iig);
 							else
 								aboveDesc.add(iig);
-					
+
 					ScaledResolution res = new ScaledResolution(mc);
-					FontRenderer font = mc.fontRendererObj;
+					FontRenderer font = mc.fontRenderer;
 					int mouseX = Mouse.getX() * res.getScaledWidth() / mc.displayWidth;
 					int mouseY = res.getScaledHeight() - Mouse.getY() * res.getScaledHeight() / mc.displayHeight;
-					
+
 					List<String> tooltip;
 					try {
-						tooltip = stk.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips);
+						tooltip = stk.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
 					}catch(Exception e){
 						tooltip = new ArrayList<String>();
 					}
-					
+
 					ArrayList<Integer> positions = new ArrayList<Integer>();
 					for(int i1 = 0; i1 < tooltip.size(); ++i1)
 					{
@@ -381,7 +382,7 @@ public class DummyEventHandler {
 						if(s.indexOf("\uD836\uDE80") != -1)
 							positions.add(i1);
 					}
-					
+
 					int width = 0;
 					for(String s : tooltip)
 						width = Math.max(width, font.getStringWidth(s) + 2);
@@ -396,24 +397,24 @@ public class DummyEventHandler {
 					int fixY = res.getScaledHeight() - (mouseY + tooltipHeight);
 					if(fixY < 0)
 						dy -= fixY;
-					
+
 					GlStateManager.pushMatrix();
 					GlStateManager.translate(0, 0, 255);
-					
+
 					int indexed = 0;
 					for(IItemDescriptionGraphics iidg : inDesc)
 					{
 						iidg.draw(gc, stk, Minecraft.getMinecraft().player, mouseX + dx, mouseY - dy - height+(positions.size() == 0 ? 0 : (positions.get(Math.min(indexed,positions.size()-1))+1)*10), mouseX, mouseY, event.getRenderPartialTicks(), offscreen);
 						++indexed;
 					}
-					
+
 					int iindexed = 1;
 					for(IItemDescriptionGraphics iidg : aboveDesc)
 					{
 						iidg.draw(gc, stk, Minecraft.getMinecraft().player, mouseX + dx, mouseY - dy - height-iindexed * iidg.getYSize(stk, Minecraft.getMinecraft().player), mouseX, mouseY, event.getRenderPartialTicks(), offscreen);
 						++iindexed;
 					}
-					
+
 					GlStateManager.translate(0, 0, -255);
 					GlStateManager.popMatrix();
 				}
@@ -437,54 +438,54 @@ public class DummyEventHandler {
 					int i = 0, j = 0;
 					switch(egp)
 					{
-						case TOPLEFT:
-							break;
-						case TOPRIGHT:
-						{
-							i = scaledRes.getScaledWidth();
-							break;
-						}
-						case BOTLEFT:
-						{
-							j = scaledRes.getScaledHeight();
-							break;
-						}
-						case BOTRIGHT:
-						{
-							i = scaledRes.getScaledWidth();
-							j = scaledRes.getScaledHeight();
-							break;
-						}
-						case CENTER:
-						{
-							i = scaledRes.getScaledWidth()/2;
-							j = scaledRes.getScaledHeight()/2;
-							break;
-						}
-						case BOTCENTER:
-						{
-							i = scaledRes.getScaledWidth()/2;
-							j = scaledRes.getScaledHeight();
-							break;
-						}
-						case TOPCENTER:
-						{
-							i = scaledRes.getScaledWidth()/2;
-							j = 0;
-							break;
-						}
-						case LEFTCENTER:
-						{
-							i = 0;
-							j = scaledRes.getScaledHeight()/2;
-							break;
-						}
-						case RIGHTCENTER:
-						{
-							i = scaledRes.getScaledWidth();
-							j = scaledRes.getScaledHeight()/2;
-							break;
-						}
+					case TOPLEFT:
+						break;
+					case TOPRIGHT:
+					{
+						i = scaledRes.getScaledWidth();
+						break;
+					}
+					case BOTLEFT:
+					{
+						j = scaledRes.getScaledHeight();
+						break;
+					}
+					case BOTRIGHT:
+					{
+						i = scaledRes.getScaledWidth();
+						j = scaledRes.getScaledHeight();
+						break;
+					}
+					case CENTER:
+					{
+						i = scaledRes.getScaledWidth()/2;
+						j = scaledRes.getScaledHeight()/2;
+						break;
+					}
+					case BOTCENTER:
+					{
+						i = scaledRes.getScaledWidth()/2;
+						j = scaledRes.getScaledHeight();
+						break;
+					}
+					case TOPCENTER:
+					{
+						i = scaledRes.getScaledWidth()/2;
+						j = 0;
+						break;
+					}
+					case LEFTCENTER:
+					{
+						i = 0;
+						j = scaledRes.getScaledHeight()/2;
+						break;
+					}
+					case RIGHTCENTER:
+					{
+						i = scaledRes.getScaledWidth();
+						j = scaledRes.getScaledHeight()/2;
+						break;
+					}
 					default:
 						break;
 					}

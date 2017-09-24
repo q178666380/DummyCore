@@ -5,8 +5,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -14,6 +14,9 @@ import java.util.UUID;
 import com.google.common.collect.HashMultimap;
 
 import DummyCore.Core.CoreInitialiser;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementManager;
+import net.minecraft.advancements.PlayerAdvancements;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.Gui;
@@ -26,7 +29,6 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -43,18 +45,19 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.UsernameCache;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
-import net.minecraftforge.fml.common.registry.GameData;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -155,76 +158,6 @@ public class MiscUtils {
 					ex.printStackTrace();
 				}
 			}
-		}
-	}
-
-	public static void dropItemsOnBlockBreak(World world, BlockPos pos)
-	{
-		IBlockState state = world.getBlockState(pos);
-		dropItemsOnBlockBreak(world,pos.getX(),pos.getY(),pos.getZ(),state.getBlock(),state.getBlock().getMetaFromState(state));
-	}
-
-	/**
-	 * Used to drop items from IInventory when the block is broken.
-	 * @version From DummyCore 1.0
-	 * @param par1World - the World object
-	 * @param par2 - X coordinate of the block
-	 * @param par3 - Y coordinate of the block
-	 * @param par4 - Z coordinate of the block
-	 */
-	public static void dropItemsOnBlockBreak(World par1World, int par2, int par3, int par4, Block par5, int par6)
-	{
-		//Was causing too much issues, had to add a try/catch statement...
-		try
-		{
-			if(!(par1World.getTileEntity(new BlockPos(par2, par3, par4)) instanceof IInventory))
-				return;
-
-			IInventory inv = (IInventory)par1World.getTileEntity(new BlockPos(par2, par3, par4));
-
-			if (inv != null)
-			{
-				for (int j1 = 0; j1 < inv.getSizeInventory(); ++j1)
-				{
-					ItemStack itemstack = inv.getStackInSlot(j1);
-
-					if (itemstack != null)
-					{
-						float f = par1World.rand.nextFloat() * 0.8F + 0.1F;
-						float f1 = par1World.rand.nextFloat() * 0.8F + 0.1F;
-						float f2 = par1World.rand.nextFloat() * 0.8F + 0.1F;
-
-						while (itemstack.stackSize > 0)
-						{
-							int k1 = par1World.rand.nextInt(21) + 10;
-
-							if (k1 > itemstack.stackSize)
-							{
-								k1 = itemstack.stackSize;
-							}
-
-							itemstack.stackSize -= k1;
-							EntityItem entityitem = new EntityItem(par1World, par2 + f, par3 + f1, par4 + f2, new ItemStack(itemstack.getItem(), k1, itemstack.getItemDamage()));
-
-							if (itemstack.hasTagCompound())
-							{
-								entityitem.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
-							}
-
-							float f3 = 0.05F;
-							entityitem.motionX = (float)par1World.rand.nextGaussian() * f3;
-							entityitem.motionY = (float)par1World.rand.nextGaussian() * f3 + 0.2F;
-							entityitem.motionZ = (float)par1World.rand.nextGaussian() * f3;
-							par1World.spawnEntity(entityitem);
-						}
-					}
-				}
-			}
-		}catch(Exception ex)
-		{
-			Notifier.notifyCustomMod("DummyCore", "[ERROR]Trying to drop items upon block breaking, but caught an exception:");
-			ex.printStackTrace();
-			return;
 		}
 	}
 
@@ -409,7 +342,7 @@ public class MiscUtils {
 			NBTTagList nbttaglist = new NBTTagList();
 			for (int i = 0; i < tile.getSizeInventory(); ++i)
 			{
-				if (tile.getStackInSlot(i) != null)
+				if (!tile.getStackInSlot(i).isEmpty())
 				{
 					NBTTagCompound nbttagcompound1 = new NBTTagCompound();
 					nbttagcompound1.setByte("Slot", (byte)i);
@@ -433,7 +366,7 @@ public class MiscUtils {
 			IInventory tile = (IInventory) t;
 			for(int i = 0; i < tile.getSizeInventory(); ++i)
 			{
-				tile.setInventorySlotContents(i, null);
+				tile.setInventorySlotContents(i, ItemStack.EMPTY);
 			}
 			NBTTagList nbttaglist = loadTag.getTagList("Items", 10);
 			for (int i = 0; i < nbttaglist.tagCount(); ++i)
@@ -443,7 +376,7 @@ public class MiscUtils {
 
 				if (b0 >= 0 && b0 < tile.getSizeInventory())
 				{
-					tile.setInventorySlotContents(b0, ItemStack.loadItemStackFromNBT(nbttagcompound1));
+					tile.setInventorySlotContents(b0, new ItemStack(nbttagcompound1));
 				}
 			}
 		}
@@ -567,7 +500,7 @@ public class MiscUtils {
 	 */
 	public static Entity cloneEntity(Entity e)
 	{
-		Entity retEntity = EntityList.createEntityByName(EntityList.getEntityString(e), e.getEntityWorld());
+		Entity retEntity = EntityList.createEntityByIDFromName(EntityList.getKey(e), e.getEntityWorld());
 		retEntity.readFromNBT(e.writeToNBT(new NBTTagCompound()));
 		return retEntity;
 	}
@@ -628,7 +561,7 @@ public class MiscUtils {
 		int j;
 		float f1;
 
-		if (base.isPotionActive(MobEffects.RESISTANCE) && dam != DamageSource.outOfWorld)
+		if (base.isPotionActive(MobEffects.RESISTANCE) && dam != DamageSource.OUT_OF_WORLD)
 		{
 			i = (base.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5;
 			j = 25 - i;
@@ -1052,13 +985,13 @@ public class MiscUtils {
 	public static void addHUDElement(IHUDElement ihe) {
 		hudElements.add(ihe);
 	}
-	
+
 	public static void addItemOverlayElement(Item i, IItemOverlayElement iioe) {
 		itemOverlayElements.put(i, iioe);
 	}
 
 	@Deprecated
-	public static <T>ArrayList<T> listOf(T[] array) {
+	public static <T>ArrayList<T> listOf(T... array) {
 		return PrimitiveUtils.listOf(array);
 	}
 
@@ -1084,12 +1017,12 @@ public class MiscUtils {
 	public static ResourceLocation getUniqueIdentifierFor(Object obj) {
 		if(obj instanceof Block || obj instanceof Item || obj instanceof ItemStack) {
 			if(obj instanceof Block)
-				return GameData.getBlockRegistry().getNameForObject((Block) obj);
+				return Block.REGISTRY.getNameForObject((Block) obj);
 			if(obj instanceof Item)
 				if(obj instanceof ItemBlock)
-					return GameData.getBlockRegistry().getNameForObject(Block.getBlockFromItem((Item) obj));
+					return Block.REGISTRY.getNameForObject(Block.getBlockFromItem((Item) obj));
 				else
-					return GameData.getItemRegistry().getNameForObject((Item) obj);
+					return Item.REGISTRY.getNameForObject((Item) obj);
 			if(obj instanceof ItemStack)
 				return getUniqueIdentifierFor(((ItemStack) obj).getItem());
 		}
@@ -1104,13 +1037,10 @@ public class MiscUtils {
 	}
 
 	public static String getUsernameFromPlayer(EntityPlayer player) {
-		return player.getEntityWorld().isRemote ? "" : UsernameCache.getLastKnownUsername(getUUIDFromPlayer(player));
+		return UsernameCache.getLastKnownUsername(getUUIDFromPlayer(player));
 	}
 
 	public static EntityPlayer getPlayerFromUsername(String username) {
-		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-			return null;
-
 		return FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(username);
 	}
 
@@ -1138,33 +1068,43 @@ public class MiscUtils {
 	public static String getUsernameFromUUID(UUID uuid) {
 		return UsernameCache.getLastKnownUsername(uuid);
 	}
-	
+
 	public static Set<ItemStack> getSubItemsToDraw(ItemStack stk) {
 		stk = stk.copy();
-		
+
 		if(stk.getItemDamage() != OreDictionary.WILDCARD_VALUE)
 			return Collections.<ItemStack>singleton(stk);
-		
+
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
 			stk.setItemDamage(0);
 			return Collections.<ItemStack>singleton(stk);
 		}
-		
+
 		Item it = stk.getItem();
-		HashSet<ItemStack> ret = new HashSet<ItemStack>();
+		LinkedHashSet<ItemStack> ret = new LinkedHashSet<ItemStack>();
 		for(CreativeTabs tab : it.getCreativeTabs()) {
-			ArrayList<ItemStack> lst = new ArrayList<ItemStack>();
-			it.getSubItems(it, tab, lst);
+			NonNullList<ItemStack> lst = NonNullList.<ItemStack>create();
+			it.getSubItems(tab, lst);
 			for(int i = 0; i < lst.size(); i++) {
 				ItemStack stk0 = lst.get(i);
-				if(stk0 == null)
+				if(stk0.isEmpty())
 					lst.remove(i);
 				else
-					stk0.stackSize = stk.stackSize;
+					stk0.setCount(stk.getCount());
 			}
 			ret.addAll(lst);
 		}
-		
+
 		return ret;
+	}
+
+	public static void unlockAdvancement(EntityPlayer player, ResourceLocation name, String criterion) {
+		if(player instanceof EntityPlayerMP) {
+			PlayerAdvancements advancements = ((EntityPlayerMP)player).getAdvancements();
+			AdvancementManager manager = ((WorldServer)player.getEntityWorld()).getAdvancementManager();
+			Advancement advancement = manager.getAdvancement(name);
+			if(advancement!=null)
+				advancements.grantCriterion(advancement, criterion);
+		}
 	}
 }

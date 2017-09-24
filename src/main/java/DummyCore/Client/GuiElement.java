@@ -1,9 +1,9 @@
 package DummyCore.Client;
 
 import DummyCore.Utils.TessellatorWrapper;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
@@ -103,7 +103,7 @@ public abstract class GuiElement {
 		GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
 		GlStateManager.shadeModel(7425);
 		Tessellator tessellator = Tessellator.getInstance();
-		VertexBuffer VertexBuffer = tessellator.getBuffer();
+		BufferBuilder VertexBuffer = tessellator.getBuffer();
 		VertexBuffer.begin(7, DefaultVertexFormats.POSITION_COLOR);
 		VertexBuffer.pos((double)right, (double)top, (double)this.zLevel).color(f1, f2, f3, f).endVertex();
 		VertexBuffer.pos((double)left, (double)top, (double)this.zLevel).color(f1, f2, f3, f).endVertex();

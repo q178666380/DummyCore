@@ -14,6 +14,7 @@ public class DummyConfig implements IDummyConfig{
 	public static boolean shouldChangeImage;
 	public static boolean displaySorryNotificationUponRMReload;
 	public static Configuration cfg;
+	@Override
 	public void load(Configuration config)
 	{
 		cfg = config;

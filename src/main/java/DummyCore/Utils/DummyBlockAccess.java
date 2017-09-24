@@ -19,8 +19,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -33,7 +34,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.WorldInfo;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 
 /**
@@ -43,58 +43,58 @@ import net.minecraftforge.oredict.OreDictionary;
  */
 public class DummyBlockAccess implements IBlockAccess {
 
-    public Block[][][] block;
-    public byte[][][] meta;
-    public TileEntity[][][] tile;
-    public int xSize, ySize, zSize;
-    public Biome dummyBiome = Biomes.OCEAN;
-    public World defaultWorld;
-    public Hashtable<Block,Integer[]> cachedMetas = new Hashtable<Block,Integer[]>();
-    public int cycleTimer = 60;
-    public Random cycleRandom = new Random();
-    public Hashtable<Pair<Block,Integer>,Integer> cachedBlocksAmounts = new Hashtable<Pair<Block,Integer>,Integer>();
+	public Block[][][] block;
+	public byte[][][] meta;
+	public TileEntity[][][] tile;
+	public int xSize, ySize, zSize;
+	public Biome dummyBiome = Biomes.OCEAN;
+	public World defaultWorld;
+	public Hashtable<Block,Integer[]> cachedMetas = new Hashtable<Block,Integer[]>();
+	public int cycleTimer = 60;
+	public Random cycleRandom = new Random();
+	public Hashtable<Pair<Block,Integer>,Integer> cachedBlocksAmounts = new Hashtable<Pair<Block,Integer>,Integer>();
 	public int maxX, minX, maxY, minY, maxZ, minZ;
 	public WorldWrapper wrapper;
-    
-    /**
-     * Creates a DummyBlockAccess with given size
-     * @param sizeX - x Size
-     * @param sizeY - y Size
-     * @param sizeZ - z Size
-     */
-    public DummyBlockAccess(int sizeX, int sizeY, int sizeZ)
-    {
-    	wrapper = new WorldWrapper(this);
-    	block = new Block[sizeX][sizeY][sizeZ];
-        meta = new byte[sizeX][sizeY][sizeZ];
-        tile = new TileEntity[sizeX][sizeY][sizeZ];
-        xSize = sizeX;
-        ySize = sizeY;
-        zSize = sizeZ;
-        maxX = xSize;
-        minX = 0;
-        maxY = ySize;
-        minY = 0;
-        maxZ = zSize;
-        minZ = 0;
-        defaultWorld = CoreInitialiser.proxy.getClientWorld();
-    }
-    
-    /**
-     * Creates a DummyBlockAccess object from a given StructureTag
-     * @param structureTag - a valid(StructureAPI) NBTTag
-     * @return a new DummyBlockAccess object
-     */
-    public static DummyBlockAccess fromStructureNBT(NBTTagCompound structureTag)
-    {
-    	int minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
+
+	/**
+	 * Creates a DummyBlockAccess with given size
+	 * @param sizeX - x Size
+	 * @param sizeY - y Size
+	 * @param sizeZ - z Size
+	 */
+	public DummyBlockAccess(int sizeX, int sizeY, int sizeZ)
+	{
+		wrapper = new WorldWrapper(this);
+		block = new Block[sizeX][sizeY][sizeZ];
+		meta = new byte[sizeX][sizeY][sizeZ];
+		tile = new TileEntity[sizeX][sizeY][sizeZ];
+		xSize = sizeX;
+		ySize = sizeY;
+		zSize = sizeZ;
+		maxX = xSize;
+		minX = 0;
+		maxY = ySize;
+		minY = 0;
+		maxZ = zSize;
+		minZ = 0;
+		defaultWorld = CoreInitialiser.proxy.getClientWorld();
+	}
+
+	/**
+	 * Creates a DummyBlockAccess object from a given StructureTag
+	 * @param structureTag - a valid(StructureAPI) NBTTag
+	 * @return a new DummyBlockAccess object
+	 */
+	public static DummyBlockAccess fromStructureNBT(NBTTagCompound structureTag)
+	{
+		int minX = 0, minY = 0, minZ = 0, maxX = 0, maxY = 0, maxZ = 0;
 		Set<String> keySet = structureTag.getKeySet();
 		Stack<String> keys = new Stack<String>();
 		Stack<DummyBlockPosition> dbp = new Stack<DummyBlockPosition>();
 		Iterator<String> $i = keySet.iterator();
 		while($i.hasNext())
 			keys.add($i.next());
-		
+
 		while(!keys.isEmpty())
 		{
 			String s = keys.pop();
@@ -126,14 +126,14 @@ public class DummyBlockAccess implements IBlockAccess {
 				meta = OreDictionary.WILDCARD_VALUE;
 			dbp.push(new DummyBlockPosition(dx, dy, dz, bid, meta));
 		}
-		
+
 		DummyBlockAccess dba = new DummyBlockAccess(maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1);
-		
+
 		while(!dbp.isEmpty())
 		{
 			DummyBlockPosition pos = dbp.pop();
 			String bid = pos.blockID;
-			Block b = GameRegistry.findBlock(bid.substring(0,bid.indexOf(':')), bid.substring(bid.indexOf(':')+1));
+			Block b = Block.REGISTRY.getObject(new ResourceLocation(bid));
 			if(b.hasTileEntity(b.getStateFromMeta(pos.meta == OreDictionary.WILDCARD_VALUE || pos.meta == -1 ? 0 : pos.meta)))
 			{
 				TileEntity tile = b.createTileEntity(dba.defaultWorld, b.getStateFromMeta(pos.meta == OreDictionary.WILDCARD_VALUE || pos.meta == -1 ? 0 : pos.meta));
@@ -141,71 +141,71 @@ public class DummyBlockAccess implements IBlockAccess {
 			}
 			dba.setBlock(pos.x - minX, pos.y - minY, pos.z - minZ, b, pos.meta);
 		}
-		
+
 		return dba;
-    }
-    
-    /**
-     * Sets the cycle timer for blocks metadata as i
-     * @param i - the new time
-     * @return current DummyBlockAccess
-     */
-    public DummyBlockAccess setCycleTime(int i)
-    {
-    	cycleTimer = i;
-    	return this;
-    }
-    
-    /**
-     * Sets a default world over to something esle rather than Minecraft.getMinecraft().world
-     * @param w new world to set to
-     * @return current DummyBlockAccess
-     */
-    public DummyBlockAccess setDefaultWorld(World w)
-    {
-    	defaultWorld = w;
-    	return this;
-    }
-    
-    /**
-     * Sets a default biome to something else rather than OCEAN
-     * @param bgb new biome to set
-     * @return current DummyBlockAccess
-     */
-    public DummyBlockAccess setBiomeToRender(Biome bgb)
-    {
-    	dummyBiome = bgb;
-    	return this;
-    }
-    
-    public boolean isInRange(int x, int y, int z) {
-        return 0 <= x && x < xSize && 0 <= y && y < ySize && 0 <= z && z < zSize && x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ;
-    }
-    
-    public void setBlock(int x, int y, int z, Block b)
-    {
-    	if(isInRange(x,y,z)){block[x][y][z] = b;}
-    }
-    
-    public void setMetadata(int x, int y, int z, int m)
-    {
-    	if(isInRange(x,y,z)){meta[x][y][z] = (byte) m;}
-    }
-    
-    public void setBlock(int x, int y, int z, Block b, int m)
-    {
-    	if(!cachedBlocksAmounts.containsKey(Pair.<Block,Integer>of(b,m)))
-    		cachedBlocksAmounts.put(Pair.<Block,Integer>of(b,m), 1);
-    	else
-    		cachedBlocksAmounts.put(Pair.<Block,Integer>of(b,m), cachedBlocksAmounts.get(Pair.<Block,Integer>of(b,m))+1);
-    	setBlock(x,y,z,b);
-    	setMetadata(x,y,z,m);
-    }
-    
+	}
+
+	/**
+	 * Sets the cycle timer for blocks metadata as i
+	 * @param i - the new time
+	 * @return current DummyBlockAccess
+	 */
+	public DummyBlockAccess setCycleTime(int i)
+	{
+		cycleTimer = i;
+		return this;
+	}
+
+	/**
+	 * Sets a default world over to something esle rather than Minecraft.getMinecraft().world
+	 * @param w new world to set to
+	 * @return current DummyBlockAccess
+	 */
+	public DummyBlockAccess setDefaultWorld(World w)
+	{
+		defaultWorld = w;
+		return this;
+	}
+
+	/**
+	 * Sets a default biome to something else rather than OCEAN
+	 * @param bgb new biome to set
+	 * @return current DummyBlockAccess
+	 */
+	public DummyBlockAccess setBiomeToRender(Biome bgb)
+	{
+		dummyBiome = bgb;
+		return this;
+	}
+
+	public boolean isInRange(int x, int y, int z) {
+		return 0 <= x && x < xSize && 0 <= y && y < ySize && 0 <= z && z < zSize && x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ;
+	}
+
+	public void setBlock(int x, int y, int z, Block b)
+	{
+		if(isInRange(x,y,z)){block[x][y][z] = b;}
+	}
+
+	public void setMetadata(int x, int y, int z, int m)
+	{
+		if(isInRange(x,y,z)){meta[x][y][z] = (byte) m;}
+	}
+
+	public void setBlock(int x, int y, int z, Block b, int m)
+	{
+		if(!cachedBlocksAmounts.containsKey(Pair.<Block,Integer>of(b,m)))
+			cachedBlocksAmounts.put(Pair.<Block,Integer>of(b,m), 1);
+		else
+			cachedBlocksAmounts.put(Pair.<Block,Integer>of(b,m), cachedBlocksAmounts.get(Pair.<Block,Integer>of(b,m))+1);
+		setBlock(x,y,z,b);
+		setMetadata(x,y,z,m);
+	}
+
 	public Block getBlock(int x, int y, int z) {
 		return isInRange(x,y,z) ? block[x][y][z] == null ? Blocks.AIR : block[x][y][z] : Blocks.AIR;
 	}
-	
+
 	public void setTileEntity(int x, int y, int z, TileEntity t){
 		if(isInRange(x,y,z)){tile[x][y][z] = t;}
 	}
@@ -221,7 +221,7 @@ public class DummyBlockAccess implements IBlockAccess {
 	public int getBlockMetadata(int x, int y, int z) {
 		return isInRange(x,y,z) ? meta[x][y][z] == -1 || meta[x][y][z] == OreDictionary.WILDCARD_VALUE ? getMetadataFromWildcardForBlock(getBlock(x,y,z)) : meta[x][y][z] : 0;
 	}
-	
+
 	public int getMetadataFromWildcardForBlock(Block b)
 	{
 		if(!cachedMetas.containsKey(b))
@@ -230,7 +230,7 @@ public class DummyBlockAccess implements IBlockAccess {
 			cachedMetas.put(b, i);
 			return getMetadataFromWildcardForBlock(b);
 		}
-		
+
 		cycleRandom.setSeed((long) (Math.PI * (defaultWorld.getSeed() + defaultWorld.getWorldTime()/cycleTimer)*1000));
 		Integer[] i = cachedMetas.get(b);
 		return i[cycleRandom.nextInt(i.length)];
@@ -255,13 +255,13 @@ public class DummyBlockAccess implements IBlockAccess {
 	public boolean isSideSolid(int x, int y, int z, EnumFacing side, boolean _default) {
 		return isInRange(x,y,z) ? block[x][y][z] == null ? _default : block[x][y][z].isSideSolid(this.getBlockState(new BlockPos(x, y, z)), this, new BlockPos(x, y, z), side) : _default;
 	}
-	
+
 	public static class DummyBlockPosition
 	{
 		public int x,y,z;
 		public String blockID;
 		public int meta;
-		
+
 		public DummyBlockPosition(int px, int py, int pz, String id, int m)
 		{
 			x = px; y = py; z = pz; blockID = id; meta = m;
@@ -312,121 +312,143 @@ public class DummyBlockAccess implements IBlockAccess {
 	public static class WorldWrapper extends World
 	{
 		public DummyBlockAccess access;
-		
+
 		public WorldWrapper(DummyBlockAccess dba)
 		{
 			super(null,null,CoreInitialiser.proxy.getWorldForDim(0).provider,null,true);
 			access = dba;
 		}
-		
+
 		protected WorldWrapper(ISaveHandler saveHandlerIn, WorldInfo info, WorldProvider providerIn,Profiler profilerIn, boolean client) {
 			super(saveHandlerIn, info, providerIn, profilerIn, client);
 		}
-		
-	    public Biome getBiome(final BlockPos pos)
-	    {
-	    	return access.getBiome(pos);
-	    }
-	    
-	    public Biome getBiomeBody(final BlockPos pos)
-	    {
-	    	return access.getBiome(pos);
-	    }
-	    
-	    public BiomeProvider getBiomeProvider()
-	    {
-	    	return CoreInitialiser.proxy.getWorldForDim(0).getBiomeProvider();
-	    }
-	    
-	    protected IChunkProvider createChunkProvider()
-	    {
-	    	return new ChunkProviderClient(CoreInitialiser.proxy.getWorldForDim(0));
-	    }
-	    
-	    public void initialize(WorldSettings settings){}
-	    
-	    public void setInitialSpawnLocation(){}
-	    
-	    public IBlockState getGroundAboveSeaLevel(BlockPos pos){
-	        BlockPos blockpos;
 
-	        for (blockpos = new BlockPos(pos.getX(), this.getSeaLevel(), pos.getZ()); !access.isAirBlock(blockpos.up()); blockpos = blockpos.up())
-	        {
-	            ;
-	        }
+		@Override
+		public Biome getBiome(final BlockPos pos)
+		{
+			return access.getBiome(pos);
+		}
 
-	        return access.getBlockState(blockpos);
-	    }
-	    
-	    public boolean isAirBlock(BlockPos pos)
-	    {
-	    	return access.isAirBlock(pos);
-	    }
-	    
-	    public boolean isBlockLoaded(BlockPos pos, boolean allowEmpty)
-	    {
-	    	return access.isInRange(pos.getX(), pos.getY(), pos.getZ());
-	    }
-	    
-	    protected boolean isChunkLoaded(int x, int z, boolean allowEmpty)
-	    {
-	    	return access.isInRange(x*16, 0, z*16);
-	    }
-	    
-	    public Chunk getChunkFromChunkCoords(int chunkX, int chunkZ)
-	    {
-	    	return CoreInitialiser.proxy.getWorldForDim(0).getChunkFromChunkCoords(chunkX, chunkZ);
-	    }
-	    
-	    public boolean setBlockState(BlockPos pos, IBlockState newState, int flags)
-	    {
-	    	access.setBlock(pos.getX(), pos.getY(), pos.getZ(), newState.getBlock(), newState.getBlock().getMetaFromState(newState));
-	    	return true;
-	    }
-	    
-	    public void markAndNotifyBlock(BlockPos pos, Chunk chunk, IBlockState old, IBlockState new_, int flags){}
-	    
-	    public boolean setBlockToAir(BlockPos pos)
-	    {
-	    	access.setBlock(pos.getX(), pos.getY(), pos.getZ(), Blocks.AIR);
-	    	return true;
-	    }
-	    
-	    public void markBlocksDirtyVertical(int x1, int z1, int x2, int z2){}
-	    
-	    public void notifyBlockOfStateChange(BlockPos pos, final Block blockIn){}
-	    
-	    public int getLightFromNeighborsFor(EnumSkyBlock type, BlockPos pos){return 15;}
-	    
-	    public float getLightBrightness(BlockPos pos){return 1F;}
-	    
-	    public IBlockState getBlockState(BlockPos pos)
-	    {
-	    	return access.getBlockState(pos);
-	    }
-	    
-	    public boolean isDaytime(){return true;}
-	    
-	    public void playSoundAtEntity(Entity entityIn, String name, float volume, float pitch){}
-	    
-	    public void playSoundToNearExcept(EntityPlayer player, String name, float volume, float pitch){}
-	    
-	    public boolean spawnEntityInWorld(Entity entityIn){return true;}
-	    
-	    public String getProviderName(){return "DBWW";}
-	    
-	    public TileEntity getTileEntity(BlockPos pos){return access.getTileEntity(pos);}
-	    
-	    public void setTileEntity(BlockPos pos, TileEntity tileEntityIn)
-	    {
-	    	if(access.getTileEntity(pos) != tileEntityIn)
-	    		access.setTileEntity(pos.getX(), pos.getY(), pos.getZ(), tileEntityIn);
-	    	tileEntityIn.setWorld(this);
-	    	tileEntityIn.setPos(pos);
-	    }
-	    
-	    public void removeTileEntity(BlockPos pos){access.setTileEntity(pos.getX(), pos.getY(), pos.getZ(), null);}
-	    
-	    protected int getRenderDistanceChunks(){return 8;}
+		public Biome getBiomeBody(final BlockPos pos)
+		{
+			return access.getBiome(pos);
+		}
+
+		@Override
+		public BiomeProvider getBiomeProvider()
+		{
+			return CoreInitialiser.proxy.getWorldForDim(0).getBiomeProvider();
+		}
+
+		@Override
+		protected IChunkProvider createChunkProvider()
+		{
+			return new ChunkProviderClient(CoreInitialiser.proxy.getWorldForDim(0));
+		}
+
+		@Override
+		public void initialize(WorldSettings settings){}
+
+		@Override
+		public void setInitialSpawnLocation(){}
+
+		@Override
+		public IBlockState getGroundAboveSeaLevel(BlockPos pos){
+			BlockPos blockpos;
+
+			for (blockpos = new BlockPos(pos.getX(), this.getSeaLevel(), pos.getZ()); !access.isAirBlock(blockpos.up()); blockpos = blockpos.up())
+			{
+				;
+			}
+
+			return access.getBlockState(blockpos);
+		}
+
+		@Override
+		public boolean isAirBlock(BlockPos pos)
+		{
+			return access.isAirBlock(pos);
+		}
+
+		@Override
+		public boolean isBlockLoaded(BlockPos pos, boolean allowEmpty)
+		{
+			return access.isInRange(pos.getX(), pos.getY(), pos.getZ());
+		}
+
+		@Override
+		protected boolean isChunkLoaded(int x, int z, boolean allowEmpty)
+		{
+			return access.isInRange(x*16, 0, z*16);
+		}
+
+		@Override
+		public Chunk getChunkFromChunkCoords(int chunkX, int chunkZ)
+		{
+			return CoreInitialiser.proxy.getWorldForDim(0).getChunkFromChunkCoords(chunkX, chunkZ);
+		}
+
+		@Override
+		public boolean setBlockState(BlockPos pos, IBlockState newState, int flags)
+		{
+			access.setBlock(pos.getX(), pos.getY(), pos.getZ(), newState.getBlock(), newState.getBlock().getMetaFromState(newState));
+			return true;
+		}
+
+		@Override
+		public void markAndNotifyBlock(BlockPos pos, Chunk chunk, IBlockState old, IBlockState new_, int flags){}
+
+		@Override
+		public boolean setBlockToAir(BlockPos pos)
+		{
+			access.setBlock(pos.getX(), pos.getY(), pos.getZ(), Blocks.AIR);
+			return true;
+		}
+
+		@Override
+		public void markBlocksDirtyVertical(int x1, int z1, int x2, int z2){}
+
+		public void notifyBlockOfStateChange(BlockPos pos, final Block blockIn){}
+
+		@Override
+		public int getLightFromNeighborsFor(EnumSkyBlock type, BlockPos pos){return 15;}
+
+		@Override
+		public float getLightBrightness(BlockPos pos){return 1F;}
+
+		@Override
+		public IBlockState getBlockState(BlockPos pos)
+		{
+			return access.getBlockState(pos);
+		}
+
+		@Override
+		public boolean isDaytime(){return true;}
+
+		public void playSoundAtEntity(Entity entityIn, String name, float volume, float pitch){}
+
+		public void playSoundToNearExcept(EntityPlayer player, String name, float volume, float pitch){}
+
+		public boolean spawnEntityInWorld(Entity entityIn){return true;}
+
+		@Override
+		public String getProviderName(){return "DBWW";}
+
+		@Override
+		public TileEntity getTileEntity(BlockPos pos){return access.getTileEntity(pos);}
+
+		@Override
+		public void setTileEntity(BlockPos pos, TileEntity tileEntityIn)
+		{
+			if(access.getTileEntity(pos) != tileEntityIn)
+				access.setTileEntity(pos.getX(), pos.getY(), pos.getZ(), tileEntityIn);
+			tileEntityIn.setWorld(this);
+			tileEntityIn.setPos(pos);
+		}
+
+		@Override
+		public void removeTileEntity(BlockPos pos){access.setTileEntity(pos.getX(), pos.getY(), pos.getZ(), null);}
+
+		protected int getRenderDistanceChunks(){return 8;}
 	}
 }

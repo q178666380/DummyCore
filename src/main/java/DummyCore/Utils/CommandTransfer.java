@@ -11,7 +11,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 
 /**
  * Internal. A command to switch dimensions
@@ -22,7 +21,7 @@ public class CommandTransfer extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender p_71518_1_) {
-		return "/tpToDimension <player> <dimensionID> <x> <y> <z>";
+		return "/tptodimension <player> <dimensionID> <x> <y> <z>";
 	}
 
 	@Override
@@ -31,9 +30,12 @@ public class CommandTransfer extends CommandBase {
 			int var3 = parseInt(p_71515_2_[1]);
 			EntityPlayerMP player = p_71515_2_.length == 0 ? getCommandSenderAsPlayer(p_71515_1_) : getPlayer(p_71515_0_, p_71515_1_, p_71515_2_[0]);
 			BlockPos pos = p_71515_2_.length > 2 ? parseBlockPos(p_71515_1_, p_71515_2_, 2, true) : player.getPosition();
-			WorldServer ws = p_71515_0_.worldServerForDimension(var3);
+			WorldServer ws = p_71515_0_.getWorld(var3);
 			Teleporter teleporter = new DummyTeleporter(ws, pos.getX()+0.5D, pos.getY(), pos.getZ()+0.5D, DummyPortalGenerator.TELEPORT_ONLY, false);
 			DummyPortalHandler.transferPlayerToDimension(player, var3, teleporter);
+		}
+		catch(CommandException e){
+			throw e;
 		}
 		catch(Exception e){
 			throw new CommandException("Error trying to teleport player to dimension", new Object[0]);
@@ -42,7 +44,7 @@ public class CommandTransfer extends CommandBase {
 
 	@Override
 	public String getName() {
-		return "tpToDimension";
+		return "tptodimension";
 	}
 
 	@Override

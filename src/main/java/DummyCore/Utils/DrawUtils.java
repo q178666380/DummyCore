@@ -12,9 +12,12 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -140,9 +143,6 @@ public class DrawUtils {
 	 * Renders the given ItemStack in the world. Call ONLY from render methods!
 	 * @version From DummyCore 2.0
 	 * @param stk - ItemStack you wish to render
-	 * @param posX - xCoord in the world
-	 * @param posY - yCoord in the world
-	 * @param posZ - zCoord in the world
 	 * @param screenPosX - x position on the screen(given by render)
 	 * @param screenPosY - y position on the screen(given by render)
 	 * @param screenPosZ - z position on the screen(given by render)
@@ -157,36 +157,23 @@ public class DrawUtils {
 	 * @param force3DRender - should be item rendered in 3d even if the fancy graphics are off?
 	 */
 	@SideOnly(Side.CLIENT)
-	public static void renderItemStack_Full(ItemStack stk,double posX, double posY, double posZ, double screenPosX, double screenPosY, double screenPosZ, float rotation, float rotationZ, float colorRed, float colorGreen, float colorBlue, float offsetX, float offsetY, float offsetZ, boolean force3DRender)
-	{
-		if(stk == null)
-			return;
-
+	public static void renderItemStack_Full(ItemStack stk, double screenPosX, double screenPosY, double screenPosZ, float rotation, float rotationZ, float colorRed, float colorGreen, float colorBlue, float offsetX, float offsetY, float offsetZ) {
 		ItemStack itemstack = stk.copy();
-		itemstack.stackSize = 0;
-		itemRand.setSeed(187L);
-		boolean flag = false;
+		itemRand.setSeed(itemstack.isEmpty() ? 187 : Item.getIdFromItem(itemstack.getItem()) + itemstack.getMetadata());
 
 		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		Minecraft.getMinecraft().renderEngine.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-		flag = true;
-
-
-		GlStateManager.enableRescaleNormal();
-		GlStateManager.alphaFunc(516, 0.1F);
-		GlStateManager.enableBlend();
-		GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(offsetX, offsetY+0.0625F, offsetZ);
+		GlStateManager.translate(screenPosX+offsetX, screenPosY+offsetY+0.1D, screenPosZ+offsetZ);
+		GlStateManager.rotate(rotation, 0, 1, 0);
+		GlStateManager.rotate(rotationZ, 1, 0, 0);
 
-		IBakedModel ibakedmodel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(itemstack);
-		ibakedmodel = ibakedmodel.getOverrides().handleItemState(ibakedmodel, itemstack, Minecraft.getMinecraft().world, (EntityLivingBase)null);
-		int i = getISRenderPasses(itemstack, screenPosX, screenPosY, screenPosZ, TimerHijack.mcTimer.renderPartialTicks, ibakedmodel, force3DRender, rotation, rotationZ);
+		IBakedModel ibakedmodel = Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(itemstack, Minecraft.getMinecraft().world, (EntityLivingBase)null);
+		int i = getModelCount(itemstack);
+		boolean flag1 = ibakedmodel.isGui3d();
 
 		for(int j = 0; j < i; ++j) {
+			GlStateManager.pushMatrix();
 			if(ibakedmodel.isGui3d()) {
-				GlStateManager.pushMatrix();
-
 				if(j > 0) {
 					float f2 = (itemRand.nextFloat() * 2.0F - 1.0F) * 0.15F;
 					float f3 = (itemRand.nextFloat() * 2.0F - 1.0F) * 0.15F;
@@ -195,71 +182,54 @@ public class DrawUtils {
 				}
 
 				GlStateManager.scale(0.5F, 0.5F, 0.5F);
-				GlStateManager.rotate(rotation, 0, 1, 0);
-				Minecraft.getMinecraft().getRenderItem().renderItem(itemstack, ibakedmodel);
-				GlStateManager.popMatrix();
+				GlStateManager.pushAttrib();
+				RenderHelper.enableStandardItemLighting();
+				Minecraft.getMinecraft().getRenderItem().renderItem(itemstack, ItemCameraTransforms.TransformType.FIXED);
+				RenderHelper.disableStandardItemLighting();
+				GlStateManager.popAttrib();
 			}
 			else {
-				// Makes items offset when in 3D, like when in 2D, looks much better. Considered a vanilla bug...
 				if(j > 0) {
-					float f2 = (itemRand.nextFloat() * 2.0F - 1.0F) * 0.15F;
-					float f3 = (itemRand.nextFloat() * 2.0F - 1.0F) * 0.15F;
+					float f2 = (itemRand.nextFloat() * 2.0F - 1.0F) * 0.15F * 0.5F;
+					float f3 = (itemRand.nextFloat() * 2.0F - 1.0F) * 0.15F * 0.5F;
 					GlStateManager.translate(f2, f3, 0);
 				}
 				GlStateManager.scale(0.5F, 0.5F, 0.5F);
-				GlStateManager.rotate(rotation, 0, 1, 0);
-				Minecraft.getMinecraft().getRenderItem().renderItem(itemstack, ibakedmodel);
-				GlStateManager.translate(0.0F, 0.0F, 0.046875F);
+				GlStateManager.pushAttrib();
+				RenderHelper.enableStandardItemLighting();
+				Minecraft.getMinecraft().getRenderItem().renderItem(itemstack, ItemCameraTransforms.TransformType.FIXED);
+				RenderHelper.disableStandardItemLighting();
+				GlStateManager.popAttrib();
 			}
+			GlStateManager.popMatrix();
 		}
 
 		GlStateManager.popMatrix();
-		GlStateManager.disableRescaleNormal();
-		GlStateManager.disableBlend();
-		Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-
-		if (flag)
-			Minecraft.getMinecraft().renderEngine.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 	}
 
-	//Internal
-	public static int getISRenderPasses(ItemStack itemstack, double screenX, double screenY, double screenZ, float partialTicks, IBakedModel model, boolean fancy, float rotationX, float rotationY)
-	{
-		Item item = itemstack.getItem();
-
-		if (item == null)
-		{
-			return 0;
-		}
-
-		boolean flag = model.isGui3d();
+	protected static int getModelCount(ItemStack stack) {
 		int i = 1;
-		GlStateManager.translate((float)screenX, (float)screenY, (float)screenZ);
-		float f3;
 
-		if (flag || fancy)
-		{
-			GlStateManager.rotate(rotationX, 0.0F, 1.0F, 0.0F);
-			GlStateManager.rotate(rotationY, 1.0F, 0.0F, 0.0F);
+		if(stack.getCount() > 48) {
+			i = 5;
+		}
+		else if(stack.getCount() > 32) {
+			i = 4;
+		}
+		else if(stack.getCount() > 16) {
+			i = 3;
+		}
+		else if(stack.getCount() > 1) {
+			i = 2;
 		}
 
-		if (!flag)
-		{
-			f3 = -0.0F * (i - 1) * 0.5F;
-			float f4 = -0.0F * (i - 1) * 0.5F;
-			float f5 = -0.046875F * (i - 1) * 0.5F;
-			GlStateManager.translate(f3, f4, f5);
-		}
-
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		return i;
 	}
-
 
 	@Deprecated
 	public static void renderItemStack(ItemStack stk,double posX, double posY, double posZ, double screenPosX, double screenPosY, double screenPosZ, float rotation, float colorRed, float colorGreen, float colorBlue, int renderPass, int itemsAmount, boolean force3DRender)
 	{
-		renderItemStack_Full(stk,posX,posY,posZ,screenPosX,screenPosY,screenPosZ,rotation,0,colorRed,colorGreen,colorBlue,0,0,0,force3DRender);
+		renderItemStack_Full(stk,screenPosX,screenPosY,screenPosZ,rotation,0,colorRed,colorGreen,colorBlue,0,0,0);
 	}
 
 	/**
@@ -275,7 +245,7 @@ public class DrawUtils {
 	 */
 	public static void renderItemStackGUIInformation(ItemStack stk, int x, int y, FontRenderer font, double zLevel, int colorStart, int colorEnd, int colorBorder)
 	{
-		List<String> lst = stk.getTooltip(Minecraft.getMinecraft().player, Minecraft.getMinecraft().gameSettings.advancedItemTooltips);
+		List<String> lst = stk.getTooltip(Minecraft.getMinecraft().player, Minecraft.getMinecraft().gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
 		if (!lst.isEmpty())
 		{
 			int k = 0;
