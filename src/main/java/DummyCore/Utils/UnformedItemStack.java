@@ -35,7 +35,7 @@ public class UnformedItemStack {
 	}
 
 	public UnformedItemStack(ItemStack is) {
-		possibleStacks.add(is);
+		possibleStacks.add(copyAndSetCountToOne(is));
 		sort();
 	}
 
@@ -77,7 +77,7 @@ public class UnformedItemStack {
 		sort();
 	}
 
-	public static List<ItemStack> getItemStacks(Object obj) {
+	public List<ItemStack> getItemStacks(Object obj) {
 		List<ItemStack> stacks = new ArrayList<ItemStack>();
 		if(obj instanceof Object[])
 			for(Object obj1 : (Object[])obj)
@@ -86,7 +86,7 @@ public class UnformedItemStack {
 			for(Object obj1 : (List<?>)obj)
 				stacks.addAll(getItemStacks(obj1));
 		if(obj instanceof ItemStack) {
-			ItemStack stk = ((ItemStack)obj).copy();
+			ItemStack stk = copyAndSetCountToOne((ItemStack)obj);
 			stacks.add(stk);
 		}
 		if(obj instanceof Block)
@@ -113,11 +113,7 @@ public class UnformedItemStack {
 	public boolean itemStackMatches(ItemStack is) {
 		if(is.isEmpty())
 			return false;
-		for(ItemStack s : possibleStacks) {
-			if(ItemStack.areItemStacksEqualUsingNBTShareTag(s, is) || (is.getItem() == s.getItem() && ItemStack.areItemStackShareTagsEqual(s, is) && s.getItemDamage() == OreDictionary.WILDCARD_VALUE))
-				return true;
-		}
-		return false;
+		return possibleStacks.stream().anyMatch(s->is.getItem()==s.getItem() && (is.getItemDamage()==OreDictionary.WILDCARD_VALUE || (is.getItemDamage()==s.getItemDamage() && ItemStack.areItemStackShareTagsEqual(s, is))));
 	}
 
 	public static ItemStack copyAndSetCountToOne(ItemStack stk) {
