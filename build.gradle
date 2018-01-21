@@ -15,7 +15,7 @@ repositories {
     }
 }
 
-version = "2.4.112.1"
+version = "2.4.112.2"
 group= "DummyCore"
 archivesBaseName = "DummyCoreUnofficial"
 

@@ -1,6 +1,7 @@
 package DummyCore.Utils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ import com.google.common.collect.HashMultimap;
 import DummyCore.Core.CoreInitialiser;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementManager;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.ICriterionTrigger;
 import net.minecraft.advancements.PlayerAdvancements;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -644,23 +647,21 @@ public class MiscUtils {
 	}
 
 	/**
-	 * Extends the default mc potionArray(which is declared as public static final Potion[] potionTypes = new Potion[32]) by the given amount
-	 * @param byAmount - how much to extends for
-	 * @return the first free index in the new potionArray.
+	 * Calls the private static "register" from {@link CriteriaTriggers}
+	 * Code from CyclopsCore
+	 * @param criterion The criterion.
+	 * @param <T> The criterion type.
+	 * @return The registered instance.
 	 */
-	/*@Deprecated
-    public static int extendPotionArray(int byAmount)
-    {
-    	int potionOffset = Potion.potionTypes.length;
-		Potion[] potionTypes = new Potion[potionOffset + byAmount];
-		System.arraycopy(Potion.potionTypes, 0, potionTypes, 0, potionOffset);
-		setPrivateFinalValue(Potion.class,null,potionTypes,ObfuscationReflectionHelper.remapFieldNames(Potion.class.getName(), new String[] {"potionTypes","field_76425_a","a"}));
-		for(int i = 0; i < Potion.potionTypes.length; ++i)
-			if(Potion.potionTypes[i] == null)
-				return i;
-
-		return -1;
-    }*/
+	public static <T extends ICriterionTrigger<?>> T registerCriteriaTrigger(T criterion) {
+		Method method = ReflectionHelper.findMethod(CriteriaTriggers.class, "register", "func_192118_a", ICriterionTrigger.class);
+		try {
+			return (T)method.invoke(null, criterion);
+		}catch (SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 	/**
 	 * Sets the block at the given coordinates to unbreakable || breakable
@@ -1037,10 +1038,14 @@ public class MiscUtils {
 	}
 
 	public static String getUsernameFromPlayer(EntityPlayer player) {
-		return UsernameCache.getLastKnownUsername(getUUIDFromPlayer(player));
+		return player.getEntityWorld().isRemote ? "" : UsernameCache.getLastKnownUsername(getUUIDFromPlayer(player));
 	}
 
 	public static EntityPlayer getPlayerFromUsername(String username) {
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT) {
+			return null;
+		}
+
 		return FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUsername(username);
 	}
 
