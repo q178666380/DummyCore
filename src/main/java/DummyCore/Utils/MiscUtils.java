@@ -1087,18 +1087,16 @@ public class MiscUtils {
 
 		Item it = stk.getItem();
 		LinkedHashSet<ItemStack> ret = new LinkedHashSet<ItemStack>();
-		for(CreativeTabs tab : it.getCreativeTabs()) {
-			NonNullList<ItemStack> lst = NonNullList.<ItemStack>create();
-			it.getSubItems(tab, lst);
-			for(int i = 0; i < lst.size(); i++) {
-				ItemStack stk0 = lst.get(i);
-				if(stk0.isEmpty())
-					lst.remove(i);
-				else
-					stk0.setCount(stk.getCount());
-			}
-			ret.addAll(lst);
+		NonNullList<ItemStack> lst = NonNullList.<ItemStack>create();
+		it.getSubItems(CreativeTabs.SEARCH, lst);
+		for(int i = 0; i < lst.size(); i++) {
+			ItemStack stk0 = lst.get(i);
+			if(stk0.isEmpty())
+				lst.remove(i);
+			else
+				stk0.setCount(stk.getCount());
 		}
+		ret.addAll(lst);
 
 		return ret;
 	}

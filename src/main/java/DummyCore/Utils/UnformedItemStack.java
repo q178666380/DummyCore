@@ -113,7 +113,7 @@ public class UnformedItemStack {
 	public boolean itemStackMatches(ItemStack is) {
 		if(is.isEmpty())
 			return false;
-		return possibleStacks.stream().anyMatch(s->is.getItem()==s.getItem() && (is.getItemDamage()==OreDictionary.WILDCARD_VALUE || (is.getItemDamage()==s.getItemDamage() && ItemStack.areItemStackShareTagsEqual(s, is))));
+		return possibleStacks.stream().anyMatch(s->is.getItem()==s.getItem() && (s.getItemDamage()==OreDictionary.WILDCARD_VALUE || (is.getItemDamage()==s.getItemDamage() && ItemStack.areItemStackShareTagsEqual(s, is))));
 	}
 
 	public static ItemStack copyAndSetCountToOne(ItemStack stk) {
