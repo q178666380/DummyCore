@@ -87,7 +87,7 @@ public class MainMenuRegistry {
 	{
 		try
 		{
-			if(menuList.size() < index)
+			if(menuList.size() <= index)
 			{
 				index = menuList.size()-1;
 			}
